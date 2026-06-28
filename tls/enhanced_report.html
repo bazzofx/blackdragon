@@ -317,7 +317,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 10px 0;
+            padding: 10px 0 0 0;
             position: relative;
         }
         .progress-ring {
@@ -333,7 +333,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            top: 50%;
+            top: 55%;
             left: 50%;
             transform: translate(-50%, -60%);
         }
@@ -716,38 +716,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 16px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-        .roadmap-progress-container {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            background: rgba(255,255,255,0.02);
-            padding: 10px 18px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-        }
-        .roadmap-bar-bg {
-            width: 140px;
-            height: 6px;
-            background: rgba(255,255,255,0.06);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        .roadmap-bar-fill {
-            height: 100%;
-            background: var(--color-pass);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-        .roadmap-progress-text {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--color-pass);
         }
         .roadmap-sections-list {
             display: flex;
@@ -790,51 +758,6 @@
             border-color: rgba(255,255,255,0.08);
             background: rgba(255,255,255,0.025);
         }
-        
-        /* Custom styled checkboxes */
-        .roadmap-cb-wrapper {
-            position: relative;
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin-top: 2px;
-        }
-        .roadmap-cb-input {
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-            height: 0; width: 0;
-        }
-        .roadmap-checkmark {
-            position: absolute;
-            top: 0; left: 0;
-            height: 20px; width: 20px;
-            background-color: transparent;
-            border: 2px solid var(--border-color);
-            border-radius: 4px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-        .roadmap-item:hover .roadmap-checkmark {
-            border-color: var(--text-muted);
-        }
-        .roadmap-cb-input:checked ~ .roadmap-checkmark {
-            background-color: var(--color-pass);
-            border-color: var(--color-pass);
-        }
-        .roadmap-checkmark::after {
-            content: "";
-            position: absolute;
-            display: none;
-            left: 6px; top: 2px;
-            width: 4px; height: 9px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-        .roadmap-cb-input:checked ~ .roadmap-checkmark::after {
-            display: block;
-        }
 
         .roadmap-item-details {
             display: flex;
@@ -851,30 +774,6 @@
         .roadmap-item-desc {
             font-size: 12px;
             color: var(--text-secondary);
-        }
-        .roadmap-cb-input:checked ~ .roadmap-item-details .roadmap-item-title {
-            text-decoration: line-through;
-            color: var(--text-muted);
-        }
-        .roadmap-cb-input:checked ~ .roadmap-item-details .roadmap-item-desc {
-            color: rgba(95, 99, 119, 0.5);
-        }
-
-        /* Updated health score box in roadmap */
-        .roadmap-score-widget {
-            background: rgba(16, 185, 129, 0.04);
-            border: 1px dashed rgba(16, 185, 129, 0.2);
-            border-radius: 8px;
-            padding: 14px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .widget-val {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 800;
-            color: var(--color-pass);
-            font-size: 20px;
         }
 
         /* Footer styling */
@@ -1003,7 +902,7 @@
                 </div>
                 <div class="meta-item">
                     <span class="meta-label">Scan Timestamp</span>
-                    <span class="meta-val">2026-06-28 02:52:44</span>
+                    <span class="meta-val">2026-06-28 03:06:17</span>
                 </div>
             </div>
         </div>
@@ -1024,15 +923,17 @@
             <!-- Left panel: Health score circular ring + counts -->
             <div class="dashboard-left">
                 <div class="glass-card card-red health-score-card">
+                    <!-- Title on the top left of the chart panel -->
+                    <div style="font-size: 13px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; font-family: 'Outfit', sans-serif;">Health Score</div>
                     <div class="health-score-container">
                         <svg class="progress-ring" width="160" height="160">
                             <circle class="progress-ring__background" stroke="rgba(255, 255, 255, 0.04)" stroke-width="12" fill="transparent" r="68" cx="80" cy="80"/>
                             <!-- Stroke-dasharray = 2 * PI * r = 2 * 3.14159 * 68 = 427 -->
-                            <circle class="progress-ring__circle" stroke="#f59e0b" stroke-width="12" stroke-dasharray="427 427" stroke-dashoffset="214" stroke-linecap="round" fill="transparent" r="68" cx="80" cy="80"/>
+                            <circle class="progress-ring__circle" stroke="#ff2e3b" stroke-width="12" stroke-dasharray="427 427" stroke-dashoffset="321" stroke-linecap="round" fill="transparent" r="68" cx="80" cy="80"/>
                         </svg>
                         <div class="health-score-text">
-                            <span class="score-num">50%</span>
-                            <span class="score-label" style="color: #f59e0b;">WARNING</span>
+                            <span class="score-num">25%</span>
+                            <span class="score-label" style="color: #ff2e3b;">CRITICAL</span>
                         </div>
                     </div>
                 </div>
@@ -1063,7 +964,7 @@
                     <h2 class="card-title">Executive Summary</h2>
                     <div class="summary-text">
                         A comprehensive TLS configuration and vulnerability analysis has been completed for <strong>cybersamurai.co.uk</strong>. 
-                        The target host is currently evaluated as <strong>WARNING</strong> with a security posture rating of <strong>50%</strong>. 
+                        The target host is currently evaluated as <strong>CRITICAL</strong> with a security posture rating of <strong>25%</strong>. 
                         <br><br>
                         This assessment analyzed supported protocols, encryption strength, cryptographic handshakes, and vulnerabilities including POODLE, Heartbleed, ROBOT, CCS Injection, and BREACH.
                         <br><br>
@@ -1669,28 +1570,13 @@
     <div id="roadmap" class="tab-content">
         <div class="glass-card">
             
-            <div class="roadmap-header">
+            <div class="roadmap-header" style="margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
                 <div>
                     <h2 class="card-title" style="margin-bottom: 4px;">Remediation Roadmap</h2>
                     <p class="roadmap-item-desc" style="color: var(--text-secondary);">
-                        Interactive step-by-step remediation guide. Check items as you implement fixes to simulate your improved security score.
+                        A prioritized list of security issues and recommended actions detected during the TLS scan.
                     </p>
                 </div>
-                
-                <div class="roadmap-progress-container">
-                    <span class="roadmap-progress-text" id="roadmap-pct">0% Complete</span>
-                    <div class="roadmap-bar-bg">
-                        <div class="roadmap-bar-fill" id="roadmap-fill"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Interactive Score Simulator -->
-            <div class="roadmap-score-widget" style="margin-bottom: 24px;">
-                <div style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">
-                    Target Health Score (Simulated After Remediation):
-                </div>
-                <div class="widget-val" id="simulated-score">50%</div>
             </div>
 
             <div class="roadmap-sections-list">
@@ -1698,34 +1584,22 @@
                 <div class="roadmap-priority-group">
                     <div class="priority-title priority-critical">Critical Actions (Immediate)</div>
                     <div class="roadmap-item">
-                        <div class="roadmap-cb-wrapper">
-                            <input type="checkbox" id="roadmap-cb-0" class="roadmap-cb-input" data-weight="20">
-                            <span class="roadmap-checkmark"></span>
-                        </div>
                         <div class="roadmap-item-details">
-                            <label class="roadmap-item-title" for="roadmap-cb-0">Fix LUCKY13 (CVE-2013-0169)</label>
+                            <div class="roadmap-item-title">Fix LUCKY13 (CVE-2013-0169)</div>
                             <span class="roadmap-item-desc">Configure the server to prefer AES-GCM or ChaCha20-Poly1305 ciphers over CBC-based ciphers. Disable TLS 1.0 and 1.1.</span>
                         </div>
                     </div></div>
                 <div class="roadmap-priority-group">
                     <div class="priority-title priority-high">High Priority (Recommended)</div>
                     <div class="roadmap-item">
-                        <div class="roadmap-cb-wrapper">
-                            <input type="checkbox" id="roadmap-cb-1" class="roadmap-cb-input" data-weight="10">
-                            <span class="roadmap-checkmark"></span>
-                        </div>
                         <div class="roadmap-item-details">
-                            <label class="roadmap-item-title" for="roadmap-cb-1">Disable Deprecated TLS Protocols (TLSv1, TLSv1.1)</label>
+                            <div class="roadmap-item-title">Disable Deprecated TLS Protocols (TLSv1, TLSv1.1)</div>
                             <span class="roadmap-item-desc">Configure your web server to only support secure protocols: TLSv1.2 and TLSv1.3. Deprecated protocols are vulnerable to downgrade attacks.</span>
                         </div>
                     </div>
                     <div class="roadmap-item">
-                        <div class="roadmap-cb-wrapper">
-                            <input type="checkbox" id="roadmap-cb-2" class="roadmap-cb-input" data-weight="10">
-                            <span class="roadmap-checkmark"></span>
-                        </div>
                         <div class="roadmap-item-details">
-                            <label class="roadmap-item-title" for="roadmap-cb-2">Remediate BREACH (CVE-2013-3587) Warning</label>
+                            <div class="roadmap-item-title">Remediate BREACH (CVE-2013-3587) Warning</div>
                             <span class="roadmap-item-desc">Disable HTTP compression for sensitive pages containing secrets. Alternatively, use anti-CSRF token masking, randomize padding length, or disable compression dynamically based on request path.</span>
                         </div>
                     </div></div>
@@ -1751,15 +1625,12 @@
 
     // Tab switcher
     function switchTab(evt, tabId) {
-        // Hide all contents
         const contents = document.querySelectorAll('.tab-content');
         contents.forEach(content => content.classList.remove('active'));
 
-        // Deactivate all tab buttons
         const tabs = document.querySelectorAll('.tab-btn');
         tabs.forEach(tab => tab.classList.remove('active'));
 
-        // Show selected tab content and active tab button
         document.getElementById(tabId).classList.add('active');
         evt.currentTarget.classList.add('active');
     }
@@ -1772,12 +1643,10 @@
 
     // Vulnerability filtering
     function filterVulns(severity) {
-        // Toggle active button
         const filterBtns = document.querySelectorAll('.filter-btn');
         filterBtns.forEach(btn => btn.classList.remove('active'));
         event.currentTarget.classList.add('active');
 
-        // Show/hide cards
         const cards = document.querySelectorAll('.vuln-item-card');
         cards.forEach(card => {
             const cardSeverity = card.getAttribute('data-severity');
@@ -1790,51 +1659,6 @@
             }
         });
     }
-
-    // Interactive Roadmap Score Calculator
-    const initialScore = 50;
-    let currentScore = initialScore;
-    
-    // Select all inputs
-    const checkboxes = document.querySelectorAll('.roadmap-cb-input');
-    
-    function updateRoadmapProgress() {
-        let checkedCount = 0;
-        let scoreAddition = 0;
-        
-        checkboxes.forEach(cb => {
-            if (cb.checked) {
-                checkedCount++;
-                scoreAddition += parseInt(cb.getAttribute('data-weight'), 10);
-            }
-        });
-        
-        // Update progress bar
-        const totalItems = checkboxes.length;
-        const pct = totalItems > 0 ? Math.round((checkedCount / totalItems) * 100) : 0;
-        document.getElementById('roadmap-pct').innerText = `${pct}% Complete`;
-        document.getElementById('roadmap-fill').style.width = `${pct}%`;
-        
-        // Update simulated score
-        let simulated = Math.min(100, initialScore + scoreAddition);
-        document.getElementById('simulated-score').innerText = `${simulated}%`;
-        
-        // Color transition for simulated score
-        const scoreWidgetVal = document.getElementById('simulated-score');
-        if (simulated >= 90) {
-            scoreWidgetVal.style.color = 'var(--color-pass)';
-        } else if (simulated >= 75) {
-            scoreWidgetVal.style.color = 'var(--color-info)';
-        } else if (simulated >= 50) {
-            scoreWidgetVal.style.color = 'var(--color-warning)';
-        } else {
-            scoreWidgetVal.style.color = 'var(--color-critical)';
-        }
-    }
-    
-    checkboxes.forEach(cb => {
-        cb.addEventListener('change', updateRoadmapProgress);
-    });
 </script>
 </body>
 </html>

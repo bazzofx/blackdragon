@@ -132,7 +132,6 @@ class TestSSLReportParser:
 
     def _clean_html(self, text: str) -> str:
         """Remove HTML tags from text for clean display."""
-        # Remove span tags with their content preserved
         text = re.sub(r'<span[^>]*>', '', text)
         text = re.sub(r'</span>', '', text)
         text = re.sub(r'<u>', '', text)
@@ -141,9 +140,7 @@ class TestSSLReportParser:
         text = re.sub(r'</i>', '', text)
         text = re.sub(r'<a[^>]*>', '', text)
         text = re.sub(r'</a>', '', text)
-        # Remove any remaining HTML tags
         text = re.sub(r'<[^>]+>', '', text)
-        # Remove common entities
         text = text.replace('&quot;', '"').replace('&apos;', "'").replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>')
         return text.strip()
 
@@ -169,7 +166,6 @@ class TestSSLReportParser:
             return 'CRITICAL'
 
         if 'not ok' in combined:
-            # Check if it is a potential vulnerability
             if 'potentially' in combined:
                 return 'WARNING'
             return 'CRITICAL'
@@ -192,8 +188,6 @@ class TestSSLReportParser:
     def _parse(self):
         """Parse the HTML content for key findings."""
         lines = self.content.split('\n')
-
-        # Track which vulnerabilities we've already processed
         processed_vulns = set()
 
         for i, line in enumerate(lines):
@@ -202,13 +196,11 @@ class TestSSLReportParser:
                 continue
             
             # Target and IP
-            # Domain capture using regex
             if '--&gt;&gt;' in line or '-->>' in line:
                 domain_match = re.search(r'(?<=\()[^)]+\.[^)]+(?=\))', clean_line)
                 if domain_match:
                     self.findings['target'] = domain_match.group(0)
 
-            # IP capture using regex
             ip_match = re.match(r'^Testing all IP addresses.*:\s*(\d{1,3}(?:\.\d{1,3}){3}(?:\s+\d{1,3}(?:\.\d{1,3}){3})*)$', clean_line)
             if ip_match:
                 ips = ip_match.group(1).split()
@@ -222,7 +214,7 @@ class TestSSLReportParser:
                 if match:
                     self.findings['service'] = match.group(1)
 
-            # Protocol detection - look for TLS versions
+            # Protocol detection
             if '<u>TLSv' in line:
                 proto_match = re.search(r'TLSv([\d.]+)', line)
                 if proto_match:
@@ -276,7 +268,7 @@ class TestSSLReportParser:
                         
                         if 'LUCKY13' in vuln_name:
                             if 'potentially VULNERABLE' in detail or 'potentially' in detail.lower():
-                                severity = 'CRITICAL'  # LUCKY13 timing vulnerability CBC is critical in practice
+                                severity = 'CRITICAL'
 
                         if 'BEAST' in vuln_name and 'VULNERABLE' in detail:
                             cipher_match = re.search(r'TLS1:\s*([^\s]+(?:\s+[^\s]+)*)', detail)
@@ -307,14 +299,11 @@ class TestSSLReportParser:
                 if 'TLSv1.1' not in self.findings['protocols']['vulnerable']:
                     self.findings['protocols']['vulnerable'].append('TLSv1.1')
 
-            # Parse cipher suites correctly
-            # Check if this is an actual cipher suite line in the report
-            # A cipher suite line starts with spaces followed by a hex code (e.g. xc00a or x1302)
+            # Parse cipher suites
             is_cipher_line = bool(re.search(r'^\s+x[0-9a-fA-F]{2,4}\s+', line))
             if is_cipher_line:
                 clean_cipher = self._clean_html(line)
                 if clean_cipher:
-                    # Check for Forward Secrecy (Perfect Forward Secrecy ciphers ECDHE / DHE)
                     if 'ECDHE' in clean_cipher or 'DHE' in clean_cipher:
                         if clean_cipher not in self.findings['ciphers']['forward_secrecy']:
                             self.findings['ciphers']['forward_secrecy'].append(clean_cipher)
@@ -322,7 +311,6 @@ class TestSSLReportParser:
                         if clean_cipher not in self.findings['ciphers']['strong']:
                             self.findings['ciphers']['strong'].append(clean_cipher)
 
-                    # Check for weak ciphers (RC4, 3DES, DES, IDEA, MD5, NULL, EXPORT)
                     if re.search(r'RC4|3DES|DES|IDEA|MD5|NULL|EXPORT', clean_cipher, re.IGNORECASE):
                         if clean_cipher not in self.findings['ciphers']['weak']:
                             self.findings['ciphers']['weak'].append(clean_cipher)
@@ -348,15 +336,23 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
     # Deprecated protocols
     deprecated_protos = [p for p in findings['protocols']['vulnerable'] if p in ['TLSv1', 'TLSv1.1']]
 
-    # Calculate Security Health Score
-    score = 100
-    # Deduct points for issues
-    score -= (critical_count * 20)
-    score -= (warning_count * 10)
-    score -= (len(deprecated_protos) * 10)
-    if findings['ciphers']['weak']:
-        score -= 5
-    score = max(10, score)  # Cap floor at 10%
+    # New health score logic:
+    # - If >= 2 criticals -> 10% health score
+    # - If exactly 1 critical -> 25% health score
+    # - If 0 criticals but warnings exist -> 50% base, and for more than 1 warning: -5% per warning (floor of 10%)
+    # - If 0 criticals and 0 warnings -> 100% health score
+    if critical_count >= 2:
+        score = 10
+    elif critical_count == 1:
+        score = 25
+    elif warning_count > 0:
+        if warning_count == 1:
+            score = 50
+        else:
+            score = 50 - (warning_count * 5)
+            score = max(10, score)
+    else:
+        score = 100
 
     if score >= 90:
         score_rating = "SECURE"
@@ -707,7 +703,7 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 10px 0;
+            padding: 10px 0 0 0;
             position: relative;
         }
         .progress-ring {
@@ -723,7 +719,7 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            top: 50%;
+            top: 55%;
             left: 50%;
             transform: translate(-50%, -60%);
         }
@@ -1106,38 +1102,6 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 16px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-        .roadmap-progress-container {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            background: rgba(255,255,255,0.02);
-            padding: 10px 18px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-        }
-        .roadmap-bar-bg {
-            width: 140px;
-            height: 6px;
-            background: rgba(255,255,255,0.06);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        .roadmap-bar-fill {
-            height: 100%;
-            background: var(--color-pass);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-        .roadmap-progress-text {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--color-pass);
         }
         .roadmap-sections-list {
             display: flex;
@@ -1180,51 +1144,6 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
             border-color: rgba(255,255,255,0.08);
             background: rgba(255,255,255,0.025);
         }
-        
-        /* Custom styled checkboxes */
-        .roadmap-cb-wrapper {
-            position: relative;
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin-top: 2px;
-        }
-        .roadmap-cb-input {
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-            height: 0; width: 0;
-        }
-        .roadmap-checkmark {
-            position: absolute;
-            top: 0; left: 0;
-            height: 20px; width: 20px;
-            background-color: transparent;
-            border: 2px solid var(--border-color);
-            border-radius: 4px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-        .roadmap-item:hover .roadmap-checkmark {
-            border-color: var(--text-muted);
-        }
-        .roadmap-cb-input:checked ~ .roadmap-checkmark {
-            background-color: var(--color-pass);
-            border-color: var(--color-pass);
-        }
-        .roadmap-checkmark::after {
-            content: "";
-            position: absolute;
-            display: none;
-            left: 6px; top: 2px;
-            width: 4px; height: 9px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-        .roadmap-cb-input:checked ~ .roadmap-checkmark::after {
-            display: block;
-        }
 
         .roadmap-item-details {
             display: flex;
@@ -1241,30 +1160,6 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
         .roadmap-item-desc {
             font-size: 12px;
             color: var(--text-secondary);
-        }
-        .roadmap-cb-input:checked ~ .roadmap-item-details .roadmap-item-title {
-            text-decoration: line-through;
-            color: var(--text-muted);
-        }
-        .roadmap-cb-input:checked ~ .roadmap-item-details .roadmap-item-desc {
-            color: rgba(95, 99, 119, 0.5);
-        }
-
-        /* Updated health score box in roadmap */
-        .roadmap-score-widget {
-            background: rgba(16, 185, 129, 0.04);
-            border: 1px dashed rgba(16, 185, 129, 0.2);
-            border-radius: 8px;
-            padding: 14px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .widget-val {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 800;
-            color: var(--color-pass);
-            font-size: 20px;
         }
 
         /* Footer styling */
@@ -1414,6 +1309,8 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
             <!-- Left panel: Health score circular ring + counts -->
             <div class="dashboard-left">
                 <div class="glass-card card-red health-score-card">
+                    <!-- Title on the top left of the chart panel -->
+                    <div style="font-size: 13px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; font-family: 'Outfit', sans-serif;">Health Score</div>
                     <div class="health-score-container">
                         <svg class="progress-ring" width="160" height="160">
                             <circle class="progress-ring__background" stroke="rgba(255, 255, 255, 0.04)" stroke-width="12" fill="transparent" r="68" cx="80" cy="80"/>
@@ -1523,28 +1420,13 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
     <div id="roadmap" class="tab-content">
         <div class="glass-card">
             
-            <div class="roadmap-header">
+            <div class="roadmap-header" style="margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
                 <div>
                     <h2 class="card-title" style="margin-bottom: 4px;">Remediation Roadmap</h2>
                     <p class="roadmap-item-desc" style="color: var(--text-secondary);">
-                        Interactive step-by-step remediation guide. Check items as you implement fixes to simulate your improved security score.
+                        A prioritized list of security issues and recommended actions detected during the TLS scan.
                     </p>
                 </div>
-                
-                <div class="roadmap-progress-container">
-                    <span class="roadmap-progress-text" id="roadmap-pct">0% Complete</span>
-                    <div class="roadmap-bar-bg">
-                        <div class="roadmap-bar-fill" id="roadmap-fill"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Interactive Score Simulator -->
-            <div class="roadmap-score-widget" style="margin-bottom: 24px;">
-                <div style="font-size: 13px; font-weight: 600; color: var(--text-secondary);">
-                    Target Health Score (Simulated After Remediation):
-                </div>
-                <div class="widget-val" id="simulated-score"><!--SCORE-->%</div>
             </div>
 
             <div class="roadmap-sections-list">
@@ -1571,15 +1453,12 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
 
     // Tab switcher
     function switchTab(evt, tabId) {
-        // Hide all contents
         const contents = document.querySelectorAll('.tab-content');
         contents.forEach(content => content.classList.remove('active'));
 
-        // Deactivate all tab buttons
         const tabs = document.querySelectorAll('.tab-btn');
         tabs.forEach(tab => tab.classList.remove('active'));
 
-        // Show selected tab content and active tab button
         document.getElementById(tabId).classList.add('active');
         evt.currentTarget.classList.add('active');
     }
@@ -1592,12 +1471,10 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
 
     // Vulnerability filtering
     function filterVulns(severity) {
-        // Toggle active button
         const filterBtns = document.querySelectorAll('.filter-btn');
         filterBtns.forEach(btn => btn.classList.remove('active'));
         event.currentTarget.classList.add('active');
 
-        // Show/hide cards
         const cards = document.querySelectorAll('.vuln-item-card');
         cards.forEach(card => {
             const cardSeverity = card.getAttribute('data-severity');
@@ -1610,51 +1487,6 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
             }
         });
     }
-
-    // Interactive Roadmap Score Calculator
-    const initialScore = <!--SCORE-->;
-    let currentScore = initialScore;
-    
-    // Select all inputs
-    const checkboxes = document.querySelectorAll('.roadmap-cb-input');
-    
-    function updateRoadmapProgress() {
-        let checkedCount = 0;
-        let scoreAddition = 0;
-        
-        checkboxes.forEach(cb => {
-            if (cb.checked) {
-                checkedCount++;
-                scoreAddition += parseInt(cb.getAttribute('data-weight'), 10);
-            }
-        });
-        
-        // Update progress bar
-        const totalItems = checkboxes.length;
-        const pct = totalItems > 0 ? Math.round((checkedCount / totalItems) * 100) : 0;
-        document.getElementById('roadmap-pct').innerText = `${pct}% Complete`;
-        document.getElementById('roadmap-fill').style.width = `${pct}%`;
-        
-        // Update simulated score
-        let simulated = Math.min(100, initialScore + scoreAddition);
-        document.getElementById('simulated-score').innerText = `${simulated}%`;
-        
-        // Color transition for simulated score
-        const scoreWidgetVal = document.getElementById('simulated-score');
-        if (simulated >= 90) {
-            scoreWidgetVal.style.color = 'var(--color-pass)';
-        } else if (simulated >= 75) {
-            scoreWidgetVal.style.color = 'var(--color-info)';
-        } else if (simulated >= 50) {
-            scoreWidgetVal.style.color = 'var(--color-warning)';
-        } else {
-            scoreWidgetVal.style.color = 'var(--color-critical)';
-        }
-    }
-    
-    checkboxes.forEach(cb => {
-        cb.addEventListener('change', updateRoadmapProgress);
-    });
 </script>
 </body>
 </html>
@@ -1672,8 +1504,7 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
     html = html.replace('<!--SCORE_COLOR-->', score_color)
     html = html.replace('<!--SCORE_CLASS-->', score_class)
     
-    # SVG circle offset: 427 is full circumference (100% deduction).
-    # score_offset = circumference - (circumference * percentage / 100)
+    # SVG circle offset: 427 is full circumference.
     score_offset = 427 - (427 * score // 100)
     html = html.replace('<!--SCORE_OFFSET-->', str(score_offset))
     html = html.replace('<!--HERO_BG_BASE64-->', image_base64)
@@ -1687,14 +1518,10 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
     protocol_list_html = ""
     known_protocols = ['SSLv2', 'SSLv3', 'TLSv1', 'TLSv1.1', 'TLSv1.2', 'TLSv1.3']
     for proto in known_protocols:
-        # Standardize matching name in findings (findings uses 'TLSv1', 'TLSv1.1', etc.)
         supported = proto in findings['protocols']['supported'] or (f"{proto}" in findings['protocols']['supported']) or (proto == 'TLSv1' and 'TLSv1' in findings['protocols']['supported']) or (proto == 'TLSv1.1' and 'TLSv1.1' in findings['protocols']['supported'])
-        
-        # Check if it is deprecated or vulnerable
         vulnerable = proto in findings['protocols']['vulnerable'] or (f"{proto}" in findings['protocols']['vulnerable'])
 
         if not supported:
-            # Protocol is disabled on the server
             status_text = "Disabled"
             status_class = "proto-disabled"
         else:
@@ -1731,7 +1558,7 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
     weak_ciphers = findings['ciphers']['weak']
     weak_html = ""
     if weak_ciphers:
-        for cipher in weak_ciphers[:20]:  # Cap at 20 ciphers
+        for cipher in weak_ciphers[:20]:
             weak_html += f'<div class="cipher-item-text weak-cipher">⚠️ {escape(cipher)}</div>'
         if len(weak_ciphers) > 20:
             weak_html += f'<div class="cipher-item-text" style="color: var(--text-muted);">... and {len(weak_ciphers) - 20} more ciphers</div>'
@@ -1793,27 +1620,22 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
             </div>'''
     html = html.replace('<!--VULN_CARDS_HTML-->', vuln_cards_html)
 
-    # Construct Roadmap items HTML
+    # Construct Roadmap items HTML (Static List of items found)
     roadmap_html = ""
-    
-    # Priority groups
     priorities = {
         'critical': {
             'title': 'Critical Actions (Immediate)',
             'class': 'priority-critical',
-            'weight': 20,
             'items': []
         },
         'high': {
             'title': 'High Priority (Recommended)',
             'class': 'priority-high',
-            'weight': 10,
             'items': []
         },
         'medium': {
             'title': 'Medium Priority (Updates)',
             'class': 'priority-medium',
-            'weight': 5,
             'items': []
         }
     }
@@ -1823,16 +1645,14 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
         details = VULN_DETAILS.get(name, {'name': name, 'remediation': 'Fix vulnerability.'})
         priorities['critical']['items'].append({
             'title': f"Fix {details['name']}",
-            'desc': details['remediation'],
-            'weight': 20
+            'desc': details['remediation']
         })
 
     # Add deprecated protocols to roadmap
     if deprecated_protos:
         priorities['high']['items'].append({
             'title': f"Disable Deprecated TLS Protocols ({', '.join(deprecated_protos)})",
-            'desc': "Configure your web server to only support secure protocols: TLSv1.2 and TLSv1.3. Deprecated protocols are vulnerable to downgrade attacks.",
-            'weight': 10
+            'desc': "Configure your web server to only support secure protocols: TLSv1.2 and TLSv1.3. Deprecated protocols are vulnerable to downgrade attacks."
         })
 
     # Add warning vulnerabilities to roadmap
@@ -1840,28 +1660,24 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
         details = VULN_DETAILS.get(name, {'name': name, 'remediation': 'Fix warning vulnerability.'})
         priorities['high']['items'].append({
             'title': f"Remediate {details['name']} Warning",
-            'desc': details['remediation'],
-            'weight': 10
+            'desc': details['remediation']
         })
 
     # Add weak ciphers to roadmap
     if weak_ciphers:
         priorities['medium']['items'].append({
             'title': "Disable Weak Cipher Suites",
-            'desc': "Disable outdated block ciphers like RC4, 3DES, Blowfish, or DES on the web server. Restrict supported ciphers to strong GCM and ChaCha20 variants.",
-            'weight': 5
+            'desc': "Disable outdated block ciphers like RC4, 3DES, Blowfish, or DES on the web server. Restrict supported ciphers to strong GCM and ChaCha20 variants."
         })
 
     # Add standard action if PFS is not supported
     if not fs_ciphers:
         priorities['critical']['items'].append({
             'title': "Enable Perfect Forward Secrecy (PFS)",
-            'desc': "Ensure the server prioritizes ECDHE (Elliptic Curve Diffie-Hellman Ephemeral) and DHE cipher suites.",
-            'weight': 20
+            'desc': "Ensure the server prioritizes ECDHE (Elliptic Curve Diffie-Hellman Ephemeral) and DHE cipher suites."
         })
 
     # Render groups to HTML
-    idx = 0
     for key, p_data in priorities.items():
         if not p_data['items']:
             continue
@@ -1873,16 +1689,11 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
         for item in p_data['items']:
             group_html += f'''
                     <div class="roadmap-item">
-                        <div class="roadmap-cb-wrapper">
-                            <input type="checkbox" id="roadmap-cb-{idx}" class="roadmap-cb-input" data-weight="{item['weight']}">
-                            <span class="roadmap-checkmark"></span>
-                        </div>
                         <div class="roadmap-item-details">
-                            <label class="roadmap-item-title" for="roadmap-cb-{idx}">{escape(item['title'])}</label>
+                            <div class="roadmap-item-title">{escape(item['title'])}</div>
                             <span class="roadmap-item-desc">{escape(item['desc'])}</span>
                         </div>
                     </div>'''
-            idx += 1
             
         group_html += '</div>'
         roadmap_html += group_html
@@ -1900,13 +1711,11 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
 
 
 def main():
-    # Configure console encoding to UTF-8 on Windows to avoid UnicodeEncodeError
     if sys.platform.startswith('win'):
         try:
             sys.stdout.reconfigure(encoding='utf-8')
             sys.stderr.reconfigure(encoding='utf-8')
         except AttributeError:
-            # Python versions before 3.7 might not have reconfigure
             import io
             sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
             sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
