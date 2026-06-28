@@ -966,12 +966,20 @@ class WebsiteAssessor:
         return html_out
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python3 curlv1.py <domain>")
-        print("Example: python3 curlv1.py example.com")
-        sys.exit(1)
+    import argparse
+    import json
     
-    target = sys.argv[1]
+    parser = argparse.ArgumentParser(
+        description="Cyber Samurai Website Assessment Tool using curl"
+    )
+    parser.add_argument("domain", help="Target domain to scan")
+    parser.add_argument("--json-out", help="Path to write the JSON results file")
+    parser.add_argument("--html-out", help="Path to write the HTML report file")
+    parser.add_argument("--md-out", help="Path to write the Markdown report file")
+    
+    args = parser.parse_args()
+    target = args.domain
+    
     print(f"\n🔍 Starting assessment for: {target}")
     print("=" * 60)
     
@@ -994,8 +1002,8 @@ def main():
     
     # Generate reports
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    report_file_md = f"assessment_{target}_{timestamp}.md"
-    report_file_html = f"assessment_{target}_{timestamp}.html"
+    report_file_md = args.md_out if args.md_out else f"assessment_{target}_{timestamp}.md"
+    report_file_html = args.html_out if args.html_out else f"assessment_{target}_{timestamp}.html"
     
     md_report = assessor.generate_markdown()
     html_report = assessor.generate_html()
@@ -1005,10 +1013,24 @@ def main():
         
     with open(report_file_html, 'w', encoding='utf-8') as f:
         f.write(html_report)
+        
+    if args.json_out:
+        json_data = {
+            "target": target,
+            "risk_level": assessor.risk_level,
+            "risk_score": assessor.risk_score,
+            "findings": assessor.findings,
+            "recommendations": assessor.recommendations,
+            "results": assessor.results
+        }
+        with open(args.json_out, 'w', encoding='utf-8') as f:
+            json.dump(json_data, f, indent=4)
     
     print(f"\n✅ Assessment complete!")
     print(f"📊 Markdown report saved to: {report_file_md}")
     print(f"🌐 Branded HTML report saved to: {report_file_html}")
+    if args.json_out:
+        print(f"📋 Structured JSON results saved to: {args.json_out}")
     print(f"📈 Risk Level: {assessor.risk_level}")
     print(f"📊 Risk Score: {assessor.risk_score}/100")
     print(f"⚠️  Findings: {len(assessor.findings)}")
