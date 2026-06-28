@@ -38,7 +38,7 @@ echo "🔍 Starting TLS/SSL scan for: $target"
 
 # Run scan and save reports in the folder
 docker run --rm -it -v "$(pwd)/$folder:/out" \
-  "$scanner_img" -E -g -U -oA /out/samuraiTLSReport \
+  "$scanner_img" -E -g -U -oA /out/rawTLSReport \
   --hints \
   --reqheader "X-Custom-Header: Cyber Samurai Security Scan" \
   --reqheader "User-Agent: CyberSamurai-Security-Assessment" \
