@@ -28,18 +28,24 @@ if [ ! -d "$folder" ]; then
     echo "📁 Created folder: $folder"
 fi
 
+# Define assessment image properties
+img_host="ghcr.io"
+img_repo="testssl"
+img_name="testssl.sh"
+scanner_img="${img_host}/${img_repo}/${img_name}"
+
 echo "🔍 Starting TLS/SSL scan for: $target"
 
 # Run scan and save reports in the folder
 docker run --rm -it -v "$(pwd)/$folder:/out" \
-  ghcr.io/testssl/testssl.sh -E -g -U -oA /out/samuraiTLSReport \
+  "$scanner_img" -E -g -U -oA /out/samuraiTLSReport \
   --hints \
   --reqheader "X-Custom-Header: Cyber Samurai Security Scan" \
   --reqheader "User-Agent: CyberSamurai-Security-Assessment" \
   "$target"
 
 # Generate enhanced report in the same folder
-python3 generateReport.py -o "$folder/enhancedTLSReport.html" "$folder/samuraiTLSReport.html"
+python3 generateReport.py -o "$folder/enhancedTLSReport.html" "$folder/rawTLSReport.html"
 
 echo "✅ TLS/SSL Report Generated in: $folder/"
 echo "📄 Reports saved in: $(pwd)/$folder/"

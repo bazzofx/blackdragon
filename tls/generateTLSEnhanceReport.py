@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-testssl_report_enhancer.py - Parse testssl.sh HTML report and generate
+tls_report_enhancer.py - Parse TLS HTML report and generate
 a modern, branded summary with key findings highlighted.
 """
 
@@ -112,8 +112,8 @@ VULN_DETAILS = {
     }
 }
 
-class TestSSLReportParser:
-    """Parse and extract key findings from testssl.sh HTML output."""
+class SamuraiReportParser:
+    """Parse and extract key findings from TLS HTML output."""
 
     def __init__(self, content: str):
         self.content = content
@@ -517,6 +517,7 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
             display: flex;
             align-items: center;
             gap: 8px;
+            text-decoration: none;
         }
         .btn-print:hover {
             color: #fff;
@@ -1260,10 +1261,10 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
             <div class="brand-logo">Cyber Samurai<span>.</span></div>
             <div class="brand-japanese">侍</div>
         </div>
-        <button class="btn-print" onclick="window.print()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-            Print Assessment
-        </button>
+        <a class="btn-print" href="https://cybersamurai.co.uk/contact" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            Contact Cyber Samurai
+        </a>
     </div>
 
     <!-- Main Hero Banner (Uses base64 Cyber Samurai background if available) -->
@@ -1438,7 +1439,7 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
 
     <!-- Footer -->
     <div class="footer">
-        CYBER SAMURAI &bull; DESIGNED FOR PERFORMANCE. BUILT FOR SECURITY. &bull; GENERATED VIA TESTSSL-REPORT-ENHANCER
+        CYBER SAMURAI &bull; DESIGNED FOR PERFORMANCE. BUILT FOR SECURITY. &bull; GENERATED VIA SAMURAI-REPORT-ENHANCER
     </div>
 </div>
 
@@ -1579,7 +1580,7 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
         # Look up details
         details = VULN_DETAILS.get(vuln_name, {
             'name': original_info,
-            'description': 'Cryptographic implementation vulnerability reported by testssl.sh.',
+            'description': 'Cryptographic implementation vulnerability reported by the scanner.',
             'remediation': 'Please review server TLS configurations and apply security patches.'
         })
         
@@ -1721,9 +1722,9 @@ def main():
             sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
     parser = argparse.ArgumentParser(
-        description='Parse testssl.sh HTML report and generate enhanced summary.'
+        description='Parse TLS HTML report and generate enhanced summary.'
     )
-    parser.add_argument('input', help='Input HTML file from testssl.sh')
+    parser.add_argument('input', help='Input HTML file from TLS scanner')
     parser.add_argument('-o', '--output', default='enhanced_report.html',
                        help='Output HTML file (default: enhanced_report.html)')
     args = parser.parse_args()
@@ -1738,7 +1739,7 @@ def main():
         print(f"Error reading file: {e}")
         sys.exit(1)
 
-    parser_obj = TestSSLReportParser(content)
+    parser_obj = SamuraiReportParser(content)
     findings = parser_obj.get_summary()
 
     html_report = generate_html_report(findings, args.input)
