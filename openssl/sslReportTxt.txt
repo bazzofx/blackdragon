@@ -1,0 +1,189 @@
+============================================================
+1. CERTIFICATE DETAILS (Missing from testssl.sh)
+============================================================
+        Serial Number:
+        Issuer: C=US, O=Google Trust Services, CN=WE1
+            Not Before: May 11 19:12:36 2026 GMT
+        Subject: CN=cybersamurai.co.uk
+            Public Key Algorithm: id-ecPublicKey
+                NIST CURVE: P-256
+            X509v3 Key Usage: critical
+            X509v3 Extended Key Usage:
+            X509v3 Subject Alternative Name:
+
+============================================================
+2. CERTIFICATE CHAIN (Complete chain details)
+============================================================
+Number of certificates in chain: 3
+Certificate 1:
+issuer=C=US, O=Google Trust Services, CN=WE1
+subject=CN=cybersamurai.co.uk
+notBefore=May 11 19:12:36 2026 GMT
+notAfter=Aug  9 20:11:24 2026 GMT
+---
+Certificate 2:
+issuer=C=US, O=Google Trust Services LLC, CN=GTS Root R4
+subject=C=US, O=Google Trust Services, CN=WE1
+notBefore=Dec 13 09:00:00 2023 GMT
+notAfter=Feb 20 14:00:00 2029 GMT
+---
+Certificate 3:
+issuer=C=BE, O=GlobalSign nv-sa, OU=Root CA, CN=GlobalSign Root CA
+subject=C=US, O=Google Trust Services LLC, CN=GTS Root R4
+notBefore=Nov 15 03:43:21 2023 GMT
+notAfter=Jan 28 00:00:42 2028 GMT
+---
+
+============================================================
+3. OCSP RESPONSE (Online Certificate Status Protocol)
+============================================================
+OCSP response:
+======================================
+OCSP Response Data:
+    OCSP Response Status: successful (0x0)
+    Response Type: Basic OCSP Response
+    Version: 1 (0x0)
+    Responder Id: 9077923567C4FFA8CCA9E67BD980797BCC93F938
+    Produced At: Jun 27 02:01:50 2026 GMT
+    Responses:
+    Certificate ID:
+      Hash Algorithm: sha1
+      Issuer Name Hash: B9BED5F1A61E40B24196B0C29E7E1A9D8BFCB520
+      Issuer Key Hash: 9077923567C4FFA8CCA9E67BD980797BCC93F938
+      Serial Number: 632A62D7DE68C97C0E9B8BBAFD413BCB
+    Cert Status: good
+    This Update: Jun 27 02:01:50 2026 GMT
+    Next Update: Jul  4 01:01:49 2026 GMT
+
+    Signature Algorithm: ecdsa-with-SHA256
+    Signature Value:
+        30:44:02:20:01:ef:c3:e6:29:4e:60:5b:84:bf:22:1e:2b:8c:
+
+============================================================
+4. CERTIFICATE REVOCATION LISTS (CRL Distribution Points)
+============================================================
+            X509v3 CRL Distribution Points:
+                Full Name:
+                  URI:http://c.pki.goog/we1/m8zfv5rsnVE.crl
+
+            CT Precertificate SCTs:
+                Signed Certificate Timestamp:
+
+============================================================
+5. AUTHORITY INFORMATION ACCESS (AIA) - OCSP & CA Issuers
+============================================================
+            Authority Information Access:
+                OCSP - URI:http://o.pki.goog/s/we1/Yyo
+                CA Issuers - URI:http://i.pki.goog/we1.crt
+            X509v3 Subject Alternative Name:
+                DNS:cybersamurai.co.uk, DNS:*.cybersamurai.co.uk
+            X509v3 Certificate Policies:
+
+============================================================
+6. KEY STRENGTH & ALGORITHM DETAILS
+============================================================
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:f4:5e:cb:51:ff:08:06:80:c9:e4:9e:51:aa:9e:
+                    02:92:10:f4:fc:f9:5c:2e:ed:41:5b:1b:33:8a:82:
+                    f9:d1:06:7e:cd:db:65:fa:ee:19:b2:06:47:31:c0:
+                    81:74:5f:46:55:82:70:96:02:58:70:52:e4:35:50:
+                    9e:a8:d6:8d:48
+                ASN1 OID: prime256v1
+                NIST CURVE: P-256
+        X509v3 extensions:
+
+============================================================
+7. EXTENDED VALIDATION (EV) INDICATORS
+============================================================
+
+============================================================
+8. TLS HANDSHAKE DETAILS (Full protocol negotiation)
+============================================================
+Connecting and showing full handshake details:
+Connecting to 2a06:98c1:3120::4
+SSL_connect:before SSL initialization
+CONNECTED(00000003)
+write to 0x5575e621f240 [0x5575e6230660] (1687 bytes => 1687 (0x697))
+0000 - 16 03 01 06 92 01 00 06-8e 03 03 bb 27 92 7c 83   ............'.|.
+0010 - 7b f9 aa 5b b5 41 dd 53-0f 19 8d 48 c1 86 f9 b5   {..[.A.S...H....
+0020 - 7b 6c 0d ac f8 da fc 7a-75 14 51 20 f0 57 8e 90   {l.....zu.Q .W..
+0030 - 64 6f 62 9d cd 83 25 e7-08 5e 64 6e a2 60 fc 91   dob...%..^dn.`..
+0040 - 6c a8 d3 00 ae dd 03 2c-6d 73 3d 42 00 b6 13 02   l......,ms=B....
+0050 - 13 03 13 01 c0 2c c0 30-00 a3 00 9f cc a9 cc a8   .....,.0........
+0060 - cc aa c0 ad c0 9f c0 5d-c0 61 c0 57 c0 53 00 a7   .......].a.W.S..
+0070 - c0 2b c0 2f 00 a2 00 9e-c0 ac c0 9e c0 5c c0 60   .+./.........\.`
+0080 - c0 56 c0 52 00 a6 c0 af-c0 ae c0 a3 c0 a2 c0 24   .V.R...........$
+0090 - c0 28 00 6b 00 6a c0 73-c0 77 00 c4 00 c3 00 6d   .(.k.j.s.w.....m
+00a0 - 00 c5 c0 23 c0 27 00 67-00 40 c0 72 c0 76 00 be   ...#.'.g.@.r.v..
+00b0 - 00 bd 00 6c 00 bf c0 0a-c0 14 00 39 00 38 00 88   ...l.......9.8..
+00c0 - 00 87 c0 19 00 3a 00 89-c0 09 c0 13 00 33 00 32   .....:.......3.2
+00d0 - 00 9a 00 99 00 45 00 44-c0 18 00 34 00 9b 00 46   .....E.D...4...F
+00e0 - 00 9d c0 9d c0 51 00 9c-c0 9c c0 50 c0 a1 c0 a0   .....Q.....P....
+00f0 - 00 3d 00 c0 00 3c 00 ba-00 35 00 84 00 2f 00 96   .=...<...5.../..
+0100 - 00 41 00 ff 01 00 05 8f-00 00 00 17 00 15 00 00   .A..............
+0110 - 12 63 79 62 65 72 73 61-6d 75 72 61 69 2e 63 6f   .cybersamurai.co
+0120 - 2e 75 6b 00 0b 00 04 03-00 01 02 00 0a 00 12 00   .uk.............
+0130 - 10 11 ec 00 1d 00 17 00-1e 00 18 00 19 01 00 01   ................
+0140 - 01 00 23 00 00 00 16 00-00 00 17 00 00 00 0d 00   ..#.............
+0150 - 3c 00 3a 09 05 09 06 09-04 04 03 05 03 06 03 08   <.:.............
+0160 - 07 08 08 08 1a 08 1b 08-1c 08 09 08 0a 08 0b 08   ................
+0170 - 04 08 05 08 06 04 01 05-01 06 01 03 03 02 03 03   ................
+0180 - 01 02 01 03 02 02 02 04-02 05 02 06 02 00 2b 00   ..............+.
+0190 - 09 08 03 04 03 03 03 02-03 01 00 2d 00 02 01 01   ...........-....
+01a0 - 00 33 04 ea 04 e8 11 ec-04 c0 25 39 c5 58 c2 91   .3........%9.X..
+01b0 - 9a d9 75 ff b4 26 c9 0b-8e 00 e0 72 4e 51 79 c9   ..u..&.....rNQy.
+01c0 - d1 b3 8c e0 0d 3c 9c ad-8f ab 49 9b 29 67 85 40   .....<....I.)g.@
+01d0 - 7a 52 a8 c5 c2 90 9d 20-72 13 b2 33 94 5a 16 c4   zR..... r..3.Z..
+01e0 - 93 8c 1a 16 98 28 43 28-63 75 49 b5 f9 6b 56 4f   .....(C(cuI..kVO
+01f0 - 7c 88 27 49 41 7b 33 2d-09 77 11 b5 04 91 3a ba   |.'IA{3-.w....:.
+0200 - 28 95 cc 77 64 20 a4 b3-b4 7c 78 56 a9 00 23 97   (..wd ...|xV..#.
+0210 - ce 5b ad fb 84 48 76 46-54 1e da 15 fa 48 46 bd   .[...HvFT....HF.
+0220 - 68 7a 7f b8 34 e0 91 89-14 10 5c 97 b3 0c b1 b2   hz..4.....\.....
+0230 - 43 be e6 ce 56 a2 b4 6a-90 a4 aa 53 ca ae 54 8a   C...V..j...S..T.
+0240 - e3 e9 7a 58 21 72 49 d0-5f e7 8a 4e b9 b5 8c f0   ..zX!rI._..N....
+0250 - 1b c3 cf 45 c7 de 8a 0c-8f a8 53 b0 bb 52 c5 79   ...E......S..R.y
+0260 - 7c 05 50 0d ea 9c 82 ed-28 a5 55 83 c2 54 70 8e   |.P.....(.U..Tp.
+0270 - 84 08 19 dd bb 85 0c 99-41 9d 34 64 43 08 65 82   ........A.4dC.e.
+0280 - 38 0f 9f 03 31 1e 35 c2-9b 0c c2 72 2c 4d 22 95   8...1.5....r,M".
+0290 - 92 66 62 18 a4 19 79 50-19 13 f6 17 8c 5b ca 36   .fb...yP.....[.6
+02a0 - 16 71 9c 5b d7 6a f4 cb-14 70 b1 8d aa 65 46 af   .q.[.j...p...eF.
+02b0 - 38 cb 8d 01 56 a5 fa 12-86 40 54 eb 44 99 bf 49   8...V....@T.D..I
+02c0 - 9c a4 73 cf 4d 58 9b 25-ca 8c 16 96 a2 68 d9 ac   ..s.MX.%.....h..
+02d0 - 55 27 6d 6d b0 b7 32 ec-90 7a 64 1b b1 48 c6 5f   U'mm..2..zd..H._
+
+============================================================
+9. SUPPORTED SIGNATURE ALGORITHMS (Server preference)
+============================================================
+
+============================================================
+10. SESSION RESUMPTION SUPPORT
+============================================================
+Testing session resumption...
+No session ID found - session resumption may not be supported
+
+============================================================
+11. PERFECT FORWARD SECRECY (PFS) SUPPORT DETAILS
+============================================================
+Checking for PFS support in cipher suites:
+New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384
+Protocol: TLSv1.3
+
+============================================================
+12. TLS EXTENSIONS SUPPORTED
+============================================================
+TLS server extension "key share" (id=51), len=1124
+TLS server extension "supported versions" (id=43), len=2
+TLS server extension "server name" (id=0), len=0
+
+============================================================
+13. COMPRESSION METHODS (Security concern if enabled)
+============================================================
+Compression: NONE
+
+============================================================
+14. SERVER SIGNATURE ALGORITHMS (What the server supports)
+============================================================
+        Signature Algorithm: ecdsa-with-SHA256
+    Signature Algorithm: ecdsa-with-SHA256
