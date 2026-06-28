@@ -620,6 +620,229 @@ def render_certificate_info_html(cert_info: Dict) -> str:
 
 def generate_html_report(findings: Dict, input_file: str) -> str:
     """Generate a premium, branded HTML report from findings."""
+    import os
+    import json
+    from html import escape
+
+    # Try to load curl results
+    input_dir = os.path.dirname(os.path.abspath(input_file))
+    curl_json_path = os.path.join(input_dir, 'curlReport.json')
+    curl_data = None
+    if os.path.exists(curl_json_path):
+        try:
+            with open(curl_json_path, 'r', encoding='utf-8') as f:
+                curl_data = json.load(f)
+        except Exception as e:
+            print(f"Warning: Could not parse curlReport.json: {e}")
+
+    curl_tab_button = ""
+    curl_tab_content = ""
+
+    # Inject curl vulnerabilities if present
+    if curl_data and 'results' in curl_data:
+        results = curl_data['results']
+        
+        # 1. HTTP Redirection Check
+        redirect = results['redirect']
+        title = "HTTP Redirection Policy"
+        passed = redirect['redirects_to_https']
+        findings['vulnerabilities'][title] = {
+            'name': title,
+            'severity': 'PASS' if passed else 'CRITICAL',
+            'status': 'OK' if passed else 'NOT ACTIVE',
+            'detail': f"Redirects correctly to {redirect['final_url']}" if passed else "Connections to HTTP are not redirected to HTTPS."
+        }
+        VULN_DETAILS[title] = {
+            'name': title,
+            'description': "Enforces secure transport protocol (HTTPS) for all client connection requests.",
+            'remediation': "Configure a permanent 301 redirection on port 80 to redirect to port 443."
+        }
+
+        # 2. HSTS Policy Check
+        hsts = results['hsts']
+        title = "HTTP Strict Transport Security (HSTS)"
+        passed = hsts['enabled']
+        hsts_max_age = f"{hsts.get('max_age_days', 0):.0f} days ({hsts.get('max_age', 0)} s)" if hsts.get('max_age') else "N/A"
+        findings['vulnerabilities'][title] = {
+            'name': title,
+            'severity': 'PASS' if passed else 'WARNING',
+            'status': 'OK' if passed else 'MISSING',
+            'detail': f"HSTS is active with max-age {hsts_max_age}" if passed else "Strict-Transport-Security header is missing."
+        }
+        VULN_DETAILS[title] = {
+            'name': title,
+            'description': "HTTP Strict Transport Security (HSTS) prevents protocol downgrade attacks and cookie hijacking.",
+            'remediation': "Configure the Strict-Transport-Security response header (e.g., max-age=31536000; includeSubDomains)."
+        }
+
+        # 3. Content Security Policy (CSP) Check
+        headers = results['security_headers']
+        title = "Content Security Policy (CSP)"
+        passed = headers['content_security_policy']
+        findings['vulnerabilities'][title] = {
+            'name': title,
+            'severity': 'PASS' if passed else 'WARNING',
+            'status': 'OK' if passed else 'MISSING',
+            'detail': "CSP response header is present." if passed else "Content-Security-Policy header is missing."
+        }
+        VULN_DETAILS[title] = {
+            'name': title,
+            'description': "Content Security Policy (CSP) helps detect and mitigate Cross-Site Scripting (XSS) and clickjacking attacks.",
+            'remediation': "Define and implement a robust Content-Security-Policy header in your web server configurations."
+        }
+
+        # 4. Clickjacking Protection Check
+        title = "Clickjacking Protection (X-Frame-Options)"
+        passed = headers['x_frame_options']
+        findings['vulnerabilities'][title] = {
+            'name': title,
+            'severity': 'PASS' if passed else 'WARNING',
+            'status': 'OK' if passed else 'MISSING',
+            'detail': "X-Frame-Options header is present." if passed else "X-Frame-Options header is missing."
+        }
+        VULN_DETAILS[title] = {
+            'name': title,
+            'description': "The X-Frame-Options header prevents the page from being rendered inside an iframe, mitigating clickjacking.",
+            'remediation': "Add the X-Frame-Options: SAMEORIGIN header to your web server configurations."
+        }
+
+        # 5. MIME Sniffing Protection Check
+        title = "MIME-Sniffing Protection (X-Content-Type-Options)"
+        passed = headers['x_content_type_options']
+        findings['vulnerabilities'][title] = {
+            'name': title,
+            'severity': 'PASS' if passed else 'WARNING',
+            'status': 'OK' if passed else 'MISSING',
+            'detail': "X-Content-Type-Options: nosniff is present." if passed else "X-Content-Type-Options header is missing."
+        }
+        VULN_DETAILS[title] = {
+            'name': title,
+            'description': "X-Content-Type-Options: nosniff prevents browsers from sniffing response MIME types away from the declared Content-Type.",
+            'remediation': "Add the X-Content-Type-Options: nosniff header to your web server configurations."
+        }
+
+        # 6. Referrer Policy Check
+        title = "Referrer Policy"
+        passed = headers['referrer_policy']
+        findings['vulnerabilities'][title] = {
+            'name': title,
+            'severity': 'PASS' if passed else 'WARNING',
+            'status': 'OK' if passed else 'MISSING',
+            'detail': "Referrer-Policy header is present." if passed else "Referrer-Policy header is missing."
+        }
+        VULN_DETAILS[title] = {
+            'name': title,
+            'description': "Referrer-Policy controls how much referrer information is passed to other web applications on external requests.",
+            'remediation': "Add the Referrer-Policy: strict-origin-when-cross-origin header to your web server configurations."
+        }
+
+        # 7. Server Info Disclosure Check
+        exposed = results['exposed_info']
+        title = "Server Software Disclosure"
+        passed = not exposed['server_version']
+        findings['vulnerabilities'][title] = {
+            'name': title,
+            'severity': 'PASS' if passed else 'WARNING',
+            'status': 'CLEAN' if passed else 'EXPOSED',
+            'detail': "No web server version headers disclosed." if passed else f"Server header discloses software details: {exposed['server_version']}"
+        }
+        VULN_DETAILS[title] = {
+            'name': title,
+            'description': "Exposing web server software name or version numbers allows attackers to find and target specific exploits.",
+            'remediation': "Disable server version tokens (e.g. server_tokens off in Nginx or ServerTokens Prod in Apache)."
+        }
+
+        # 8. Directory Indexing Check
+        title = "Directory Listing Disclosure"
+        passed = not exposed['directory_listing']
+        findings['vulnerabilities'][title] = {
+            'name': title,
+            'severity': 'PASS' if passed else 'WARNING',
+            'status': 'CLEAN' if passed else 'ENABLED',
+            'detail': "Directory index listings are disabled." if passed else "Directory indexing is enabled on the server."
+        }
+        VULN_DETAILS[title] = {
+            'name': title,
+            'description': "Exposing file listings allows attackers to locate backup files, configuration scripts, or sensitive source code.",
+            'remediation': "Disable directory index listings in your web server configuration files."
+        }
+
+        # Build Config Details tables
+        redirect = curl_data['results']['redirect']
+        hsts = curl_data['results']['hsts']
+        http2 = curl_data['results']['http2']
+        rt = curl_data['results']['response_time']
+        
+        hsts_max_age = f"{hsts.get('max_age_days', 0):.0f} days ({hsts.get('max_age', 0)} s)" if hsts.get('max_age') else "N/A"
+        
+        table1_rows = f'''
+        <tr><td>Redirect Active</td><td>{"✅ Yes" if redirect['redirects_to_https'] else "❌ No"}</td></tr>
+        <tr><td>Final URL</td><td><code>{escape(redirect['final_url'])}</code></td></tr>
+        <tr><td>HSTS Status</td><td>{"✅ Enabled" if hsts['enabled'] else "❌ Disabled"}</td></tr>
+        <tr><td>HSTS Max-Age</td><td>{hsts_max_age}</td></tr>
+        <tr><td>HSTS Subdomains</td><td>{"✅ Yes" if hsts.get('include_subdomains') else "❌ No / N/A"}</td></tr>
+        <tr><td>HSTS Preload</td><td>{"✅ Yes" if hsts.get('preload') else "❌ No / N/A"}</td></tr>
+        <tr><td>HTTP/2 Supported</td><td>{"✅ Yes" if http2['supported'] else "❌ No"}</td></tr>
+        <tr><td>Response Time</td><td>{rt['seconds']:.2f} s ({rt['milliseconds']:.0f} ms)</td></tr>
+        '''
+        
+        headers = curl_data['results']['security_headers']
+        cookies = curl_data['results']['cookies']
+        exposed = curl_data['results']['exposed_info']
+        
+        cookie_list_html = ""
+        if cookies:
+            cookie_list_html = '<div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">'
+            for c in cookies:
+                cookie_list_html += f'''
+                <div style="background:rgba(255,255,255,0.02); padding:8px; border-radius:6px; border:1px solid var(--border-color);">
+                    <div style="font-size:12px; font-weight:700; color:#fff;">{escape(c.get('name', 'Unknown'))}</div>
+                    <div style="display:flex; gap:8px; margin-top:4px; font-size:10px;">
+                        <span class="badge {'badge-green' if c['secure'] else 'badge-red'}">Secure: {c['secure']}</span>
+                        <span class="badge {'badge-green' if c['httponly'] else 'badge-red'}">HttpOnly: {c['httponly']}</span>
+                        <span class="badge badge-blue">SameSite: {escape(c.get('samesite') or 'Not Set')}</span>
+                    </div>
+                </div>'''
+            cookie_list_html += '</div>'
+        else:
+            cookie_list_html = "No cookies detected."
+
+        table2_rows = f'''
+        <tr><td>CSP Header</td><td>{"✅ Present" if headers['content_security_policy'] else "❌ Missing"}</td></tr>
+        <tr><td>X-Frame-Options</td><td>{"✅ Present" if headers['x_frame_options'] else "❌ Missing"}</td></tr>
+        <tr><td>X-Content-Type-Options</td><td>{"✅ Present" if headers['x_content_type_options'] else "❌ Missing"}</td></tr>
+        <tr><td>Referrer-Policy</td><td>{"✅ Present" if headers['referrer_policy'] else "❌ Missing"}</td></tr>
+        <tr><td>Server Header Info</td><td><code>{escape(exposed['server_version'] or 'Not Exposed')}</code></td></tr>
+        <tr><td>Powered-By Header</td><td><code>{escape(exposed['powered_by'] or 'Not Exposed')}</code></td></tr>
+        <tr><td>Directory Listing</td><td>{"⚠️ Enabled" if exposed['directory_listing'] else "✅ Disabled"}</td></tr>
+        '''
+        
+        curl_tab_button = '<button class="tab-btn" onclick="switchTab(event, \'http-config\')">HTTP Config Details</button>'
+        curl_tab_content = f'''
+        <!-- TAB 1.6: HTTP CONFIG DETAILS -->
+        <div id="http-config" class="tab-content">
+            <div class="config-grid">
+                <!-- Redirection & HSTS -->
+                <div class="glass-card">
+                    <h2 class="card-title">Redirection & Protocols</h2>
+                    <table class="cert-table">
+                        {table1_rows}
+                    </table>
+                </div>
+                
+                <!-- Security Headers & Cookies -->
+                <div class="glass-card">
+                    <h2 class="card-title">Security Headers & Disclosures</h2>
+                    <table class="cert-table">
+                        {table2_rows}
+                    </table>
+                    <div style="margin-top: 20px;">
+                        <span style="font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Active Cookie Analysis</span>
+                        {cookie_list_html}
+                    </div>
+                </div>
+            </div>
+        </div>'''
 
     # Count issues by severity
     critical_vulns = {k: v for k, v in findings['vulnerabilities'].items() if v['severity'] == 'CRITICAL'}
@@ -669,16 +892,21 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
         score_color = "#ff2e3b"  # Cyber Red
         score_class = "critical"
 
-    # Try to load and base64-encode the samurai hero image
+    # Try to load and base64-encode the samurai hero banner image
     image_base64 = ""
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    image_path = os.path.join(script_dir, 'reference', 'cyber_samurai_illustration.jpg')
-    if os.path.exists(image_path):
-        try:
-            with open(image_path, 'rb') as img_file:
-                image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
-        except Exception:
-            pass
+    banner_paths = [
+        os.path.join(script_dir, '..', 'reference', 'cyber_samurai_banner.jpg'),
+        os.path.join(script_dir, 'reference', 'cyber_samurai_banner.jpg')
+    ]
+    for path in banner_paths:
+        if os.path.exists(path):
+            try:
+                with open(path, 'rb') as img_file:
+                    image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
+                break
+            except Exception:
+                pass
 
     # Read base HTML template string
     # We will use simple placeholders to inject data to avoid f-string escaping bugs with CSS/JS
@@ -803,24 +1031,26 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
             border: 1px solid rgba(255, 46, 59, 0.2);
         }
         .btn-print {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
+            background: var(--accent-red);
+            color: #fff;
+            border: 1px solid var(--accent-red);
             padding: 8px 18px;
             border-radius: 6px;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
             gap: 8px;
             text-decoration: none;
+            box-shadow: 0 4px 12px rgba(255, 46, 59, 0.2);
         }
         .btn-print:hover {
             color: #fff;
-            border-color: #fff;
-            background: rgba(255, 255, 255, 0.05);
+            border-color: #ff5560;
+            background: #ff5560;
+            box-shadow: 0 6px 16px rgba(255, 46, 59, 0.4);
         }
 
         /* Hero section style */
@@ -1353,8 +1583,13 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
             gap: 24px;
             margin-bottom: 24px;
         }
-        @media (max-width: 800px) {
-            .config-grid, .dashboard-grid {
+        @media (max-width: 868px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 600px) {
+            .config-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -1648,6 +1883,7 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
     <div class="tabs-nav">
         <button class="tab-btn active" onclick="switchTab(event, 'dashboard')">Overview</button>
         <button class="tab-btn" onclick="switchTab(event, 'certificate')">Certificate Info</button>
+        <!--CURL_TAB_BUTTON-->
         <button class="tab-btn" onclick="switchTab(event, 'vulnerabilities')">Vulnerabilities</button>
         <button class="tab-btn" onclick="switchTab(event, 'ciphers')">Protocols & Ciphers</button>
         <button class="tab-btn" onclick="switchTab(event, 'roadmap')">Action Roadmap</button>
@@ -1657,6 +1893,8 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
     <div id="certificate" class="tab-content">
         <!--CERTIFICATE_INFO_HTML-->
     </div>
+
+    <!--CURL_TAB_CONTENT-->
 
     <!-- TAB 1: OVERVIEW DASHBOARD -->
     <div id="dashboard" class="tab-content active">
@@ -1802,7 +2040,7 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
     // Embed the base64 hero background if present
     const heroBg = "<!--HERO_BG_BASE64-->";
     if (heroBg && heroBg.trim().length > 0) {
-        document.getElementById('hero-banner').style.backgroundImage = `linear-gradient(rgba(7, 7, 9, 0.85), rgba(7, 7, 9, 0.95)), url('data:image/jpeg;base64,${heroBg}')`;
+        document.getElementById('hero-banner').style.backgroundImage = `linear-gradient(rgba(7, 7, 9, 0.60), rgba(7, 7, 9, 0.60)), url('data:image/jpeg;base64,${heroBg}')`;
     } else {
         document.getElementById('hero-banner').style.backgroundImage = 'linear-gradient(135deg, #0f0f13 0%, #16161e 100%)';
     }
@@ -1855,6 +2093,8 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
     cert_info = fetch_certificate_info(findings.get('target', ''))
     cert_info_html = render_certificate_info_html(cert_info)
     html = html.replace('<!--CERTIFICATE_INFO_HTML-->', cert_info_html)
+    html = html.replace('<!--CURL_TAB_BUTTON-->', curl_tab_button)
+    html = html.replace('<!--CURL_TAB_CONTENT-->', curl_tab_content)
 
     html = html.replace('<!--TARGET-->', escape(findings['target']))
     html = html.replace('<!--IP_ADDRESSES-->', escape(', '.join(findings['ip_addresses'])))

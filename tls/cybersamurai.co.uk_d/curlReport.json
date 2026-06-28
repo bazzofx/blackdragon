@@ -1,0 +1,83 @@
+{
+    "target": "cybersamurai.co.uk",
+    "risk_level": "CRITICAL",
+    "risk_score": 60,
+    "findings": [
+        [
+            "HIGH",
+            "HSTS header missing",
+            "No HSTS policy defined"
+        ],
+        [
+            "HIGH",
+            "CSP header missing",
+            "Content-Security-Policy not set"
+        ],
+        [
+            "MEDIUM",
+            "X-Frame-Options missing",
+            "Clickjacking protection missing"
+        ],
+        [
+            "LOW",
+            "X-Content-Type-Options missing",
+            "MIME type sniffing protection missing"
+        ],
+        [
+            "LOW",
+            "Server version exposed",
+            "Server: cloudflare"
+        ]
+    ],
+    "recommendations": [
+        "Implement HSTS header with max-age=31536000",
+        "Implement Content-Security-Policy",
+        "Add X-Frame-Options: SAMEORIGIN",
+        "Add X-Content-Type-Options: nosniff",
+        "Remove or obscure server version information"
+    ],
+    "results": {
+        "redirect": {
+            "redirects_to_https": true,
+            "final_url": "https://cybersamurai.co.uk/",
+            "chain": "HTTP: 200 -> https://cybersamurai.co.uk/",
+            "status": "PASS",
+            "message": "Site redirects HTTP to HTTPS"
+        },
+        "https_details": {
+            "ssl_version": null,
+            "cipher": null,
+            "subject": "*  subject: CN=cybersamurai.co.uk",
+            "issuer": "*  issuer: C=US; O=Google Trust Services; CN=WE1",
+            "start_date": "*  start date: May 11 19:12:36 2026 GMT",
+            "expire_date": "*  expire date: Aug  9 20:11:24 2026 GMT"
+        },
+        "hsts": {
+            "enabled": false,
+            "header": null
+        },
+        "http2": {
+            "supported": true
+        },
+        "security_headers": {
+            "content_security_policy": false,
+            "x_frame_options": false,
+            "x_content_type_options": false,
+            "x_xss_protection": false,
+            "referrer_policy": false,
+            "permissions_policy": false,
+            "server": "cloudflare",
+            "x_powered_by": null
+        },
+        "cookies": [],
+        "exposed_info": {
+            "directory_listing": false,
+            "server_version": "cloudflare",
+            "powered_by": null
+        },
+        "response_time": {
+            "seconds": 0.102476,
+            "milliseconds": 102.476
+        }
+    }
+}
