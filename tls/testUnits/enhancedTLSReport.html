@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER SAMURAI | TLS Security Assessment</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #070709;
+            --bg-secondary: #0f0f13;
+            --bg-tertiary: #16161e;
+            --accent-red: #ff2e3b;
+            --accent-red-glow: rgba(255, 46, 59, 0.45);
+            --accent-red-dim: rgba(255, 46, 59, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #9ea2b0;
+            --text-muted: #5f6377;
+            --border-color: rgba(255, 255, 255, 0.06);
+            --card-bg: rgba(15, 15, 19, 0.75);
+            --glass-blur: blur(12px);
+            
+            --color-critical: #ff2e3b;
+            --color-critical-glow: rgba(255, 46, 59, 0.2);
+            --color-warning: #f59e0b;
+            --color-warning-glow: rgba(245, 158, 11, 0.2);
+            --color-pass: #10b981;
+            --color-pass-glow: rgba(16, 185, 129, 0.2);
+            --color-info: #3b82f6;
+            --color-info-glow: rgba(59, 130, 246, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Bamboo SVG watermarks in background */
+        .watermark {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0.03;
+            z-index: 0;
+            color: var(--text-primary);
+        }
+        .watermark-left {
+            bottom: -50px;
+            left: 20px;
+            width: 250px;
+            height: auto;
+        }
+        .watermark-right {
+            top: 100px;
+            right: -20px;
+            width: 280px;
+            height: auto;
+            transform: scaleX(-1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Floating Header bar */
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 15, 19, 0.6);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            padding: 16px 28px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Outfit', sans-serif;
+        }
+        .brand-logo {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            color: #fff;
+            text-transform: uppercase;
+        }
+        .brand-logo span {
+            color: var(--accent-red);
+        }
+        .brand-japanese {
+            background: var(--accent-red-dim);
+            color: var(--accent-red);
+            font-weight: 600;
+            font-size: 13px;
+            padding: 2px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 46, 59, 0.2);
+        }
+        .btn-print {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .btn-print:hover {
+            color: #fff;
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Hero section style */
+        .hero-section {
+            position: relative;
+            background-color: var(--bg-secondary);
+            background-size: cover;
+            background-position: center 30%;
+            padding: 60px 40px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.8), 0 10px 40px rgba(0,0,0,0.5);
+        }
+        .hero-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, rgba(7, 7, 9, 0.95) 40%, rgba(7, 7, 9, 0.4) 100%);
+            z-index: 1;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(rgba(255, 46, 59, 0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255, 46, 59, 0.03) 1px, transparent 1px);
+            background-size: 24px 24px;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            max-width: 600px;
+        }
+        .hero-tagline {
+            color: var(--accent-red);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .hero-tagline::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--accent-red);
+        }
+        .hero-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 38px;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            letter-spacing: -0.5px;
+        }
+        .hero-meta {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 24px;
+        }
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .meta-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+        .meta-val {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            word-break: break-all;
+        }
+
+        /* Navigation Tabs */
+        .tabs-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1px;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            font-family: 'Outfit', sans-serif;
+        }
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-red);
+            transform: scaleX(0);
+            transition: transform 0.2s ease;
+        }
+        .tab-btn:hover {
+            color: #fff;
+        }
+        .tab-btn.active {
+            color: #fff;
+        }
+        .tab-btn.active::after {
+            transform: scaleX(1);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dashboard Overview layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .dashboard-left {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 3px;
+            background: transparent;
+        }
+        .card-red::before { background: var(--accent-red); }
+        .card-orange::before { background: var(--color-warning); }
+        .card-green::before { background: var(--color-pass); }
+        .card-blue::before { background: var(--color-info); }
+
+        /* Health Score circular indicator */
+        .health-score-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0 0 0;
+            position: relative;
+        }
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.35s;
+            transform-origin: 50% 50%;
+        }
+        .health-score-text {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, -60%);
+        }
+        .score-num {
+            font-family: 'Outfit', sans-serif;
+            font-size: 36px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+        }
+        .score-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+
+        /* Stat cards mini grid */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: transform 0.2s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.12);
+        }
+        .stat-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+        }
+        .stat-lbl {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .stat-critical { color: var(--color-critical); }
+        .stat-warning { color: var(--color-warning); }
+        .stat-pass { color: var(--color-pass); }
+        .stat-info { color: var(--color-info); }
+
+        /* Executive Summary section */
+        .summary-card {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            height: 100%;
+        }
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.5px;
+        }
+        .card-title::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--accent-red);
+        }
+        .summary-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        .bullet-list {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            list-style: none;
+        }
+        .bullet-list li {
+            position: relative;
+            padding-left: 20px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .bullet-list li::before {
+            content: '▪';
+            position: absolute;
+            left: 0;
+            color: var(--accent-red);
+        }
+
+        /* Vulnerabilities List & Filters */
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .filter-btn:hover {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+        }
+        .filter-btn.active {
+            background: var(--accent-red);
+            border-color: var(--accent-red);
+            color: #fff;
+            box-shadow: 0 0 10px var(--accent-red-glow);
+        }
+
+        .vuln-cards-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .vuln-item-card {
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        .vuln-item-card:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        .vuln-card-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            gap: 16px;
+        }
+        .vuln-meta-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .severity-badge {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            padding: 3px 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            text-align: center;
+            min-width: 90px;
+            border: 1px solid transparent;
+        }
+        .badge-critical {
+            background: rgba(255, 46, 59, 0.12);
+            color: var(--color-critical);
+            border-color: rgba(255, 46, 59, 0.2);
+        }
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--color-warning);
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+        .badge-pass {
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--color-pass);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .vuln-card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .vuln-card-summary {
+            font-size: 12px;
+            color: var(--text-secondary);
+            max-width: 450px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .arrow-icon {
+            color: var(--text-muted);
+            transition: transform 0.25s ease;
+        }
+        .vuln-item-card.expanded .arrow-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Collapsible body */
+        .vuln-card-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border-top: 1px solid transparent;
+            background: rgba(0,0,0,0.15);
+        }
+        .vuln-item-card.expanded .vuln-card-body {
+            max-height: 1000px;
+            border-top: 1px solid var(--border-color);
+        }
+        .vuln-body-content {
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .vuln-info-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .vuln-info-block {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .block-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+        .block-text {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* Simulated Codeblock */
+        .raw-output-block {
+            background: #020204;
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 6px;
+            padding: 12px 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #8c90a1;
+            white-space: pre-wrap;
+            word-break: break-all;
+            position: relative;
+        }
+        .raw-output-block::before {
+            content: 'RAW SCAN OUTPUT';
+            position: absolute;
+            top: -8px; right: 12px;
+            background: #020204;
+            font-size: 9px;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            padding: 0 4px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+        }
+
+        /* Certificate Info tab styling */
+        .cert-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .cert-table tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .cert-table tr:last-child {
+            border-bottom: none;
+        }
+        .cert-table td {
+            padding: 10px 8px;
+            font-size: 13px;
+            vertical-align: top;
+        }
+        .cert-table td:first-child {
+            color: var(--text-secondary);
+            font-weight: 600;
+            width: 32%;
+        }
+        .cert-table td:last-child {
+            color: var(--text-primary);
+            font-family: monospace;
+            word-break: break-all;
+        }
+        .chain-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .chain-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .chain-item:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+        .chain-arrow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 4px 0;
+        }
+
+        /* Protocols & Ciphers Grid */
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 800px) {
+            .config-grid, .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .config-card {
+            min-height: 250px;
+        }
+        
+        /* Protocol Grid view */
+        .protocol-badge-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .protocol-status-item {
+            background: rgba(255,255,255,0.015);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .proto-name {
+            font-weight: 700;
+            font-size: 13.5px;
+            font-family: 'Outfit', sans-serif;
+        }
+        .proto-status {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .proto-secure {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--color-pass);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        .proto-deprecated {
+            background: rgba(255, 46, 59, 0.1);
+            color: var(--color-critical);
+            border: 1px solid rgba(255, 46, 59, 0.2);
+        }
+        .proto-disabled {
+            background: rgba(255,255,255,0.02);
+            color: var(--text-muted);
+            border: 1px solid transparent;
+        }
+
+        .cipher-list-scroll {
+            max-height: 220px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 6px;
+            margin-top: 12px;
+        }
+        /* Custom scrollbar */
+        .cipher-list-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .cipher-list-scroll::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+        }
+        .cipher-list-scroll::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 2px;
+        }
+
+        .cipher-item-text {
+            font-family: 'Courier New', monospace;
+            font-size: 11.5px;
+            color: var(--text-secondary);
+            padding: 6px 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
+            border-left: 3px solid var(--border-color);
+        }
+        .cipher-item-text.weak-cipher {
+            border-left-color: var(--color-critical);
+            color: #ff8e95;
+            background: rgba(255, 46, 59, 0.05);
+        }
+        .cipher-item-text.fs-cipher {
+            border-left-color: var(--color-info);
+            color: #8ebbff;
+        }
+
+        /* Roadmap remediation dashboard */
+        .roadmap-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .roadmap-sections-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .roadmap-priority-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .priority-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+        .priority-critical { color: var(--color-critical); }
+        .priority-high { color: var(--color-warning); }
+        .priority-medium { color: var(--color-info); }
+        .priority-low { color: var(--text-muted); }
+        
+        .roadmap-item {
+            background: rgba(255,255,255,0.015);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px 20px;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .roadmap-item:hover {
+            border-color: rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.025);
+        }
+
+        .roadmap-item-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+        .roadmap-item-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #fff;
+            transition: all 0.2s ease;
+        }
+        .roadmap-item-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Footer styling */
+        .footer {
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            margin-top: 50px;
+            padding: 30px 0;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .watermark, .btn-print, .tabs-nav {
+                display: none !important;
+            }
+            .glass-card, .hero-section, .header-bar, .vuln-item-card, .roadmap-item {
+                background: white !important;
+                border: 1px solid #ccc !important;
+                box-shadow: none !important;
+                color: black !important;
+                page-break-inside: avoid;
+            }
+            .hero-overlay {
+                background: linear-gradient(90deg, rgba(255,255,255,0.95) 40%, rgba(255,255,255,0.6) 100%) !important;
+            }
+            .hero-section::before {
+                display: none !important;
+            }
+            .tab-content {
+                display: block !important;
+                opacity: 1 !important;
+            }
+            .raw-output-block {
+                background: #f5f5f5 !important;
+                color: #333 !important;
+                border-color: #ccc !important;
+            }
+            .score-num, .card-title, .brand-logo, .vuln-card-title, .roadmap-item-title {
+                color: black !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Minimalist Bamboo Background SVG decorations (Sumi-e Style) -->
+<div class="watermark watermark-left">
+    <svg viewBox="0 0 100 800" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50,800 C52,700 48,600 50,550" stroke-width="4.5" stroke-linecap="round"/>
+        <path d="M50,545 C51,450 49,350 50,280" stroke-width="4.0" stroke-linecap="round"/>
+        <path d="M50,275 C48,200 52,100 50,20" stroke-width="3.5" stroke-linecap="round"/>
+        
+        <!-- Bamboo joints/rings -->
+        <path d="M42,550 Q50,544 58,550" stroke-width="2.5"/>
+        <path d="M43,280 Q50,274 57,280" stroke-width="2.5"/>
+        
+        <!-- Subtle branch 1 -->
+        <path d="M50,420 Q70,380 85,395" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M85,395 C95,405 105,400 115,402 Q100,385 85,395" fill="currentColor" stroke="none"/>
+        <path d="M80,392 C88,380 98,375 108,378 Q95,368 80,392" fill="currentColor" stroke="none"/>
+
+        <!-- Subtle branch 2 -->
+        <path d="M50,210 Q25,180 15,190" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M15,190 C5,198 -5,192 -15,194 Q-2,180 15,190" fill="currentColor" stroke="none"/>
+    </svg>
+</div>
+
+<div class="watermark watermark-right">
+    <svg viewBox="0 0 100 800" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50,800 C48,680 52,580 50,500" stroke-width="5" stroke-linecap="round"/>
+        <path d="M50,495 C52,380 48,290 50,200" stroke-width="4" stroke-linecap="round"/>
+        <path d="M50,195 C49,120 51,60 50,10" stroke-width="3.5" stroke-linecap="round"/>
+        
+        <path d="M41,500 Q50,494 59,500" stroke-width="3"/>
+        <path d="M42,200 Q50,194 58,200" stroke-width="3"/>
+        
+        <path d="M50,330 Q80,290 95,300" stroke-width="2" stroke-linecap="round"/>
+        <path d="M95,300 C108,310 120,305 130,306 Q115,290 95,300" fill="currentColor" stroke="none"/>
+        
+        <path d="M50,110 Q20,70 5,85" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M5,85 C-5,95 -15,90 -25,92 Q-10,75 5,85" fill="currentColor" stroke="none"/>
+    </svg>
+</div>
+
+<div class="container">
+    
+    <!-- Top Brand Header Bar -->
+    <div class="header-bar">
+        <div class="brand">
+            <div class="brand-logo">Cyber Samurai<span>.</span></div>
+            <div class="brand-japanese">侍</div>
+        </div>
+        <a class="btn-print" href="https://cybersamurai.co.uk/contact" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            Contact Cyber Samurai
+        </a>
+    </div>
+
+    <!-- Main Hero Banner (Uses base64 Cyber Samurai background if available) -->
+    <div class="hero-section" id="hero-banner">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-tagline">Security Scan Completed</div>
+            <h1 class="hero-title">TLS Security Assessment</h1>
+            
+            <div class="hero-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Target Host</span>
+                    <span class="meta-val">cybersamurai.co.uk</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">IP Address</span>
+                    <span class="meta-val">104.21.78.216, 172.67.137.163</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Active Service</span>
+                    <span class="meta-val">HTTPS</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Scan Timestamp</span>
+                    <span class="meta-val">2026-06-28 18:01:51</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab(event, 'dashboard')">Overview</button>
+        <button class="tab-btn" onclick="switchTab(event, 'certificate')">Certificate Info</button>
+        <button class="tab-btn" onclick="switchTab(event, 'vulnerabilities')">Vulnerabilities</button>
+        <button class="tab-btn" onclick="switchTab(event, 'ciphers')">Protocols & Ciphers</button>
+        <button class="tab-btn" onclick="switchTab(event, 'roadmap')">Action Roadmap</button>
+    </div>
+
+    <!-- TAB 1.5: CERTIFICATE INFO -->
+    <div id="certificate" class="tab-content">
+        
+    <div class="config-grid">
+        <!-- Certificate Details -->
+        <div class="glass-card">
+            <h2 class="card-title">📜 Certificate Leaf Details</h2>
+            <table class="cert-table">
+                
+        <tr><td>Subject</td><td>CN = cybersamurai.co.uk</td></tr>
+        <tr><td>Issuer</td><td>C = US, O = Google Trust Services, CN = WE1</td></tr>
+        <tr><td>Serial Number</td><td>63:2a:62:d7:de:68:c9:7c:0e:9b:8b:ba:fd:41:3b:cb</td></tr>
+        <tr><td>SHA1 Fingerprint</td><td>DE:88:7D:0F:AE:65:BD:A7:BC:B7:27:1B:FE:62:3A:34:60:BB:97:87</td></tr>
+        <tr><td>Validity (Not Before)</td><td>May 11 19:12:36 2026 GMT</td></tr>
+        <tr><td>Validity (Not After)</td><td>Aug  9 20:11:24 2026 GMT</td></tr>
+        <tr><td>Public Key Algorithm</td><td>id-ecPublicKey</td></tr>
+        <tr><td>Public Key Size/Info</td><td>256 bit</td></tr>
+    <tr><td>NIST Curve</td><td>prime256v1</td></tr>
+        <tr><td>Subject Alternative Name</td><td>DNS:cybersamurai.co.uk, DNS:*.cybersamurai.co.uk</td></tr>
+        <tr><td>X509v3 Key Usage</td><td>Digital Signature</td></tr>
+        <tr><td>X509v3 Extended Key Usage</td><td>TLS Web Server Authentication</td></tr>
+    
+            </table>
+        </div>
+        
+        <!-- Certificate Chain -->
+        <div class="glass-card">
+            <h2 class="card-title">🔗 Certificate Chain Details</h2>
+            <div style="font-size: 13px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 10px;">
+                Total certificates in chain: 3
+            </div>
+            <div class="chain-list">
+        <div class="chain-item">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <span class="badge badge-info" style="padding: 4px 10px; font-size: 11px; font-weight: 700; border-radius: 4px; text-transform: uppercase;">Certificate 1 (Leaf)</span>
+            </div>
+            <table class="cert-table">
+                <tr><td>Subject</td><td>CN = cybersamurai.co.uk</td></tr>
+                <tr><td>Issuer</td><td>C = US, O = Google Trust Services, CN = WE1</td></tr>
+                <tr><td>Validity</td><td>
+                    <span style="color: var(--text-muted);">Not Before:</span> May 11 19:12:36 2026 GMT<br>
+                    <span style="color: var(--text-muted);">Not After:</span> Aug  9 20:11:24 2026 GMT
+                </td></tr>
+            </table>
+        </div>
+            <div class="chain-arrow">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-red);"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+            </div>
+        <div class="chain-item">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <span class="badge badge-yellow" style="padding: 4px 10px; font-size: 11px; font-weight: 700; border-radius: 4px; text-transform: uppercase;">Certificate 2 (Intermediate)</span>
+            </div>
+            <table class="cert-table">
+                <tr><td>Subject</td><td>C = US, O = Google Trust Services, CN = WE1</td></tr>
+                <tr><td>Issuer</td><td>C = US, O = Google Trust Services LLC, CN = GTS Root R4</td></tr>
+                <tr><td>Validity</td><td>
+                    <span style="color: var(--text-muted);">Not Before:</span> Dec 13 09:00:00 2023 GMT<br>
+                    <span style="color: var(--text-muted);">Not After:</span> Feb 20 14:00:00 2029 GMT
+                </td></tr>
+            </table>
+        </div>
+            <div class="chain-arrow">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-red);"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+            </div>
+        <div class="chain-item">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <span class="badge badge-green" style="padding: 4px 10px; font-size: 11px; font-weight: 700; border-radius: 4px; text-transform: uppercase;">Certificate 3 (Root)</span>
+            </div>
+            <table class="cert-table">
+                <tr><td>Subject</td><td>C = US, O = Google Trust Services LLC, CN = GTS Root R4</td></tr>
+                <tr><td>Issuer</td><td>C = BE, O = GlobalSign nv-sa, OU = Root CA, CN = GlobalSign Root CA</td></tr>
+                <tr><td>Validity</td><td>
+                    <span style="color: var(--text-muted);">Not Before:</span> Nov 15 03:43:21 2023 GMT<br>
+                    <span style="color: var(--text-muted);">Not After:</span> Jan 28 00:00:42 2028 GMT
+                </td></tr>
+            </table>
+        </div></div>
+        </div>
+    </div>
+    </div>
+
+    <!-- TAB 1: OVERVIEW DASHBOARD -->
+    <div id="dashboard" class="tab-content active">
+        <div class="dashboard-grid">
+            
+            <!-- Left panel: Health score circular ring + counts -->
+            <div class="dashboard-left">
+                <div class="glass-card card-red health-score-card">
+                    <!-- Title on the top left of the chart panel -->
+                    <div style="font-size: 13px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; font-family: 'Outfit', sans-serif;">Health Score</div>
+                    <div class="health-score-container">
+                        <svg class="progress-ring" width="160" height="160">
+                            <circle class="progress-ring__background" stroke="rgba(255, 255, 255, 0.04)" stroke-width="12" fill="transparent" r="68" cx="80" cy="80"/>
+                            <!-- Stroke-dasharray = 2 * PI * r = 2 * 3.14159 * 68 = 427 -->
+                            <circle class="progress-ring__circle" stroke="#ff2e3b" stroke-width="12" stroke-dasharray="427 427" stroke-dashoffset="321" stroke-linecap="round" fill="transparent" r="68" cx="80" cy="80"/>
+                        </svg>
+                        <div class="health-score-text">
+                            <span class="score-num">25%</span>
+                            <span class="score-label" style="color: #ff2e3b;">CRITICAL</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <span class="stat-val stat-critical">1</span>
+                        <span class="stat-lbl">Critical Issues</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-warning">1</span>
+                        <span class="stat-lbl">Warnings</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-pass">16</span>
+                        <span class="stat-lbl">Passed Checks</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-info">4</span>
+                        <span class="stat-lbl">TLS Protocols</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right panel: Executive Summary -->
+            <div class="dashboard-right">
+                <div class="glass-card summary-card" style="height: 100%;">
+                    <h2 class="card-title">Executive Summary</h2>
+                    <div class="summary-text">
+                        A comprehensive TLS configuration and vulnerability analysis has been completed for <strong>cybersamurai.co.uk</strong>. 
+                        The target host is currently evaluated as <strong>CRITICAL</strong> with a security posture rating of <strong>25%</strong>. 
+                        <br><br>
+                        This assessment analyzed supported protocols, encryption strength, cryptographic handshakes, and vulnerabilities including POODLE, Heartbleed, ROBOT, CCS Injection, and BREACH.
+                        <br><br>
+                        Key observations:
+                        <ul class="bullet-list">
+                            <li>Supported Protocols: Modern protocols (TLSv1.2, TLSv1.3) are supported. However, deprecated protocols (TLSv1.0, TLSv1.1) should be disabled to prevent downgrade attacks.</li>
+                            <li>Critical Vulnerabilities: There are <strong>1</strong> critical issues identified that require immediate remediation to prevent sensitive session exposure or data decryption.</li>
+                            <li>Forward Secrecy: Perfect Forward Secrecy (PFS) is supported on modern clients, ensuring session key protection.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: VULNERABILITIES -->
+    <div id="vulnerabilities" class="tab-content">
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterVulns('all')">All checks</button>
+            <button class="filter-btn" onclick="filterVulns('critical')">Critical (1)</button>
+            <button class="filter-btn" onclick="filterVulns('warning')">Warnings (1)</button>
+            <button class="filter-btn" onclick="filterVulns('pass')">Passed checks</button>
+        </div>
+
+        <div class="vuln-cards-list">
+            
+            <div class="vuln-item-card" data-severity="critical">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-critical">CRITICAL</span>
+                        <div class="vuln-card-title">LUCKY13 (CVE-2013-0169)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">VULNERABLE</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">A timing attack against TLS implementations using Cipher Block Chaining (CBC) mode, allowing remote attackers to recover plaintext bytes from TLS sessions.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Configure the server to prefer AES-GCM or ChaCha20-Poly1305 ciphers over CBC-based ciphers. Disable TLS 1.0 and 1.1.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">LUCKY13 (CVE-2013-0169), experimental     potentially VULNERABLE, uses cipher block chaining (CBC) ciphers with TLS. Check patches</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="warning">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-warning">WARNING</span>
+                        <div class="vuln-card-title">BREACH (CVE-2013-3587)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">potentially</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">Exploits HTTP-level compression (gzip/deflate) combined with user-controlled input and secrets in the response body to extract sensitive data like CSRF tokens.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Disable HTTP compression for sensitive pages containing secrets. Alternatively, use anti-CSRF token masking, randomize padding length, or disable compression dynamically based on request path.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">BREACH (CVE-2013-3587)                    potentially NOT ok, &quot;br gzip&quot; HTTP compression detected. - only supplied &quot;/&quot; tested</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">Heartbleed (CVE-2014-0160)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">not vulnerable</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">A serious vulnerability in the popular OpenSSL cryptographic software library. It allows stealing information protected, under normal conditions, by the SSL/TLS encryption.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Upgrade OpenSSL to version 1.0.1g or newer. Reissue SSL certificates that may have been compromised, and revoke the old ones.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">Heartbleed (CVE-2014-0160)                not vulnerable (OK), no heartbeat extension</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">OpenSSL MITM CCS Injection (CVE-2014-0224)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">not vulnerable</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">Allows man-in-the-middle attackers to decrypt and modify traffic between a vulnerable client and server by injecting a ChangeCipherSpec message before the handshake is complete.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Upgrade OpenSSL to the latest stable release (at least 1.0.1h, 1.0.0m, or 0.9.8za).</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">CCS (CVE-2014-0224)                       not vulnerable (OK)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">Ticketbleed (CVE-2016-9244)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">not vulnerable</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">An information disclosure vulnerability in the TLS session ticket resumption implementation in certain F5 BIG-IP products. It allows remote attackers to leak up to 31 bytes of memory.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Apply the vendor patch from F5 Networks, or disable TLS session tickets if patches cannot be applied.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">Ticketbleed (CVE-2016-9244), experimental not vulnerable (OK)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">Opossum (CVE-2025-49812)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">not vulnerable</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">A vulnerability that could lead to session hijacking or sensitive data exposure due to weak session key generation in older TLS implementations.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Apply system patches and upgrade the server TLS stack to modern versions.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">Opossum (CVE-2025-49812)                  not vulnerable (OK)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">ROBOT (Return Of Bleichenbacher&#x27;s Oracle Threat)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">does not support</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">Allows attackers to perform RSA decryption and signing operations using the private key of the TLS server by observing server responses to invalid RSA ciphertexts.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Disable RSA key transport cipher suites (those starting with TLS_RSA_). Configure the server to use ECDHE or DHE key exchange ciphers.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">ROBOT                                     Server does not support any cipher suites that use RSA key transport</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">Secure Renegotiation (RFC 5746)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">supported</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">Insecure renegotiation allows an attacker to inject arbitrary plaintext at the beginning of the TLS stream in a man-in-the-middle scenario.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Ensure the server supports and requires RFC 5746 Secure Renegotiation. Disable renegotiation entirely if not needed.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">Secure Renegotiation (RFC 5746)           supported (OK)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">Secure Client-Initiated Renegotiation</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">not vulnerable</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">Allowing clients to initiate renegotiation consumes significant server resources (CPU) and can be abused for DoS attacks.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Disable client-initiated renegotiation on the server. Most web servers (Nginx, Apache, IIS) support this configuration.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">Secure Client-Initiated Renegotiation     not vulnerable (OK)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">CRIME (CVE-2012-4929)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">not vulnerable</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">Allows man-in-the-middle attackers to decrypt HTTPS cookies and hijack sessions by exploiting TLS compression.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Disable SSL/TLS level compression. Modern browsers and servers do not use TLS compression by default.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">CRIME, TLS (CVE-2012-4929)                not vulnerable (OK)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">POODLE (CVE-2014-3566)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">not vulnerable</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">An exploit that targets the SSLv3 protocol, allowing an attacker to decrypt ciphertext by exploiting block cipher padding oracle vulnerabilities.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Completely disable SSLv3 on the server. Configure servers to only allow TLSv1.2 and TLSv1.3.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">POODLE, SSL (CVE-2014-3566)               not vulnerable (OK)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">TLS_FALLBACK_SCSV (RFC 7507)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">supported</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">Prevents protocol downgrade attacks by signalling to the server that a client is falling back to a lower protocol version due to connection failure.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Ensure the server supports the TLS_FALLBACK_SCSV extension (built into modern OpenSSL versions).</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">TLS_FALLBACK_SCSV (RFC 7507)              Downgrade attack prevention supported (OK)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">SWEET32 (CVE-2016-2183)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">not vulnerable</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">Affects 64-bit block ciphers like 3DES and Blowfish. In a long-lived TLS session, an attacker can capture enough ciphertexts to recover plaintext blocks via collision attacks.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Disable 3DES and Blowfish cipher suites. Rely on AES (Advanced Encryption Standard) or ChaCha20.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">SWEET32 (CVE-2016-2183, CVE-2016-6329)    not vulnerable (OK)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">FREAK (CVE-2015-0204)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">not vulnerable</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">Allows man-in-the-middle attackers to force clients to use weak export-grade RSA keys (typically 512-bit), which can then be factored and broken in real-time.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Disable export-grade RSA key exchange and weak ciphers. Upgrade browser client software.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">FREAK (CVE-2015-0204)                     not vulnerable (OK)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">DROWN (CVE-2016-0800)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">not vulnerable</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">A cross-protocol attack that allows decrypting TLS traffic by making connections to an SSLv2 server that shares the same private key.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Disable SSLv2 on all servers. Ensure that any server sharing the same certificate/private key also has SSLv2 disabled.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">DROWN (CVE-2016-0800, CVE-2016-0703)      not vulnerable on this host and port (OK)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">LOGJAM (CVE-2015-4000)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">not vulnerable</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">Allows man-in-the-middle attackers to downgrade vulnerable TLS connections to 512-bit export-grade Diffie-Hellman cryptography, which can then be broken.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Disable export-grade Diffie-Hellman ciphers. Configure the server to use strong Diffie-Hellman groups of at least 2048 bits.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">LOGJAM (CVE-2015-4000), experimental      not vulnerable (OK): no DH EXPORT ciphers, no DH key detected with &lt;= TLS 1.2</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">Winshock (CVE-2014-6321)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">not vulnerable</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">Allows remote code execution on Windows servers running Schannel due to improper packet handling during handshakes.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Apply Microsoft security update MS14-066 immediately for Windows Server platforms.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">Winshock (CVE-2014-6321), experimental    not vulnerable (OK)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">RC4 Biases (CVE-2013-2566, CVE-2015-2808)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">no RC4</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">RC4 has known statistical biases that allow an attacker to recover plaintexts (like session cookies) by sniffing a large amount of encrypted traffic.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Disable all RC4-based cipher suites on the server.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">RC4 (CVE-2013-2566, CVE-2015-2808)        no RC4 ciphers detected (OK)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: PROTOCOLS & CIPHERS -->
+    <div id="ciphers" class="tab-content">
+        <div class="config-grid">
+            
+            <!-- Protocol Config -->
+            <div class="glass-card config-card">
+                <h2 class="card-title">Protocol Configuration</h2>
+                <p class="roadmap-item-desc" style="margin-top: 4px; color: var(--text-secondary);">
+                    Protocol compliance audit showing supported and deprecated/disabled TLS/SSL protocol versions.
+                </p>
+                
+                <div class="protocol-badge-grid">
+                    
+                    <div class="protocol-status-item">
+                        <span class="proto-name">SSLv2</span>
+                        <span class="proto-status proto-disabled">Disabled</span>
+                    </div>
+                    <div class="protocol-status-item">
+                        <span class="proto-name">SSLv3</span>
+                        <span class="proto-status proto-disabled">Disabled</span>
+                    </div>
+                    <div class="protocol-status-item">
+                        <span class="proto-name">TLSv1</span>
+                        <span class="proto-status proto-deprecated">Deprecated</span>
+                    </div>
+                    <div class="protocol-status-item">
+                        <span class="proto-name">TLSv1.1</span>
+                        <span class="proto-status proto-deprecated">Deprecated</span>
+                    </div>
+                    <div class="protocol-status-item">
+                        <span class="proto-name">TLSv1.2</span>
+                        <span class="proto-status proto-secure">Secure</span>
+                    </div>
+                    <div class="protocol-status-item">
+                        <span class="proto-name">TLSv1.3</span>
+                        <span class="proto-status proto-secure">Secure</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cipher Suites -->
+            <div class="glass-card config-card">
+                <h2 class="card-title">Cipher Suite Status</h2>
+                
+                <div style="margin-top: 15px;">
+                    <span class="block-title">Perfect Forward Secrecy (PFS)</span>
+                    
+                    <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+                        <span class="proto-status proto-secure" style="padding: 4px 12px; font-size: 11px;">Active / Supported</span>
+                        <span style="font-size: 12.5px; color: var(--text-secondary);">7 FS cipher suites active</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <span class="block-title">Weak Cipher Suites Detected</span>
+                    <div class="cipher-list-scroll">
+                        
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 10px; color: var(--color-pass); gap: 8px;">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            <span style="font-size: 12.5px; font-weight: 600;">No weak ciphers active on this server.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- TAB 4: ROADMAP -->
+    <div id="roadmap" class="tab-content">
+        <div class="glass-card">
+            
+            <div class="roadmap-header" style="margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+                <div>
+                    <h2 class="card-title" style="margin-bottom: 4px;">Remediation Roadmap</h2>
+                    <p class="roadmap-item-desc" style="color: var(--text-secondary);">
+                        A prioritized list of security issues and recommended actions detected during the TLS scan.
+                    </p>
+                </div>
+            </div>
+
+            <div class="roadmap-sections-list">
+                
+                <div class="roadmap-priority-group">
+                    <div class="priority-title priority-critical">Critical Actions (Immediate)</div>
+                    <div class="roadmap-item">
+                        <div class="roadmap-item-details">
+                            <div class="roadmap-item-title">Fix LUCKY13 (CVE-2013-0169)</div>
+                            <span class="roadmap-item-desc">Configure the server to prefer AES-GCM or ChaCha20-Poly1305 ciphers over CBC-based ciphers. Disable TLS 1.0 and 1.1.</span>
+                        </div>
+                    </div></div>
+                <div class="roadmap-priority-group">
+                    <div class="priority-title priority-high">High Priority (Recommended)</div>
+                    <div class="roadmap-item">
+                        <div class="roadmap-item-details">
+                            <div class="roadmap-item-title">Disable Deprecated TLS Protocols (TLSv1, TLSv1.1)</div>
+                            <span class="roadmap-item-desc">Configure your web server to only support secure protocols: TLSv1.2 and TLSv1.3. Deprecated protocols are vulnerable to downgrade attacks.</span>
+                        </div>
+                    </div>
+                    <div class="roadmap-item">
+                        <div class="roadmap-item-details">
+                            <div class="roadmap-item-title">Remediate BREACH (CVE-2013-3587) Warning</div>
+                            <span class="roadmap-item-desc">Disable HTTP compression for sensitive pages containing secrets. Alternatively, use anti-CSRF token masking, randomize padding length, or disable compression dynamically based on request path.</span>
+                        </div>
+                    </div></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        CYBER SAMURAI &bull; DESIGNED FOR PERFORMANCE. BUILT FOR SECURITY. &bull; GENERATED VIA SAMURAI-REPORT-ENHANCER
+    </div>
+</div>
+
+<script>
+    // Embed the base64 hero background if present
+    const heroBg = "";
+    if (heroBg && heroBg.trim().length > 0) {
+        document.getElementById('hero-banner').style.backgroundImage = `linear-gradient(rgba(7, 7, 9, 0.85), rgba(7, 7, 9, 0.95)), url('data:image/jpeg;base64,${heroBg}')`;
+    } else {
+        document.getElementById('hero-banner').style.backgroundImage = 'linear-gradient(135deg, #0f0f13 0%, #16161e 100%)';
+    }
+
+    // Tab switcher
+    function switchTab(evt, tabId) {
+        const contents = document.querySelectorAll('.tab-content');
+        contents.forEach(content => content.classList.remove('active'));
+
+        const tabs = document.querySelectorAll('.tab-btn');
+        tabs.forEach(tab => tab.classList.remove('active'));
+
+        document.getElementById(tabId).classList.add('active');
+        evt.currentTarget.classList.add('active');
+    }
+
+    // Collapsible Vulnerability Cards
+    function toggleVulnCard(header) {
+        const card = header.closest('.vuln-item-card');
+        card.classList.toggle('expanded');
+    }
+
+    // Vulnerability filtering
+    function filterVulns(severity) {
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => btn.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+
+        const cards = document.querySelectorAll('.vuln-item-card');
+        cards.forEach(card => {
+            const cardSeverity = card.getAttribute('data-severity');
+            if (severity === 'all') {
+                card.style.display = 'block';
+            } else if (cardSeverity === severity) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+</script>
+</body>
+</html>
