@@ -492,6 +492,79 @@ class WebsiteAssessor:
                 line-height: 1.6;
             }
             .container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; position: relative; z-index: 10; }
+            .header-bar { display: flex; justify-content: space-between; align-items: center; background: rgba(15, 15, 19, 0.6); backdrop-filter: var(--glass-blur); border: 1px solid var(--border-color); padding: 16px 28px; border-radius: 12px; margin-bottom: 24px; }
+            .brand { display: flex; align-items: center; gap: 12px; font-family: 'Outfit', sans-serif; }
+            .brand-logo { font-size: 20px; font-weight: 800; letter-spacing: 1.5px; color: #fff; text-transform: uppercase; }
+            .brand-logo span { color: var(--accent-red); }
+            .brand-japanese { background: var(--accent-red-dim); color: var(--accent-red); font-weight: 600; font-size: 13px; padding: 2px 10px; border-radius: 4px; border: 1px solid rgba(255, 46, 59, 0.2); }
+            .btn-print { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-color); padding: 8px 18px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+            .btn-print:hover { color: #fff; border-color: #fff; background: rgba(255, 255, 255, 0.05); }
+            .hero-section { position: relative; background-color: var(--bg-secondary); background-size: cover; background-position: center 30%; padding: 60px 40px; border-radius: 16px; margin-bottom: 30px; border: 1px solid var(--border-color); overflow: hidden; }
+            .hero-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, rgba(7, 7, 9, 0.95) 40%, rgba(7, 7, 9, 0.4) 100%); z-index: 1; }
+            .hero-content { position: relative; z-index: 3; max-width: 600px; }
+            .hero-tagline { color: var(--accent-red); font-size: 12px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+            .hero-tagline::before { content: ''; display: inline-block; width: 8px; height: 8px; background: var(--accent-red); }
+            .hero-title { font-family: 'Outfit', sans-serif; font-size: 38px; font-weight: 800; line-height: 1.15; margin-bottom: 20px; letter-spacing: -0.5px; }
+            .hero-meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 30px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 24px; }
+            .meta-item { display: flex; flex-direction: column; gap: 4px; }
+            .meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+            .meta-val { font-size: 14px; font-weight: 600; color: var(--text-secondary); word-break: break-all; }
+            .glass-card { background: var(--card-bg); backdrop-filter: var(--glass-blur); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); position: relative; overflow: hidden; margin-bottom: 24px; transition: all 0.3s ease; }
+            .glass-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: transparent; }
+            .glass-card.card-red::before { background: var(--accent-red); }
+            .glass-card.card-orange::before { background: var(--color-warning); }
+            .glass-card.card-green::before { background: var(--color-pass); }
+            .glass-card.card-blue::before { background: var(--color-info); }
+            .glass-card:hover { border-color: rgba(255, 46, 59, 0.3); box-shadow: 0 12px 40px var(--accent-red-dim); }
+            .dashboard-grid { display: grid; grid-template-columns: 320px 1fr; gap: 24px; margin-bottom: 24px; }
+            .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+            @media (max-width: 868px) {
+                .dashboard-grid { grid-template-columns: 1fr; }
+            }
+            @media (max-width: 600px) {
+                .config-grid { grid-template-columns: 1fr; }
+            }
+            .card-title { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px; margin-bottom: 15px; }
+            .card-title::before { content: ''; display: inline-block; width: 4px; height: 16px; background: var(--accent-red); }
+            .summary-text { color: var(--text-secondary); font-size: 14px; line-height: 1.7; }
+            .cert-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+            .cert-table tr { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+            .cert-table tr:last-child { border-bottom: none; }
+            .cert-table td { padding: 12px 8px; font-size: 13.5px; vertical-align: top; }
+            .cert-table td:first-child { color: var(--text-secondary); font-weight: 600; width: 32%; }
+            .cert-table td:last-child { color: var(--text-primary); font-family: monospace; word-break: break-all; }
+            .badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+            .badge-green { background: var(--color-pass-glow); color: var(--color-pass); border: 1px solid var(--color-pass); }
+            .badge-red { background: var(--color-critical-glow); color: var(--color-critical); border: 1px solid var(--color-critical); }
+            .badge-yellow { background: var(--color-warning-glow); color: var(--color-warning); border: 1px solid var(--color-warning); }
+            .badge-blue { background: var(--color-info-glow); color: var(--color-info); border: 1px solid var(--color-info); }
+            .tabs-nav { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 1px; }
+            .tab-btn { background: transparent; border: none; color: var(--text-secondary); padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; position: relative; font-family: 'Outfit', sans-serif; }
+            .tab-btn::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--accent-red); transform: scaleX(0); transition: transform 0.2s ease; }
+            .tab-btn:hover { color: #fff; }
+            .tab-btn.active { color: #fff; }
+            .tab-btn.active::after { transform: scaleX(1); }
+            .tab-content { display: none; animation: fadeIn 0.4s ease forwards; }
+            .tab-content.active { display: block; }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+            .health-score-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0 0 0; position: relative; }
+            .progress-ring { transform: rotate(-90deg); }
+            .progress-ring__circle { transition: stroke-dashoffset 0.35s; transform-origin: 50% 50%; }
+            .health-score-text { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+            .score-num { font-family: 'Outfit', sans-serif; font-size: 36px; font-weight: 800; color: #fff; line-height: 1; }
+            .score-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; margin-top: 4px; text-transform: uppercase; }
+            .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; }
+            .stat-card { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; transition: transform 0.2s ease; }
+            .stat-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.12); }
+            .stat-val { font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 800; }
+            .stat-lbl { font-size: 11px; color: var(--text-secondary); }
+            .stat-critical { color: var(--color-critical); }
+            .stat-warning { color: var(--color-warning); }
+            .stat-pass { color: var(--color-pass); }
+            .stat-info { color: var(--color-info); }
+            .vuln-item-card { transition: background-color 0.2s ease, border-color 0.2s ease; }
+            .vuln-item-card:hover { background: rgba(255, 255, 255, 0.02) !important; border-color: rgba(255, 46, 59, 0.2) !important; }
+            .footer { text-align: center; color: var(--text-muted); font-size: 13px; margin-top: 50px; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 24px; }
             """
             
         # Load samurai hero background
@@ -750,31 +823,31 @@ class WebsiteAssessor:
 
         <!-- TAB 1: OVERVIEW DASHBOARD -->
         <div id="dashboard" class="tab-content active">
-            <div class="dashboard-grid" style="display: grid; grid-template-columns: 320px 1fr; gap: 24px; margin-bottom: 24px;">
+            <div class="dashboard-grid">
                 <!-- Left panel: Health score circular ring + counts -->
-                <div class="dashboard-left" style="display: flex; flex-direction: column; gap: 24px;">
-                    <div class="glass-card card-red health-score-card" style="text-align:center;">
-                        <div style="font-size: 13px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; font-family: 'Outfit', sans-serif;">Security Health</div>
-                        <div class="health-score-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
-                            <svg class="progress-ring" width="160" height="160" style="transform: rotate(-90deg);">
+                <div class="dashboard-left">
+                    <div class="glass-card card-red health-score-card">
+                        <div style="font-size: 13px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; font-family: 'Outfit', sans-serif; text-align: center;">Security Health</div>
+                        <div class="health-score-container">
+                            <svg class="progress-ring" width="160" height="160">
                                 <circle class="progress-ring__background" stroke="rgba(255, 255, 255, 0.04)" stroke-width="12" fill="transparent" r="68" cx="80" cy="80"/>
                                 <circle class="progress-ring__circle" stroke="<!--SCORE_COLOR-->" stroke-width="12" stroke-dasharray="427 427" stroke-dashoffset="<!--SCORE_OFFSET-->" stroke-linecap="round" fill="transparent" r="68" cx="80" cy="80"/>
                             </svg>
-                            <div class="health-score-text" style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                                <span class="score-num" style="font-family: 'Outfit', sans-serif; font-size: 36px; font-weight: 800; color: #fff;"><!--HEALTH_SCORE-->%</span>
-                                <span class="score-label" style="color: <!--SCORE_COLOR-->; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px;"><!--SCORE_RATING--></span>
+                            <div class="health-score-text">
+                                <span class="score-num"><!--HEALTH_SCORE-->%</span>
+                                <span class="score-label" style="color: <!--SCORE_COLOR-->;"><!--SCORE_RATING--></span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="stat-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%;">
-                        <div class="stat-card" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px;">
-                            <span class="stat-val stat-critical" style="font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 800; color: var(--color-critical);"><!--CRITICAL_COUNT--></span>
-                            <span class="stat-lbl" style="font-size: 11px; color: var(--text-secondary);">Critical Issues</span>
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <span class="stat-val stat-critical"><!--CRITICAL_COUNT--></span>
+                            <span class="stat-lbl">Critical Issues</span>
                         </div>
-                        <div class="stat-card" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px;">
-                            <span class="stat-val stat-warning" style="font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 800; color: var(--color-warning);"><!--WARNING_COUNT--></span>
-                            <span class="stat-lbl" style="font-size: 11px; color: var(--text-secondary);">Warnings</span>
+                        <div class="stat-card">
+                            <span class="stat-val stat-warning"><!--WARNING_COUNT--></span>
+                            <span class="stat-lbl">Warnings</span>
                         </div>
                     </div>
                 </div>
@@ -846,7 +919,7 @@ class WebsiteAssessor:
     <script>
         const heroBg = "<!--HERO_BG_BASE64-->";
         if (heroBg && heroBg.trim().length > 0) {
-            document.getElementById('hero-banner').style.backgroundImage = `linear-gradient(rgba(7, 7, 9, 0.85), rgba(7, 7, 9, 0.95)), url('data:image/jpeg;base64,$[heroBg}')`.replace('$[heroBg}', heroBg);
+            document.getElementById('hero-banner').style.backgroundImage = "linear-gradient(rgba(7, 7, 9, 0.85), rgba(7, 7, 9, 0.95)), url('data:image/jpeg;base64," + heroBg + "')";
         } else {
             document.getElementById('hero-banner').style.backgroundImage = 'linear-gradient(135deg, #0f0f13 0%, #16161e 100%)';
         }
