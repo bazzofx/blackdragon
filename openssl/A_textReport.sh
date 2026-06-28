@@ -3,8 +3,16 @@
 # ssl_missing_info.sh - Captures SSL/TLS info not in testssl.sh report
 # Usage: ./ssl_missing_info.sh <domain> [output_file]
 
-TARGET="${1:-cybersamurai.co.uk}"
-OUTPUT_FILE="${2:-ssl_missing_info.txt}"
+# Check if domain is provided
+if [ -z "$1" ]; then
+    echo "❌ Error: Domain/Website is required"
+    echo "Usage: $0 <domain> [output_file]"
+    echo "Example: $0 google.com"
+    exit 1
+fi
+
+TARGET="$1"
+OUTPUT_FILE="${2:-ssl_missing_info_${TARGET}.txt}"
 
 echo "=== SSL/TLS Information Missing from testssl.sh Report ==="
 echo "Target: $TARGET"
