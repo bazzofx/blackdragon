@@ -68,13 +68,13 @@ FULL_CHAIN_FILE="${TEMP_DIR}/full_chain.pem"
 get_cert_info() {
     echo -e "${BLUE}Retrieving certificate information...${NC}"
     
-    # Get certificate
-    openssl s_client -connect "$TARGET":443 -servername "$TARGET" -showcerts </dev/null 2>/dev/null > "${CERT_FILE}"
+    # Get certificate (append || true to prevent set -e from exiting on openssl return codes)
+    openssl s_client -connect "$TARGET":443 -servername "$TARGET" -showcerts </dev/null 2>/dev/null > "${CERT_FILE}" || true
     
-    # Extract certificate chain
+    # Extract certificate chain (append || true to prevent set -e from exiting on openssl return codes)
     openssl s_client -connect "$TARGET":443 -servername "$TARGET" -showcerts </dev/null 2>/dev/null | \
     awk '/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/' | \
-    sed '/^[[:space:]]*$/d' > "${FULL_CHAIN_FILE}"
+    sed '/^[[:space:]]*$/d' > "${FULL_CHAIN_FILE}" || true
     
     if [[ ! -s "${CERT_FILE}" ]]; then
         echo -e "${RED}Failed to retrieve certificate from ${TARGET}${NC}"
@@ -152,7 +152,7 @@ check_tls_versions() {
                 version_support[$i]="Not Supported"
             fi
         fi
-        ((i++))
+        i=$((i + 1))
     done
     
     # Check for insecure protocols
@@ -213,7 +213,7 @@ check_headers() {
     echo -e "${BLUE}Checking security headers...${NC}"
     
     HSTS="Not Found"
-    if timeout 5 curl -s -I "https://$TARGET" 2>/dev/null | grep -q "Strict-Transport-Security"; then
+    if curl -s -I --max-time 5 "https://$TARGET" 2>/dev/null | grep -q "Strict-Transport-Security"; then
         HSTS="Present"
     fi
 }
@@ -230,7 +230,7 @@ check_headers
 generate_json() {
     local json_file="${REPORT_NAME}.json"
     
-    echo -e "${BLUE}Generating JSON report: ${json_file}${NC}"
+    echo -e "${BLUE}Generating JSON report: ${json_file}${NC}" >&2
     
     cat > "$json_file" << EOF
 {
@@ -275,7 +275,7 @@ EOF
 generate_html() {
     local html_file="${REPORT_NAME}.html"
     
-    echo -e "${BLUE}Generating HTML report: ${html_file}${NC}"
+    echo -e "${BLUE}Generating HTML report: ${html_file}${NC}" >&2
     
     # Determine status colors
     EXPIRY_COLOR="green"
@@ -364,9 +364,10 @@ generate_html() {
         </div>
 EOF
 
-    # Replace placeholders
-    sed -i "s/TARGET_PLACEHOLDER/${TARGET}/g" "$html_file"
-    sed -i "s/SCAN_TIME_PLACEHOLDER/$(date)/g" "$html_file"
+    # Replace placeholders portably without using sed -i (which behaves differently on macOS/BSD vs GNU/Linux)
+    local tmp_html="${html_file}.tmp"
+    sed -e "s/TARGET_PLACEHOLDER/${TARGET}/g" -e "s/SCAN_TIME_PLACEHOLDER/$(date)/g" "$html_file" > "$tmp_html"
+    mv "$tmp_html" "$html_file"
     
     # Append certificate details
     cat >> "$html_file" << EOF
