@@ -215,12 +215,47 @@ class SamuraiReportParser:
                     self.findings['service'] = match.group(1)
 
             # Protocol detection
-            if '<u>TLSv' in line:
-                proto_match = re.search(r'TLSv([\d.]+)', line)
+            is_proto_header = False
+            proto_name = None
+            if '<u>TLSv' in line or '<u>SSLv' in line:
+                proto_match = re.search(r'(TLSv[\d.]+|SSLv\d)', line)
                 if proto_match:
-                    proto = f"TLSv{proto_match.group(1)}"
-                    if proto not in self.findings['protocols']['supported']:
-                        self.findings['protocols']['supported'].append(proto)
+                    proto_name = proto_match.group(1)
+                    is_proto_header = True
+            else:
+                # Support text-only output files
+                clean_line_test = self._clean_html(line)
+                if clean_line_test in ['SSLv2', 'SSLv3', 'TLSv1', 'TLSv1.1', 'TLSv1.2', 'TLSv1.3']:
+                    proto_name = clean_line_test
+                    is_proto_header = True
+
+            if is_proto_header and proto_name:
+                # Look ahead to verify if it is offered (i.e. not followed by a line containing only '-')
+                is_offered = False
+                for j in range(i + 1, min(i + 15, len(lines))):
+                    next_line_clean = self._clean_html(lines[j])
+                    if not next_line_clean:
+                        continue
+                    # If we reach another protocol header, stop
+                    if '<u>TLSv' in lines[j] or '<u>SSLv' in lines[j] or next_line_clean in ['SSLv2', 'SSLv3', 'TLSv1', 'TLSv1.1', 'TLSv1.2', 'TLSv1.3']:
+                        break
+                    # If it's a hyphen, it means not offered/supported
+                    if next_line_clean == '-':
+                        break
+                    # If it has a cipher suite hex code or any non-hyphen cipher info, it's offered
+                    if re.search(r'^x[0-9a-fA-F]{2,4}\s+', next_line_clean):
+                        is_offered = True
+                        break
+                    if len(next_line_clean) > 5 and '-' not in next_line_clean:
+                        is_offered = True
+                        break
+
+                if is_offered:
+                    if proto_name not in self.findings['protocols']['supported']:
+                        self.findings['protocols']['supported'].append(proto_name)
+                    # If it's TLSv1 or TLSv1.1, it's also flagged as vulnerable/deprecated
+                    if proto_name in ['TLSv1', 'TLSv1.1'] and proto_name not in self.findings['protocols']['vulnerable']:
+                        self.findings['protocols']['vulnerable'].append(proto_name)
 
             # Vulnerability findings
             vuln_patterns = {
@@ -293,11 +328,7 @@ class SamuraiReportParser:
                         processed_vulns.add(vuln_name)
 
             # Check for TLS 1.0 and 1.1 (deprecated)
-            if 'TLSv1</u>' in line or '<u>TLSv1.1' in line:
-                if 'TLSv1' not in self.findings['protocols']['vulnerable']:
-                    self.findings['protocols']['vulnerable'].append('TLSv1')
-                if 'TLSv1.1' not in self.findings['protocols']['vulnerable']:
-                    self.findings['protocols']['vulnerable'].append('TLSv1.1')
+            # (Handled dynamically in the protocol detection phase above)
 
             # Parse cipher suites
             is_cipher_line = bool(re.search(r'^\s+x[0-9a-fA-F]{2,4}\s+', line))

@@ -891,11 +891,11 @@
             <div class="hero-meta">
                 <div class="meta-item">
                     <span class="meta-label">Target Host</span>
-                    <span class="meta-val">cybersamurai.co.uk</span>
+                    <span class="meta-val">necsws.com</span>
                 </div>
                 <div class="meta-item">
                     <span class="meta-label">IP Address</span>
-                    <span class="meta-val">104.21.78.216, 172.67.137.163</span>
+                    <span class="meta-val"></span>
                 </div>
                 <div class="meta-item">
                     <span class="meta-label">Active Service</span>
@@ -903,7 +903,7 @@
                 </div>
                 <div class="meta-item">
                     <span class="meta-label">Scan Timestamp</span>
-                    <span class="meta-val">2026-06-28 04:30:56</span>
+                    <span class="meta-val">2026-06-28 04:30:31</span>
                 </div>
             </div>
         </div>
@@ -930,30 +930,30 @@
                         <svg class="progress-ring" width="160" height="160">
                             <circle class="progress-ring__background" stroke="rgba(255, 255, 255, 0.04)" stroke-width="12" fill="transparent" r="68" cx="80" cy="80"/>
                             <!-- Stroke-dasharray = 2 * PI * r = 2 * 3.14159 * 68 = 427 -->
-                            <circle class="progress-ring__circle" stroke="#ff2e3b" stroke-width="12" stroke-dasharray="427 427" stroke-dashoffset="321" stroke-linecap="round" fill="transparent" r="68" cx="80" cy="80"/>
+                            <circle class="progress-ring__circle" stroke="#10b981" stroke-width="12" stroke-dasharray="427 427" stroke-dashoffset="0" stroke-linecap="round" fill="transparent" r="68" cx="80" cy="80"/>
                         </svg>
                         <div class="health-score-text">
-                            <span class="score-num">25%</span>
-                            <span class="score-label" style="color: #ff2e3b;">CRITICAL</span>
+                            <span class="score-num">100%</span>
+                            <span class="score-label" style="color: #10b981;">SECURE</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="stat-grid">
                     <div class="stat-card">
-                        <span class="stat-val stat-critical">1</span>
+                        <span class="stat-val stat-critical">0</span>
                         <span class="stat-lbl">Critical Issues</span>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-val stat-warning">1</span>
+                        <span class="stat-val stat-warning">0</span>
                         <span class="stat-lbl">Warnings</span>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-val stat-pass">16</span>
+                        <span class="stat-val stat-pass">18</span>
                         <span class="stat-lbl">Passed Checks</span>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-val stat-info">4</span>
+                        <span class="stat-val stat-info">2</span>
                         <span class="stat-lbl">TLS Protocols</span>
                     </div>
                 </div>
@@ -964,15 +964,15 @@
                 <div class="glass-card summary-card" style="height: 100%;">
                     <h2 class="card-title">Executive Summary</h2>
                     <div class="summary-text">
-                        A comprehensive TLS configuration and vulnerability analysis has been completed for <strong>cybersamurai.co.uk</strong>. 
-                        The target host is currently evaluated as <strong>CRITICAL</strong> with a security posture rating of <strong>25%</strong>. 
+                        A comprehensive TLS configuration and vulnerability analysis has been completed for <strong>necsws.com</strong>. 
+                        The target host is currently evaluated as <strong>SECURE</strong> with a security posture rating of <strong>100%</strong>. 
                         <br><br>
                         This assessment analyzed supported protocols, encryption strength, cryptographic handshakes, and vulnerabilities including POODLE, Heartbleed, ROBOT, CCS Injection, and BREACH.
                         <br><br>
                         Key observations:
                         <ul class="bullet-list">
                             <li>Supported Protocols: Modern protocols (TLSv1.2, TLSv1.3) are supported. However, deprecated protocols (TLSv1.0, TLSv1.1) should be disabled to prevent downgrade attacks.</li>
-                            <li>Critical Vulnerabilities: There are <strong>1</strong> critical issues identified that require immediate remediation to prevent sensitive session exposure or data decryption.</li>
+                            <li>Critical Vulnerabilities: There are <strong>0</strong> critical issues identified that require immediate remediation to prevent sensitive session exposure or data decryption.</li>
                             <li>Forward Secrecy: Perfect Forward Secrecy (PFS) is supported on modern clients, ensuring session key protection.</li>
                         </ul>
                     </div>
@@ -985,69 +985,13 @@
     <div id="vulnerabilities" class="tab-content">
         <div class="filter-bar">
             <button class="filter-btn active" onclick="filterVulns('all')">All checks</button>
-            <button class="filter-btn" onclick="filterVulns('critical')">Critical (1)</button>
-            <button class="filter-btn" onclick="filterVulns('warning')">Warnings (1)</button>
+            <button class="filter-btn" onclick="filterVulns('critical')">Critical (0)</button>
+            <button class="filter-btn" onclick="filterVulns('warning')">Warnings (0)</button>
             <button class="filter-btn" onclick="filterVulns('pass')">Passed checks</button>
         </div>
 
         <div class="vuln-cards-list">
             
-            <div class="vuln-item-card" data-severity="critical">
-                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
-                    <div class="vuln-meta-left">
-                        <span class="severity-badge badge-critical">CRITICAL</span>
-                        <div class="vuln-card-title">LUCKY13 (CVE-2013-0169)</div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <span class="vuln-card-summary">VULNERABLE</span>
-                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </div>
-                </div>
-                
-                <div class="vuln-card-body">
-                    <div class="vuln-body-content">
-                        <div class="vuln-info-row">
-                            <div class="vuln-info-block">
-                                <span class="block-title">Threat Description</span>
-                                <p class="block-text">A timing attack against TLS implementations using Cipher Block Chaining (CBC) mode, allowing remote attackers to recover plaintext bytes from TLS sessions.</p>
-                            </div>
-                            <div class="vuln-info-block">
-                                <span class="block-title">Remediation Guide</span>
-                                <p class="block-text">Configure the server to prefer AES-GCM or ChaCha20-Poly1305 ciphers over CBC-based ciphers. Disable TLS 1.0 and 1.1.</p>
-                            </div>
-                        </div>
-                        <div class="raw-output-block">LUCKY13 (CVE-2013-0169), experimental     potentially VULNERABLE, uses cipher block chaining (CBC) ciphers with TLS. Check patches</div>
-                    </div>
-                </div>
-            </div>
-            <div class="vuln-item-card" data-severity="warning">
-                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
-                    <div class="vuln-meta-left">
-                        <span class="severity-badge badge-warning">WARNING</span>
-                        <div class="vuln-card-title">BREACH (CVE-2013-3587)</div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <span class="vuln-card-summary">potentially</span>
-                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </div>
-                </div>
-                
-                <div class="vuln-card-body">
-                    <div class="vuln-body-content">
-                        <div class="vuln-info-row">
-                            <div class="vuln-info-block">
-                                <span class="block-title">Threat Description</span>
-                                <p class="block-text">Exploits HTTP-level compression (gzip/deflate) combined with user-controlled input and secrets in the response body to extract sensitive data like CSRF tokens.</p>
-                            </div>
-                            <div class="vuln-info-block">
-                                <span class="block-title">Remediation Guide</span>
-                                <p class="block-text">Disable HTTP compression for sensitive pages containing secrets. Alternatively, use anti-CSRF token masking, randomize padding length, or disable compression dynamically based on request path.</p>
-                            </div>
-                        </div>
-                        <div class="raw-output-block">BREACH (CVE-2013-3587)                    potentially NOT ok, &quot;br gzip&quot; HTTP compression detected. - only supplied &quot;/&quot; tested</div>
-                    </div>
-                </div>
-            </div>
             <div class="vuln-item-card" data-severity="pass">
                 <div class="vuln-card-header" onclick="toggleVulnCard(this)">
                     <div class="vuln-meta-left">
@@ -1276,6 +1220,34 @@
                 <div class="vuln-card-header" onclick="toggleVulnCard(this)">
                     <div class="vuln-meta-left">
                         <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">BREACH (CVE-2013-3587)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">OK</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">Exploits HTTP-level compression (gzip/deflate) combined with user-controlled input and secrets in the response body to extract sensitive data like CSRF tokens.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Disable HTTP compression for sensitive pages containing secrets. Alternatively, use anti-CSRF token masking, randomize padding length, or disable compression dynamically based on request path.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">BREACH (CVE-2013-3587)                    no gzip/deflate/compress/br HTTP compression (OK)  - only supplied &quot;/&quot; tested</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
                         <div class="vuln-card-title">POODLE (CVE-2014-3566)</div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 12px;">
@@ -1297,34 +1269,6 @@
                             </div>
                         </div>
                         <div class="raw-output-block">POODLE, SSL (CVE-2014-3566)               not vulnerable (OK)</div>
-                    </div>
-                </div>
-            </div>
-            <div class="vuln-item-card" data-severity="pass">
-                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
-                    <div class="vuln-meta-left">
-                        <span class="severity-badge badge-pass">PASS</span>
-                        <div class="vuln-card-title">TLS_FALLBACK_SCSV (RFC 7507)</div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <span class="vuln-card-summary">supported</span>
-                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </div>
-                </div>
-                
-                <div class="vuln-card-body">
-                    <div class="vuln-body-content">
-                        <div class="vuln-info-row">
-                            <div class="vuln-info-block">
-                                <span class="block-title">Threat Description</span>
-                                <p class="block-text">Prevents protocol downgrade attacks by signalling to the server that a client is falling back to a lower protocol version due to connection failure.</p>
-                            </div>
-                            <div class="vuln-info-block">
-                                <span class="block-title">Remediation Guide</span>
-                                <p class="block-text">Ensure the server supports the TLS_FALLBACK_SCSV extension (built into modern OpenSSL versions).</p>
-                            </div>
-                        </div>
-                        <div class="raw-output-block">TLS_FALLBACK_SCSV (RFC 7507)              Downgrade attack prevention supported (OK)</div>
                     </div>
                 </div>
             </div>
@@ -1444,6 +1388,62 @@
                 <div class="vuln-card-header" onclick="toggleVulnCard(this)">
                     <div class="vuln-meta-left">
                         <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">BEAST (CVE-2011-3389)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">not vulnerable</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">An attack against TLS 1.0 that decrypts HTTPS cookies by exploiting initialization vector predictability in CBC cipher suites.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Disable TLS 1.0 (and TLS 1.1) on the server. Prioritize GCM ciphers (which use TLS 1.2+) or ChaCha20-Poly1305.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">BEAST (CVE-2011-3389)                     not vulnerable (OK), no SSL3 or TLS1</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
+                        <div class="vuln-card-title">LUCKY13 (CVE-2013-0169)</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="vuln-card-summary">not vulnerable</span>
+                        <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+                
+                <div class="vuln-card-body">
+                    <div class="vuln-body-content">
+                        <div class="vuln-info-row">
+                            <div class="vuln-info-block">
+                                <span class="block-title">Threat Description</span>
+                                <p class="block-text">A timing attack against TLS implementations using Cipher Block Chaining (CBC) mode, allowing remote attackers to recover plaintext bytes from TLS sessions.</p>
+                            </div>
+                            <div class="vuln-info-block">
+                                <span class="block-title">Remediation Guide</span>
+                                <p class="block-text">Configure the server to prefer AES-GCM or ChaCha20-Poly1305 ciphers over CBC-based ciphers. Disable TLS 1.0 and 1.1.</p>
+                            </div>
+                        </div>
+                        <div class="raw-output-block">LUCKY13 (CVE-2013-0169), experimental     not vulnerable (OK)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="vuln-item-card" data-severity="pass">
+                <div class="vuln-card-header" onclick="toggleVulnCard(this)">
+                    <div class="vuln-meta-left">
+                        <span class="severity-badge badge-pass">PASS</span>
                         <div class="vuln-card-title">Winshock (CVE-2014-6321)</div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 12px;">
@@ -1522,11 +1522,11 @@
                     </div>
                     <div class="protocol-status-item">
                         <span class="proto-name">TLSv1</span>
-                        <span class="proto-status proto-deprecated">Deprecated</span>
+                        <span class="proto-status proto-disabled">Disabled</span>
                     </div>
                     <div class="protocol-status-item">
                         <span class="proto-name">TLSv1.1</span>
-                        <span class="proto-status proto-deprecated">Deprecated</span>
+                        <span class="proto-status proto-disabled">Disabled</span>
                     </div>
                     <div class="protocol-status-item">
                         <span class="proto-name">TLSv1.2</span>
@@ -1548,7 +1548,7 @@
                     
                     <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
                         <span class="proto-status proto-secure" style="padding: 4px 12px; font-size: 11px;">Active / Supported</span>
-                        <span style="font-size: 12.5px; color: var(--text-secondary);">7 FS cipher suites active</span>
+                        <span style="font-size: 12.5px; color: var(--text-secondary);">3 FS cipher suites active</span>
                     </div>
                 </div>
 
@@ -1582,28 +1582,11 @@
 
             <div class="roadmap-sections-list">
                 
-                <div class="roadmap-priority-group">
-                    <div class="priority-title priority-critical">Critical Actions (Immediate)</div>
-                    <div class="roadmap-item">
-                        <div class="roadmap-item-details">
-                            <div class="roadmap-item-title">Fix LUCKY13 (CVE-2013-0169)</div>
-                            <span class="roadmap-item-desc">Configure the server to prefer AES-GCM or ChaCha20-Poly1305 ciphers over CBC-based ciphers. Disable TLS 1.0 and 1.1.</span>
-                        </div>
-                    </div></div>
-                <div class="roadmap-priority-group">
-                    <div class="priority-title priority-high">High Priority (Recommended)</div>
-                    <div class="roadmap-item">
-                        <div class="roadmap-item-details">
-                            <div class="roadmap-item-title">Disable Deprecated TLS Protocols (TLSv1, TLSv1.1)</div>
-                            <span class="roadmap-item-desc">Configure your web server to only support secure protocols: TLSv1.2 and TLSv1.3. Deprecated protocols are vulnerable to downgrade attacks.</span>
-                        </div>
-                    </div>
-                    <div class="roadmap-item">
-                        <div class="roadmap-item-details">
-                            <div class="roadmap-item-title">Remediate BREACH (CVE-2013-3587) Warning</div>
-                            <span class="roadmap-item-desc">Disable HTTP compression for sensitive pages containing secrets. Alternatively, use anti-CSRF token masking, randomize padding length, or disable compression dynamically based on request path.</span>
-                        </div>
-                    </div></div>
+                <div style="text-align: center; padding: 40px 10px; color: var(--color-pass);">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    <h3 style="font-family:'Outfit',sans-serif;font-size:18px;margin-bottom:4px;">Perfect Score!</h3>
+                    <p style="font-size:12.5px;color:var(--text-secondary);">No action items found. Your server configuration conforms to top security standards.</p>
+                </div>
             </div>
 
         </div>
