@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TLS Security Assessment Report - cybersamurai.co.uk</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f0f4f8;
+            color: #1a2332;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a2332 0%, #2d3748 100%);
+            color: white;
+            padding: 40px 50px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .header .subtitle {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+        .header .meta {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 14px;
+        }
+        .header .meta span {
+            background: rgba(255,255,255,0.1);
+            padding: 4px 14px;
+            border-radius: 20px;
+        }
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        .score-card {
+            background: white;
+            padding: 20px 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 4px solid #e2e8f0;
+        }
+        .score-card .number {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        .score-card .label {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 2px;
+        }
+        .score-card.critical { border-left-color: #e53e3e; }
+        .score-card.critical .number { color: #e53e3e; }
+        .score-card.warning { border-left-color: #ed8936; }
+        .score-card.warning .number { color: #ed8936; }
+        .score-card.pass { border-left-color: #38a169; }
+        .score-card.pass .number { color: #38a169; }
+        .score-card.info { border-left-color: #3182ce; }
+        .score-card.info .number { color: #3182ce; }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .section h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section h2 .badge {
+            font-size: 12px;
+            font-weight: 500;
+            padding: 2px 12px;
+            border-radius: 20px;
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        .section h2 .badge.critical { background: #fed7d7; color: #c53030; }
+        .section h2 .badge.warning { background: #feebc8; color: #c05621; }
+        .section h2 .badge.pass { background: #c6f6d5; color: #276749; }
+
+        .vuln-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .vuln-table th {
+            text-align: left;
+            padding: 12px 16px;
+            background: #f7fafc;
+            font-weight: 600;
+            border-bottom: 2px solid #e2e8f0;
+            color: #4a5568;
+        }
+        .vuln-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #edf2f7;
+            vertical-align: middle;
+        }
+        .vuln-table tr:hover td {
+            background: #f7fafc;
+        }
+        .vuln-table .vuln-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .vuln-table .vuln-detail-text {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #4a5568;
+            word-break: break-all;
+        }
+        .status.critical { background: #fed7d7; color: #c53030; }
+        .status.warning { background: #feebc8; color: #c05621; }
+        .status.pass { background: #c6f6d5; color: #276749; }
+        .status.info { background: #bee3f8; color: #2b6cb0; }
+
+        .protocol-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 4px;
+        }
+        .protocol-item {
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            background: #e2e8f0;
+        }
+        .protocol-item.deprecated {
+            background: #fed7d7;
+            color: #c53030;
+        }
+        .protocol-item.supported {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .cipher-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+        .cipher-table th {
+            text-align: left;
+            padding: 10px 14px;
+            background: #f7fafc;
+            font-weight: 600;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .cipher-table td {
+            padding: 8px 14px;
+            border-bottom: 1px solid #f0f4f8;
+        }
+        .cipher-table tr:hover td {
+            background: #f7fafc;
+        }
+        .cipher-table .fs {
+            color: #2b6cb0;
+            font-weight: 500;
+        }
+        .cipher-table .weak {
+            color: #e53e3e;
+            font-weight: 500;
+        }
+
+        .vuln-list {
+            list-style: none;
+            padding: 0;
+            margin: 8px 0;
+        }
+        .vuln-list li {
+            padding: 8px 14px;
+            margin-bottom: 4px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: #f7fafc;
+        }
+        .vuln-list li.critical {
+            border-left: 4px solid #e53e3e;
+            background: #fff5f5;
+        }
+        .vuln-list li.warning {
+            border-left: 4px solid #ed8936;
+            background: #fffbeb;
+        }
+        .vuln-list .vuln-name {
+            font-weight: 600;
+        }
+        .vuln-list .vuln-status {
+            font-size: 13px;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            background: #e2e8f0;
+        }
+        .vuln-list .vuln-status.critical { background: #fed7d7; color: #c53030; }
+        .vuln-list .vuln-status.warning { background: #feebc8; color: #c05621; }
+        .vuln-list .vuln-status.pass { background: #c6f6d5; color: #276749; }
+        .vuln-list .vuln-detail {
+            width: 100%;
+            font-size: 13px;
+            color: #4a5568;
+            padding: 4px 0 0 0;
+            font-family: 'Courier New', monospace;
+            background: #edf2f7;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-top: 4px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 24px 0;
+            color: #a0aec0;
+            font-size: 14px;
+        }
+        @media (max-width: 640px) {
+            body { padding: 16px; }
+            .header { padding: 24px; }
+            .section { padding: 20px; }
+            .score-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🔒 TLS Security Assessment</h1>
+        <div class="subtitle">Comprehensive vulnerability and configuration analysis</div>
+        <div class="meta">
+            <span>🎯 Target: cybersamurai.co.uk</span>
+            <span>🌐 IP: 104.21.78.216, 172.67.137.163</span>
+            <span>📡 Services: HTTPS</span>
+            <span>📅 Generated: 2026-06-28 02:38:20</span>
+        </div>
+    </div>
+
+    <div class="score-grid">
+        <div class="score-card critical">
+            <div class="number">2</div>
+            <div class="label">Critical Issues</div>
+        </div>
+        <div class="score-card warning">
+            <div class="number">0</div>
+            <div class="label">Warnings</div>
+        </div>
+        <div class="score-card pass">
+            <div class="number">16</div>
+            <div class="label">Passed Checks</div>
+        </div>
+        <div class="score-card info">
+            <div class="number">4</div>
+            <div class="label">TLS Protocols Supported</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📋 Supported Protocols</h2>
+        <div class="protocol-list">
+<span class="protocol-item deprecated">⚠️ TLSv1 (DEPRECATED)</span><span class="protocol-item deprecated">⚠️ TLSv1.1 (DEPRECATED)</span><span class="protocol-item supported">✅ TLSv1.2</span><span class="protocol-item supported">✅ TLSv1.3</span>
+        </div>
+
+        <div style="margin-top:12px;padding:12px 16px;background:#fed7d7;border-radius:8px;color:#c53030;">
+            ⚠️ <strong>TLSv1, TLSv1.1</strong> is/are still enabled.
+            These protocols are deprecated and should be disabled immediately.
+        </div>
+
+    </div>
+
+    <div class="section">
+        <h2>🛡️ Vulnerability Assessment</h2>
+        <table class="vuln-table">
+            <thead>
+                <tr>
+                    <th style="width: 30%;">Name</th>
+                    <th style="width: 20%;">Status</th>
+                    <th style="width: 50%;">Details</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td class="vuln-name">BREACH (CVE-2013-3587)</td>
+                    <td><span class="status critical">❌ VULNERABLE</span></td>
+                    <td class="vuln-detail-text">BREACH (CVE-2013-3587)                    potentially NOT ok, &amp;quot;br gzip&amp;quot; HTTP compression detected. - only supplied &amp;quot;/&amp;quot; tested</td>
+                </tr>
+
+                <tr>
+                    <td class="vuln-name">CCS (CVE-2014-0224)</td>
+                    <td><span class="status pass">✅ PASS</span></td>
+                    <td class="vuln-detail-text">CCS (CVE-2014-0224)                       not vulnerable (OK)</td>
+                </tr>
+
+                <tr>
+                    <td class="vuln-name">CRIME, TLS (CVE-2012-4929)</td>
+                    <td><span class="status pass">✅ PASS</span></td>
+                    <td class="vuln-detail-text">CRIME, TLS (CVE-2012-4929)                not vulnerable (OK)</td>
+                </tr>
+
+                <tr>
+                    <td class="vuln-name">Secure Client-Initiated Renegotiation</td>
+                    <td><span class="status pass">✅ PASS</span></td>
+                    <td class="vuln-detail-text">Secure Client-Initiated Renegotiation     not vulnerable (OK)</td>
+                </tr>
+
+                <tr>
+                    <td class="vuln-name">DROWN (CVE-2016-0800, CVE-2016-0703)</td>
+                    <td><span class="status pass">✅ PASS</span></td>
+                    <td class="vuln-detail-text">DROWN (CVE-2016-0800, CVE-2016-0703)      not vulnerable on this host and port (OK)</td>
+                </tr>
+
+                <tr>
+                    <td class="vuln-name">FREAK (CVE-2015-0204)</td>
+                    <td><span class="status pass">✅ PASS</span></td>
+                    <td class="vuln-detail-text">FREAK (CVE-2015-0204)                     not vulnerable (OK)</td>
+                </tr>
+
+                <tr>
+                    <td class="vuln-name">Heartbleed (CVE-2014-0160)</td>
+                    <td><span class="status pass">✅ PASS</span></td>
+                    <td class="vuln-detail-text">Heartbleed (CVE-2014-0160)                not vulnerable (OK), no heartbeat extension</td>
+                </tr>
+
+                <tr>
+                    <td class="vuln-name">LOGJAM (CVE-2015-4000), experimental</td>
+                    <td><span class="status pass">✅ PASS</span></td>
+                    <td class="vuln-detail-text">LOGJAM (CVE-2015-4000), experimental      not vulnerable (OK): no DH EXPORT ciphers, no DH key detected with &amp;lt;= TLS 1.2</td>
+                </tr>
+
+                <tr>
+                    <td class="vuln-name">LUCKY13 (CVE-2013-0169), experimental</td>
+                    <td><span class="status critical">❌ VULNERABLE</span></td>
+                    <td class="vuln-detail-text">LUCKY13 (CVE-2013-0169), experimental     potentially VULNERABLE, uses cipher block chaining (CBC) ciphers with TLS. Check patches</td>
+                </tr>
+
+                <tr>
+                    <td class="vuln-name">Opossum (CVE-2025-49812)</td>
+                    <td><span class="status pass">✅ PASS</span></td>
+                    <td class="vuln-detail-text">Opossum (CVE-2025-49812)                  not vulnerable (OK)</td>
+                </tr>
+
+                <tr>
+                    <td class="vuln-name">POODLE, SSL (CVE-2014-3566)</td>
+                    <td><span class="status pass">✅ PASS</span></td>
+                    <td class="vuln-detail-text">POODLE, SSL (CVE-2014-3566)               not vulnerable (OK)</td>
+                </tr>
+
+                <tr>
+                    <td class="vuln-name">RC4 (CVE-2013-2566, CVE-2015-2808)</td>
+                    <td><span class="status pass">✅ PASS</span></td>
+                    <td class="vuln-detail-text">RC4 (CVE-2013-2566, CVE-2015-2808)        no RC4 ciphers detected (OK)</td>
+                </tr>
+
+                <tr>
+                    <td class="vuln-name">ROBOT</td>
+                    <td><span class="status pass">✅ PASS</span></td>
+                    <td class="vuln-detail-text">ROBOT                                     Server does not support any cipher suites that use RSA key transport</td>
+                </tr>
+
+                <tr>
+                    <td class="vuln-name">SWEET32 (CVE-2016-2183, CVE-2016-6329)</td>
+                    <td><span class="status pass">✅ PASS</span></td>
+                    <td class="vuln-detail-text">SWEET32 (CVE-2016-2183, CVE-2016-6329)    not vulnerable (OK)</td>
+                </tr>
+
+                <tr>
+                    <td class="vuln-name">Secure Renegotiation (RFC 5746)</td>
+                    <td><span class="status pass">✅ PASS</span></td>
+                    <td class="vuln-detail-text">Secure Renegotiation (RFC 5746)           supported (OK)</td>
+                </tr>
+
+                <tr>
+                    <td class="vuln-name">TLS_FALLBACK_SCSV (RFC 7507)              Downgrade attack prevention</td>
+                    <td><span class="status pass">✅ PASS</span></td>
+                    <td class="vuln-detail-text">TLS_FALLBACK_SCSV (RFC 7507)              Downgrade attack prevention supported (OK)</td>
+                </tr>
+
+                <tr>
+                    <td class="vuln-name">Ticketbleed (CVE-2016-9244), experimental</td>
+                    <td><span class="status pass">✅ PASS</span></td>
+                    <td class="vuln-detail-text">Ticketbleed (CVE-2016-9244), experimental not vulnerable (OK)</td>
+                </tr>
+
+                <tr>
+                    <td class="vuln-name">Winshock (CVE-2014-6321), experimental</td>
+                    <td><span class="status pass">✅ PASS</span></td>
+                    <td class="vuln-detail-text">Winshock (CVE-2014-6321), experimental    not vulnerable (OK)</td>
+                </tr>
+
+            </tbody>
+        </table>
+
+        <div style="margin-top:12px;padding:12px 16px;background:#fed7d7;border-radius:8px;color:#c53030;">
+            ❌ <strong>BREACH</strong> vulnerability detected: HTTP compression (gzip) is enabled.
+            This allows attackers to decrypt sensitive data. Disable compression immediately.
+        </div>
+
+    </div>
+
+    <div class="section">
+        <h2>🔑 Forward Secrecy</h2>
+        <div style="margin-bottom:12px;">
+            <span style="padding:4px 16px;border-radius:20px;background:#c6f6d5;color:#276749;font-weight:500;">
+                ✅ Supported
+            </span>
+        </div>
+
+        <p style="color:#4a5568;margin-bottom:12px;">The following ciphers provide forward secrecy (Perfect Forward Secrecy):</p>
+        <ul style="list-style:none;padding:0;">
+<li style="padding:4px 0;color:#2d3748;font-family:monospace;font-size:13px;">🔹 xc00a   ECDHE-ECDSA-AES256-SHA            ECDH 256   AES         256      TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA</li><li style="padding:4px 0;color:#2d3748;font-family:monospace;font-size:13px;">🔹 xc009   ECDHE-ECDSA-AES128-SHA            ECDH 256   AES         128      TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA</li><li style="padding:4px 0;color:#2d3748;font-family:monospace;font-size:13px;">🔹 xc02c   ECDHE-ECDSA-AES256-GCM-SHA384     ECDH 256   AESGCM      256      TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384</li><li style="padding:4px 0;color:#2d3748;font-family:monospace;font-size:13px;">🔹 xc024   ECDHE-ECDSA-AES256-SHA384         ECDH 256   AES         256      TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384</li><li style="padding:4px 0;color:#2d3748;font-family:monospace;font-size:13px;">🔹 xcca9   ECDHE-ECDSA-CHACHA20-POLY1305     ECDH 253   ChaCha20    256      TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256</li><li style="padding:4px 0;color:#2d3748;font-family:monospace;font-size:13px;">🔹 xc02b   ECDHE-ECDSA-AES128-GCM-SHA256     ECDH 256   AESGCM      128      TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</li><li style="padding:4px 0;color:#2d3748;font-family:monospace;font-size:13px;">🔹 xc023   ECDHE-ECDSA-AES128-SHA256         ECDH 256   AES         128      TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256</li></ul>
+    </div>
+
+    <div class="section">
+        <h2>⚠️ Weak Ciphers Detected</h2>
+        <p style="color:#e53e3e;margin-bottom:12px;">The following weak ciphers are still enabled:</p>
+        <ul style="list-style:none;padding:0;">
+<li style="padding:4px 0;color:#c53030;font-family:monospace;font-size:13px;">🔸 RC4 (CVE-2013-2566, CVE-2015-2808)        no RC4 ciphers detected (OK)</li>
+        </ul>
+    </div>
+
+    <div class="section" style="background:#f7fafc;">
+        <h2>📝 Summary & Recommendations</h2>
+
+        <div style="margin-bottom:16px;">
+            <h3 style="font-size:16px;color:#c53030;margin-bottom:10px;">❌ Critical Issues Found (2)</h3>
+            <ul class="vuln-list">
+
+                <li class="critical">
+                    <span class="vuln-name">BREACH (CVE-2013-3587)</span>
+                    <span class="vuln-status critical">potentially</span>
+                    <div class="vuln-detail">BREACH (CVE-2013-3587)                    potentially NOT ok, &amp;quot;br gzip&amp;quot; HTTP compression detected. - only supplied &amp;quot;/&amp;quot; tested</div>
+                </li>
+
+                <li class="critical">
+                    <span class="vuln-name">LUCKY13 (CVE-2013-0169), experimental</span>
+                    <span class="vuln-status critical">VULNERABLE</span>
+                    <div class="vuln-detail">LUCKY13 (CVE-2013-0169), experimental     potentially VULNERABLE, uses cipher block chaining (CBC) ciphers with TLS. Check patches</div>
+                </li>
+
+            </ul>
+        </div>
+
+        <div style="margin-top:16px;padding:16px;background:#e2e8f0;border-radius:8px;font-size:14px;color:#4a5568;">
+            <strong>📋 Action Items:</strong>
+            <ul style="list-style:none;padding:8px 0 0 0;margin:0;">
+
+                <li style="padding:4px 0;">🔴 <strong>Immediate Action Required:</strong> 2 critical vulnerability/ies found that need to be addressed urgently.</li>
+
+                <li style="padding:4px 0;">🔴 <strong>Disable TLSv1, TLSv1.1</strong> - these protocols are deprecated and insecure.</li>
+
+                <li style="padding:4px 0;">🔴 <strong>Disable HTTP Compression (gzip)</strong> to mitigate BREACH vulnerability immediately.</li>
+
+                <li style="padding:4px 0;">🔴 <strong>Remove 1 weak cipher(s)</strong> including RC4, 3DES, and other deprecated algorithms.</li>
+
+            </ul>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        Generated by testssl-report-enhancer &bull; For professional security assessment purposes
+    </div>
+</div>
+</body>
+</html>
