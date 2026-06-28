@@ -45,7 +45,7 @@ docker run --rm -it -v "$(pwd)/$folder:/out" \
   "$target"
 
 # Generate enhanced report in the same folder
-python3 generateReport.py -o "$folder/enhancedTLSReport.html" "$folder/rawTLSReport.html"
+python3 generateTLSReport.py -o "$folder/enhancedTLSReport.html" "$folder/rawTLSReport.html"
 
 echo "✅ TLS/SSL Report Generated in: $folder/"
 echo "📄 Reports saved in: $(pwd)/$folder/"
