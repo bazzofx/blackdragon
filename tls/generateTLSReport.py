@@ -857,23 +857,13 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
     # Deprecated protocols
     deprecated_protos = [p for p in findings['protocols']['vulnerable'] if p in ['TLSv1', 'TLSv1.1']]
 
-    # New health score logic:
-    # - If >= 2 criticals -> 10% health score
-    # - If exactly 1 critical -> 25% health score
-    # - If 0 criticals but warnings exist -> 50% base, and for more than 1 warning: -5% per warning (floor of 10%)
-    # - If 0 criticals and 0 warnings -> 100% health score
-    if critical_count >= 2:
-        score = 10
-    elif critical_count == 1:
-        score = 25
-    elif warning_count > 0:
-        if warning_count == 1:
-            score = 50
-        else:
-            score = 50 - (warning_count * 5)
-            score = max(10, score)
-    else:
-        score = 100
+    # Updated health score logic:
+    # - Start at 100%
+    # - Deduct 25% for every critical issue
+    # - Deduct 5% for every warning issue
+    # - Capped at a minimum of 0%
+    score = 100 - (critical_count * 25) - (warning_count * 5)
+    score = max(0, score)
 
     if score >= 90:
         score_rating = "SECURE"

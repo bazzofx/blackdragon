@@ -582,8 +582,17 @@ class WebsiteAssessor:
                 except:
                     pass
 
+        # Count findings by severity
+        critical_count = sum(1 for f in self.findings if f[0] == 'CRITICAL')
+        high_count = sum(1 for f in self.findings if f[0] == 'HIGH')
+        medium_count = sum(1 for f in self.findings if f[0] == 'MEDIUM')
+        low_count = sum(1 for f in self.findings if f[0] == 'LOW')
+        warning_count = high_count + medium_count + low_count
+
         # Calculate security health score
-        health_score = max(0, 100 - self.risk_score)
+        health_score = 100 - (critical_count * 25) - (warning_count * 5)
+        health_score = max(0, health_score)
+        
         if health_score >= 90:
             score_rating = "SECURE"
             score_color = "#10b981"
@@ -599,13 +608,6 @@ class WebsiteAssessor:
             
         # SVG circle offset: 2 * PI * 68 = 427
         score_offset = 427 - (427 * health_score // 100)
-        
-        # Count findings by severity
-        critical_count = sum(1 for f in self.findings if f[0] == 'CRITICAL')
-        high_count = sum(1 for f in self.findings if f[0] == 'HIGH')
-        medium_count = sum(1 for f in self.findings if f[0] == 'MEDIUM')
-        low_count = sum(1 for f in self.findings if f[0] == 'LOW')
-        warning_count = high_count + medium_count + low_count
         
         # Build executive summary text
         exec_summary = f"""
