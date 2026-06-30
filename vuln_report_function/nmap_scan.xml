@@ -1,0 +1,741 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.95 scan initiated Tue Jun 30 18:25:21 2026 as: /usr/lib/nmap/nmap -&#45;privileged -sS -sV -O -p- -T4 -A -&#45;osscan-guess -&#45;version-all -&#45;script default,discovery,safe -oA nmap_scan 172.67.137.163 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -&#45;privileged -sS -sV -O -p- -T4 -A -&#45;osscan-guess -&#45;version-all -&#45;script default,discovery,safe -oA nmap_scan 172.67.137.163" start="1782840321" startstr="Tue Jun 30 18:25:21 2026" version="7.95" xmloutputversion="1.05">
+<scaninfo type="syn" protocol="tcp" numservices="65535" services="1-65535"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<prescript><script id="broadcast-wsdd-discover" output="&#xa;  Devices&#xa;    239.255.255.250&#xa;        Message id: 20ef9d99-fa2b-5cde-2905-a80b1b1964c4&#xa;        Address: http://192.168.0.15:3702/7e3b5e03-ae75-c4dc-9b9a-200a68524bd4&#xa;        Type: Device pub:Computer&#xa;    239.255.255.250&#xa;        Message id: a4aab61f-9e8b-406c-ff5c-5bd9b626c97b&#xa;        Address: http://192.168.0.15:3702/7e3b5e03-ae75-c4dc-9b9a-200a68524bd4&#xa;        Type: Device pub:Computer&#xa;"/><script id="hostmap-robtex" output="*TEMPORARILY DISABLED* due to changes in Robtex&apos;s API. See https://www.robtex.com/api/"/><script id="targets-ipv6-multicast-echo" output="&#xa;  IP: fe80::215:5dff:fe00:1927                 MAC: 00:15:5d:00:19:27  IFACE: eth0&#xa;  IP: fd31:5f25:cb00:7809:c833:4e51:e160:3f0b  MAC: 00:15:5d:00:19:27  IFACE: eth0&#xa;  IP: 2a06:5902:283f:a500:67fe:5109:2e0d:c362  MAC: 00:15:5d:00:19:27  IFACE: eth0&#xa;  IP: fe80::be85:d0ff:feb8:26a0                MAC: bc:85:d0:b8:26:a0  IFACE: eth0&#xa;  IP: 2a06:5902:283f:a500::1                   MAC: bc:85:d0:b8:26:a0  IFACE: eth0&#xa;  IP: fd31:5f25:cb00:7809:be00:5ff:fed0:9      MAC: bc:85:d0:b8:26:a0  IFACE: eth0&#xa;  Use -&#45;script-args=newtargets to add the results as targets&#xa;"/><script id="broadcast-listener" output="&#xa;  ether&#xa;      ARP Request&#xa;        sender ip     sender mac         target ip&#xa;        192.168.0.1   bc:85:d0:b8:26:a0  192.168.0.116&#xa;        192.168.0.71  30:9c:23:48:4b:c7  192.168.0.10&#xa;  udp&#xa;      DHCP&#xa;        srv ip       cli ip         mask           gw           dns          vendor&#xa;        192.168.0.1  192.168.0.116  255.255.255.0  192.168.0.1  192.168.0.1  -&#xa;        192.168.0.1  192.168.0.175  255.255.255.0  192.168.0.1  192.168.0.1  -&#xa;      SSDP&#xa;        ip            uri&#xa;        192.168.0.15   upnp:rootdevice&#xa;"/><script id="http-robtex-shared-ns" output="*TEMPORARILY DISABLED* due to changes in Robtex&apos;s API. See https://www.robtex.com/api/"/><script id="targets-ipv6-multicast-mld" output="&#xa;  IP: fe80::215:5dff:fe00:1927  MAC: 00:15:5d:00:19:27  IFACE: eth0&#xa;&#xa;  Use -&#45;script-args=newtargets to add the results as targets"><table>
+<elem key="iface">eth0</elem>
+<elem key="address">fe80::215:5dff:fe00:1927</elem>
+<elem key="mac">00:15:5d:00:19:27</elem>
+</table>
+</script><script id="broadcast-igmp-discovery" output="&#xa;  192.168.0.1&#xa;    Interface: eth0&#xa;    Version: 2&#xa;    Group: 224.0.0.2&#xa;    Description: All Routers on this Subnet&#xa;  192.168.0.15&#xa;    Interface: eth0&#xa;    Version: 2&#xa;    Group: 224.0.0.106&#xa;    Description: All-Snoopers (rfc4286)&#xa;  192.168.0.71&#xa;    Interface: eth0&#xa;    Version: 2&#xa;    Group: 224.0.0.251&#xa;    Description: mDNS (rfc6762)&#xa;  192.168.0.71&#xa;    Interface: eth0&#xa;    Version: 2&#xa;    Group: 224.0.0.252&#xa;    Description: Link-local Multicast Name Resolution (rfc4795)&#xa;  192.168.0.15&#xa;    Interface: eth0&#xa;    Version: 2&#xa;    Group: 239.0.0.250&#xa;    Description: Organization-Local Scope (rfc2365)&#xa;  192.168.0.15&#xa;    Interface: eth0&#xa;    Version: 2&#xa;    Group: 239.255.255.250&#xa;    Description: Organization-Local Scope (rfc2365)&#xa;  Use the newtargets script-arg to add the results as targets&#xa;"/><script id="broadcast-dhcp-discover" output="&#xa;  Response 1 of 1: &#xa;    Interface: eth0&#xa;    IP Offered: 192.168.0.175&#xa;    Server Identifier: 192.168.0.1&#xa;    Subnet Mask: 255.255.255.0&#xa;    Broadcast Address: 192.168.0.255&#xa;    Router: 192.168.0.1&#xa;    Domain Name: Home&#xa;    Domain Name Server: 192.168.0.1"><table key="Response 1 of 1">
+<elem key="Interface">eth0</elem>
+<elem key="IP Offered">192.168.0.175</elem>
+<elem key="Server Identifier">192.168.0.1</elem>
+<elem key="Subnet Mask">255.255.255.0</elem>
+<elem key="Broadcast Address">192.168.0.255</elem>
+<elem key="Router">192.168.0.1</elem>
+<elem key="Domain Name">Home</elem>
+<elem key="Domain Name Server">192.168.0.1</elem>
+</table>
+</script><script id="targets-asn" output="&#xa;  targets-asn.asn is a mandatory parameter&#xa;"/><script id="multicast-profinet-discovery" output="0">0</script><script id="targets-ipv6-multicast-invalid-dst" output="&#xa;  IP: fe80::215:5dff:fe00:1927                 MAC: 00:15:5d:00:19:27  IFACE: eth0&#xa;  IP: 2a06:5902:283f:a500:67fe:5109:2e0d:c362  MAC: 00:15:5d:00:19:27  IFACE: eth0&#xa;  IP: fd31:5f25:cb00:7809:c833:4e51:e160:3f0b  MAC: 00:15:5d:00:19:27  IFACE: eth0&#xa;  Use -&#45;script-args=newtargets to add the results as targets&#xa;"/><script id="ipv6-multicast-mld-list" output="&#xa;  fe80::215:5dff:fe00:1927: &#xa;    device: eth0&#xa;    mac: 00:15:5d:00:19:27&#xa;    multicast_ips: &#xa;      ff02::1:ff60:3f0b         (Solicited-Node Address)&#xa;      ff02::1:ff42:c793         (Solicited-Node Address)&#xa;      ff02::1:ffc6:63b8         (Solicited-Node Address)&#xa;      ff02::1:ff51:7281         (Solicited-Node Address)&#xa;      ff02::1:ffba:75b2         (Solicited-Node Address)&#xa;      ff02::1:ffd7:caaf         (Solicited-Node Address)&#xa;      ff02::1:ff2f:8395         (Solicited-Node Address)&#xa;      ff02::1:ffca:f510         (Solicited-Node Address)&#xa;      ff02::1:ffab:71a0         (Solicited-Node Address)&#xa;      ff02::1:ff00:1927         (NDP Solicited-node)&#xa;      ff02::1:ffd1:7ab0         (Solicited-Node Address)&#xa;      ff02::1:ff0d:c362         (Solicited-Node Address)&#xa;      ff02::1:ff00:e517         (Solicited-Node Address)&#xa;      ff02::1:ffd1:5a45         (Solicited-Node Address)&#xa;      ff02::fb                  (mDNSv6)&#xa;      ff02::1:ff23:448c         (Solicited-Node Address)"><table key="fe80::215:5dff:fe00:1927">
+<elem key="device">eth0</elem>
+<elem key="mac">00:15:5d:00:19:27</elem>
+<table key="multicast_ips">
+<table>
+<elem key="ip">ff02::1:ff60:3f0b</elem>
+<elem key="description">Solicited-Node Address</elem>
+</table>
+<table>
+<elem key="ip">ff02::1:ff42:c793</elem>
+<elem key="description">Solicited-Node Address</elem>
+</table>
+<table>
+<elem key="ip">ff02::1:ffc6:63b8</elem>
+<elem key="description">Solicited-Node Address</elem>
+</table>
+<table>
+<elem key="ip">ff02::1:ff51:7281</elem>
+<elem key="description">Solicited-Node Address</elem>
+</table>
+<table>
+<elem key="ip">ff02::1:ffba:75b2</elem>
+<elem key="description">Solicited-Node Address</elem>
+</table>
+<table>
+<elem key="ip">ff02::1:ffd7:caaf</elem>
+<elem key="description">Solicited-Node Address</elem>
+</table>
+<table>
+<elem key="ip">ff02::1:ff2f:8395</elem>
+<elem key="description">Solicited-Node Address</elem>
+</table>
+<table>
+<elem key="ip">ff02::1:ffca:f510</elem>
+<elem key="description">Solicited-Node Address</elem>
+</table>
+<table>
+<elem key="ip">ff02::1:ffab:71a0</elem>
+<elem key="description">Solicited-Node Address</elem>
+</table>
+<table>
+<elem key="ip">ff02::1:ff00:1927</elem>
+<elem key="description">NDP Solicited-node</elem>
+</table>
+<table>
+<elem key="ip">ff02::1:ffd1:7ab0</elem>
+<elem key="description">Solicited-Node Address</elem>
+</table>
+<table>
+<elem key="ip">ff02::1:ff0d:c362</elem>
+<elem key="description">Solicited-Node Address</elem>
+</table>
+<table>
+<elem key="ip">ff02::1:ff00:e517</elem>
+<elem key="description">Solicited-Node Address</elem>
+</table>
+<table>
+<elem key="ip">ff02::1:ffd1:5a45</elem>
+<elem key="description">Solicited-Node Address</elem>
+</table>
+<table>
+<elem key="ip">ff02::fb</elem>
+<elem key="description">mDNSv6</elem>
+</table>
+<table>
+<elem key="ip">ff02::1:ff23:448c</elem>
+<elem key="description">Solicited-Node Address</elem>
+</table>
+</table>
+</table>
+</script><script id="eap-info" output="please specify an interface with -e"/></prescript><hosthint><status state="up" reason="unknown-response" reason_ttl="0"/>
+<address addr="172.67.137.163" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<host starttime="1782840362" endtime="1782840754"><status state="up" reason="syn-ack" reason_ttl="56"/>
+<address addr="172.67.137.163" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><extraports state="filtered" count="65522">
+<extrareasons reason="no-response" count="65522" proto="tcp" ports="1-79,81-442,444-2051,2054-2081,2084-2085,2088-2094,2097-8079,8081-8442,8444-8879,8881-65535"/>
+</extraports>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="Cloudflare http proxy" method="probed" conf="10"/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-comments-displayer" output="Couldn&apos;t find any comments."/><script id="http-title" output="Site doesn&apos;t have a title (text/plain; charset=UTF-8)."></script><script id="http-security-headers" output="&#xa;  X_Frame_Options: &#xa;    Header: X-Frame-Options: SAMEORIGIN&#xa;    Description: The browser must not display this content in any frame from a page of different origin than the content itself.&#xa;  Cache_Control: &#xa;    Header: Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0&#xa;  Expires: &#xa;    Header: Expires: Thu, 01 Jan 1970 00:00:01 GMT"><table key="X_Frame_Options">
+<elem>Header: X-Frame-Options: SAMEORIGIN</elem>
+<elem>Description: The browser must not display this content in any frame from a page of different origin than the content itself.</elem>
+</table>
+<table key="Cache_Control">
+<elem>Header: Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0</elem>
+</table>
+<table key="Expires">
+<elem>Header: Expires: Thu, 01 Jan 1970 00:00:01 GMT</elem>
+</table>
+</script><script id="http-mobileversion-checker" output="No mobile version detected."/><script id="http-devframework" output="Couldn&apos;t determine the underlying framework or CMS. Try increasing &apos;httpspider.maxpagecount&apos; value to spider more pages."/><script id="http-date" output="Tue, 30 Jun 2026 17:28:32 GMT; +1h00m00s from local time."><elem key="date">2026-06-30T18:28:32+00:00</elem>
+<elem key="delta">3600.0</elem>
+</script><script id="http-useragent-tester" output="&#xa;  Status for browser useragent: 403&#xa;  Allowed User Agents: &#xa;    Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)&#xa;    libwww&#xa;    lwp-trivial&#xa;    libcurl-agent/1.0&#xa;    PHP/&#xa;    Python-urllib/2.5&#xa;    GT::WWW&#xa;    Snoopy&#xa;    MFC_Tear_Sample&#xa;    HTTP::Lite&#xa;    PHPCrawl&#xa;    URI::Fetch&#xa;    Zend_Http_Client&#xa;    http client&#xa;    PECL::HTTP&#xa;    Wget/1.13.4 (linux-gnu)&#xa;    WWW-Mechanize/1.34"><elem key="Status for browser useragent">403</elem>
+<table key="Allowed User Agents">
+<elem>Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)</elem>
+<elem>libwww</elem>
+<elem>lwp-trivial</elem>
+<elem>libcurl-agent/1.0</elem>
+<elem>PHP/</elem>
+<elem>Python-urllib/2.5</elem>
+<elem>GT::WWW</elem>
+<elem>Snoopy</elem>
+<elem>MFC_Tear_Sample</elem>
+<elem>HTTP::Lite</elem>
+<elem>PHPCrawl</elem>
+<elem>URI::Fetch</elem>
+<elem>Zend_Http_Client</elem>
+<elem>http client</elem>
+<elem>PECL::HTTP</elem>
+<elem>Wget/1.13.4 (linux-gnu)</elem>
+<elem>WWW-Mechanize/1.34</elem>
+</table>
+</script><script id="http-referer-checker" output="Couldn&apos;t find any cross-domain scripts."/><script id="http-feed" output="Couldn&apos;t find any feeds."/><script id="http-headers" output="&#xa;  Date: Tue, 30 Jun 2026 17:28:36 GMT&#xa;  Content-Type: text/plain; charset=UTF-8&#xa;  Content-Length: 17&#xa;  Connection: close&#xa;  Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0&#xa;  Expires: Thu, 01 Jan 1970 00:00:01 GMT&#xa;  Referrer-Policy: same-origin&#xa;  X-Frame-Options: SAMEORIGIN&#xa;  Server: cloudflare&#xa;  CF-RAY: a13ee36decb3419a-LHR&#xa;  &#xa;  (Request type: GET)&#xa;"/><script id="http-fetch" output="Please enter the complete path of the directory to save data in."><elem key="ERROR">Please enter the complete path of the directory to save data in.</elem>
+</script><script id="http-chrono" output="Request times for /; avg: 205.77ms; min: 196.45ms; max: 213.39ms"/><script id="http-sitemap-generator" output="&#xa;  Directory structure:&#xa;  Longest directory structure:&#xa;    Depth: 0&#xa;    Dir: /&#xa;  Total files found (by extension):&#xa;    &#xa;"/><script id="http-errors" output="&#xa;Spidering limited to: maxpagecount=40; withinhost=172.67.137.163&#xa;  Found the following error pages: &#xa;  &#xa;  Error Code: 403&#xa;  &#x9;http://172.67.137.163:80/&#xa;"/><script id="http-slowloris-check" output="&#xa;  VULNERABLE:&#xa;  Slowloris DOS attack&#xa;    State: LIKELY VULNERABLE&#xa;    IDs:  CVE:CVE-2007-6750&#xa;      Slowloris tries to keep many connections to the target web server open and hold&#xa;      them open as long as possible.  It accomplishes this by opening connections to&#xa;      the target web server and sending a partial request. By doing so, it starves&#xa;      the http server&apos;s resources causing Denial Of Service.&#xa;      &#xa;    Disclosure date: 2009-09-17&#xa;    References:&#xa;      http://ha.ckers.org/slowloris/&#xa;      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750&#xa;"><table key="CVE-2007-6750">
+<elem key="title">Slowloris DOS attack</elem>
+<elem key="state">LIKELY VULNERABLE</elem>
+<table key="ids">
+<elem>CVE:CVE-2007-6750</elem>
+</table>
+<table key="description">
+<elem>Slowloris tries to keep many connections to the target web server open and hold&#xa;them open as long as possible.  It accomplishes this by opening connections to&#xa;the target web server and sending a partial request. By doing so, it starves&#xa;the http server&apos;s resources causing Denial Of Service.&#xa;</elem>
+</table>
+<table key="dates">
+<table key="disclosure">
+<elem key="month">09</elem>
+<elem key="year">2009</elem>
+<elem key="day">17</elem>
+</table>
+</table>
+<elem key="disclosure">2009-09-17</elem>
+<table key="exploit_results">
+</table>
+<table key="refs">
+<elem>http://ha.ckers.org/slowloris/</elem>
+<elem>https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750</elem>
+</table>
+</table>
+</script><script id="http-xssed" output="No previously reported XSS vuln."/><script id="http-vhosts" output="&#xa;128 names had status 403"/></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="https" product="cloudflare" tunnel="ssl" method="probed" conf="10"/><script id="http-security-headers" output="&#xa;  Strict_Transport_Security: &#xa;    HSTS not configured in HTTPS Server"><table key="Strict_Transport_Security">
+<elem>HSTS not configured in HTTPS Server</elem>
+</table>
+</script><script id="http-mobileversion-checker" output="No mobile version detected."/><script id="http-chrono" output="Request times for /; avg: 262.31ms; min: 234.84ms; max: 288.73ms"/><script id="http-useragent-tester" output="&#xa;  Status for browser useragent: 400&#xa;  Allowed User Agents: &#xa;    Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)&#xa;    libwww&#xa;    lwp-trivial&#xa;    libcurl-agent/1.0&#xa;    PHP/&#xa;    Python-urllib/2.5&#xa;    GT::WWW&#xa;    Snoopy&#xa;    MFC_Tear_Sample&#xa;    HTTP::Lite&#xa;    PHPCrawl&#xa;    URI::Fetch&#xa;    Zend_Http_Client&#xa;    http client&#xa;    PECL::HTTP&#xa;    Wget/1.13.4 (linux-gnu)&#xa;    WWW-Mechanize/1.34"><elem key="Status for browser useragent">400</elem>
+<table key="Allowed User Agents">
+<elem>Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)</elem>
+<elem>libwww</elem>
+<elem>lwp-trivial</elem>
+<elem>libcurl-agent/1.0</elem>
+<elem>PHP/</elem>
+<elem>Python-urllib/2.5</elem>
+<elem>GT::WWW</elem>
+<elem>Snoopy</elem>
+<elem>MFC_Tear_Sample</elem>
+<elem>HTTP::Lite</elem>
+<elem>PHPCrawl</elem>
+<elem>URI::Fetch</elem>
+<elem>Zend_Http_Client</elem>
+<elem>http client</elem>
+<elem>PECL::HTTP</elem>
+<elem>Wget/1.13.4 (linux-gnu)</elem>
+<elem>WWW-Mechanize/1.34</elem>
+</table>
+</script><script id="http-errors" output="&#xa;Spidering limited to: maxpagecount=40; withinhost=172.67.137.163&#xa;  Found the following error pages: &#xa;  &#xa;  Error Code: 400&#xa;  &#x9;http://172.67.137.163:443/&#xa;"/><script id="http-date" output="Tue, 30 Jun 2026 17:28:59 GMT; +59m59s from local time."><elem key="date">2026-06-30T18:28:59+00:00</elem>
+<elem key="delta">3599.0</elem>
+</script><script id="http-title" output="400 The plain HTTP request was sent to HTTPS port"><elem key="title">400 The plain HTTP request was sent to HTTPS port</elem>
+</script><script id="http-devframework" output="Couldn&apos;t determine the underlying framework or CMS. Try increasing &apos;httpspider.maxpagecount&apos; value to spider more pages."/><script id="http-comments-displayer" output="Couldn&apos;t find any comments."/><script id="http-sitemap-generator" output="&#xa;  Directory structure:&#xa;  Longest directory structure:&#xa;    Depth: 0&#xa;    Dir: /&#xa;  Total files found (by extension):&#xa;    &#xa;"/><script id="http-fetch" output="Please enter the complete path of the directory to save data in."><elem key="ERROR">Please enter the complete path of the directory to save data in.</elem>
+</script><script id="http-xssed" output="No previously reported XSS vuln."/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-vhosts" output="&#xa;host&#xa;ns&#xa;wiki&#xa;ads&#xa;124 names had status 400"/><script id="http-feed" output="Couldn&apos;t find any feeds."/><script id="http-referer-checker" output="Couldn&apos;t find any cross-domain scripts."/><script id="http-headers" output="&#xa;  Server: cloudflare&#xa;  Date: Tue, 30 Jun 2026 17:30:40 GMT&#xa;  Content-Type: text/html&#xa;  Content-Length: 253&#xa;  Connection: close&#xa;  CF-RAY: -&#xa;  &#xa;  (Request type: GET)&#xa;"/></port>
+<port protocol="tcp" portid="2052"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="Cloudflare http proxy" method="probed" conf="10"/><script id="http-security-headers" output="&#xa;  X_Frame_Options: &#xa;    Header: X-Frame-Options: SAMEORIGIN&#xa;    Description: The browser must not display this content in any frame from a page of different origin than the content itself.&#xa;  Cache_Control: &#xa;    Header: Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0&#xa;  Expires: &#xa;    Header: Expires: Thu, 01 Jan 1970 00:00:01 GMT"><table key="X_Frame_Options">
+<elem>Header: X-Frame-Options: SAMEORIGIN</elem>
+<elem>Description: The browser must not display this content in any frame from a page of different origin than the content itself.</elem>
+</table>
+<table key="Cache_Control">
+<elem>Header: Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0</elem>
+</table>
+<table key="Expires">
+<elem>Header: Expires: Thu, 01 Jan 1970 00:00:01 GMT</elem>
+</table>
+</script><script id="http-fetch" output="Please enter the complete path of the directory to save data in."><elem key="ERROR">Please enter the complete path of the directory to save data in.</elem>
+</script><script id="http-useragent-tester" output="&#xa;  Status for browser useragent: 403&#xa;  Allowed User Agents: &#xa;    Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)&#xa;    libwww&#xa;    lwp-trivial&#xa;    libcurl-agent/1.0&#xa;    PHP/&#xa;    Python-urllib/2.5&#xa;    GT::WWW&#xa;    Snoopy&#xa;    MFC_Tear_Sample&#xa;    HTTP::Lite&#xa;    PHPCrawl&#xa;    URI::Fetch&#xa;    Zend_Http_Client&#xa;    http client&#xa;    PECL::HTTP&#xa;    Wget/1.13.4 (linux-gnu)&#xa;    WWW-Mechanize/1.34"><elem key="Status for browser useragent">403</elem>
+<table key="Allowed User Agents">
+<elem>Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)</elem>
+<elem>libwww</elem>
+<elem>lwp-trivial</elem>
+<elem>libcurl-agent/1.0</elem>
+<elem>PHP/</elem>
+<elem>Python-urllib/2.5</elem>
+<elem>GT::WWW</elem>
+<elem>Snoopy</elem>
+<elem>MFC_Tear_Sample</elem>
+<elem>HTTP::Lite</elem>
+<elem>PHPCrawl</elem>
+<elem>URI::Fetch</elem>
+<elem>Zend_Http_Client</elem>
+<elem>http client</elem>
+<elem>PECL::HTTP</elem>
+<elem>Wget/1.13.4 (linux-gnu)</elem>
+<elem>WWW-Mechanize/1.34</elem>
+</table>
+</script><script id="unusual-port" output="http unexpected on port tcp/2052"/><script id="http-xssed" output="No previously reported XSS vuln."/><script id="http-mobileversion-checker" output="No mobile version detected."/><script id="http-feed" output="Couldn&apos;t find any feeds."/><script id="http-referer-checker" output="Couldn&apos;t find any cross-domain scripts."/><script id="http-vhosts" output="&#xa;128 names had status 403"/><script id="http-headers" output="&#xa;  Date: Tue, 30 Jun 2026 17:30:40 GMT&#xa;  Content-Type: text/plain; charset=UTF-8&#xa;  Content-Length: 17&#xa;  Connection: close&#xa;  Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0&#xa;  Expires: Thu, 01 Jan 1970 00:00:01 GMT&#xa;  Referrer-Policy: same-origin&#xa;  X-Frame-Options: SAMEORIGIN&#xa;  Server: cloudflare&#xa;  CF-RAY: a13ee6734b03418e-LHR&#xa;  &#xa;  (Request type: GET)&#xa;"/><script id="http-comments-displayer" output="Couldn&apos;t find any comments."/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-sitemap-generator" output="&#xa;  Directory structure:&#xa;  Longest directory structure:&#xa;    Depth: 0&#xa;    Dir: /&#xa;  Total files found (by extension):&#xa;    &#xa;"/><script id="http-date" output="Tue, 30 Jun 2026 17:29:40 GMT; +1h00m00s from local time."><elem key="date">2026-06-30T18:29:40+00:00</elem>
+<elem key="delta">3600.0</elem>
+</script><script id="http-errors" output="&#xa;Spidering limited to: maxpagecount=40; withinhost=172.67.137.163&#xa;  Found the following error pages: &#xa;  &#xa;  Error Code: 403&#xa;  &#x9;http://172.67.137.163:2052/&#xa;"/><script id="http-title" output="Site doesn&apos;t have a title (text/plain; charset=UTF-8)."></script><script id="http-chrono" output="Request times for /; avg: 55.56ms; min: 44.04ms; max: 81.49ms"/><script id="http-devframework" output="Couldn&apos;t determine the underlying framework or CMS. Try increasing &apos;httpspider.maxpagecount&apos; value to spider more pages."/></port>
+<port protocol="tcp" portid="2053"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="nginx" tunnel="ssl" method="probed" conf="10"><cpe>cpe:/a:igor_sysoev:nginx</cpe></service><script id="http-sitemap-generator" output="&#xa;  Directory structure:&#xa;  Longest directory structure:&#xa;    Depth: 0&#xa;    Dir: /&#xa;  Total files found (by extension):&#xa;    &#xa;"/><script id="http-mobileversion-checker" output="No mobile version detected."/><script id="http-fetch" output="Please enter the complete path of the directory to save data in."><elem key="ERROR">Please enter the complete path of the directory to save data in.</elem>
+</script><script id="http-security-headers" output="&#xa;  Strict_Transport_Security: &#xa;    HSTS not configured in HTTPS Server"><table key="Strict_Transport_Security">
+<elem>HSTS not configured in HTTPS Server</elem>
+</table>
+</script><script id="http-referer-checker" output="Couldn&apos;t find any cross-domain scripts."/><script id="http-title" output="400 The plain HTTP request was sent to HTTPS port"><elem key="title">400 The plain HTTP request was sent to HTTPS port</elem>
+</script><script id="unusual-port" output="http unexpected on port tcp/2053"/><script id="http-feed" output="Couldn&apos;t find any feeds."/><script id="http-chrono" output="Request times for /; avg: 1427.52ms; min: 223.55ms; max: 6220.74ms"/><script id="http-xssed" output="No previously reported XSS vuln."/><script id="http-headers" output="&#xa;  Server: cloudflare&#xa;  Date: Tue, 30 Jun 2026 17:29:52 GMT&#xa;  Content-Type: text/html&#xa;  Content-Length: 253&#xa;  Connection: close&#xa;  CF-RAY: -&#xa;  &#xa;  (Request type: GET)&#xa;"/><script id="http-comments-displayer" output="Couldn&apos;t find any comments."/><script id="http-date" output="Tue, 30 Jun 2026 17:29:42 GMT; +1h00m00s from local time."><elem key="date">2026-06-30T18:29:42+00:00</elem>
+<elem key="delta">3600.0</elem>
+</script><script id="http-devframework" output="Couldn&apos;t determine the underlying framework or CMS. Try increasing &apos;httpspider.maxpagecount&apos; value to spider more pages."/><script id="http-vhosts" output="&#xa;128 names had status 400"/><script id="http-useragent-tester" output="&#xa;  Status for browser useragent: 400&#xa;  Allowed User Agents: &#xa;    Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)&#xa;    libwww&#xa;    lwp-trivial&#xa;    libcurl-agent/1.0&#xa;    PHP/&#xa;    Python-urllib/2.5&#xa;    GT::WWW&#xa;    Snoopy&#xa;    MFC_Tear_Sample&#xa;    HTTP::Lite&#xa;    PHPCrawl&#xa;    URI::Fetch&#xa;    Zend_Http_Client&#xa;    http client&#xa;    PECL::HTTP&#xa;    Wget/1.13.4 (linux-gnu)&#xa;    WWW-Mechanize/1.34"><elem key="Status for browser useragent">400</elem>
+<table key="Allowed User Agents">
+<elem>Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)</elem>
+<elem>libwww</elem>
+<elem>lwp-trivial</elem>
+<elem>libcurl-agent/1.0</elem>
+<elem>PHP/</elem>
+<elem>Python-urllib/2.5</elem>
+<elem>GT::WWW</elem>
+<elem>Snoopy</elem>
+<elem>MFC_Tear_Sample</elem>
+<elem>HTTP::Lite</elem>
+<elem>PHPCrawl</elem>
+<elem>URI::Fetch</elem>
+<elem>Zend_Http_Client</elem>
+<elem>http client</elem>
+<elem>PECL::HTTP</elem>
+<elem>Wget/1.13.4 (linux-gnu)</elem>
+<elem>WWW-Mechanize/1.34</elem>
+</table>
+</script><script id="http-errors" output="&#xa;Spidering limited to: maxpagecount=40; withinhost=172.67.137.163&#xa;  Found the following error pages: &#xa;  &#xa;  Error Code: 400&#xa;  &#x9;http://172.67.137.163:2053/&#xa;"/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script></port>
+<port protocol="tcp" portid="2082"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="Cloudflare http proxy" method="probed" conf="10"/><script id="http-date" output="Tue, 30 Jun 2026 17:30:17 GMT; +1h00m00s from local time."><elem key="date">2026-06-30T18:30:17+00:00</elem>
+<elem key="delta">3600.0</elem>
+</script><script id="http-xssed" output="No previously reported XSS vuln."/><script id="http-security-headers" output="&#xa;  X_Frame_Options: &#xa;    Header: X-Frame-Options: SAMEORIGIN&#xa;    Description: The browser must not display this content in any frame from a page of different origin than the content itself.&#xa;  Cache_Control: &#xa;    Header: Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0&#xa;  Expires: &#xa;    Header: Expires: Thu, 01 Jan 1970 00:00:01 GMT"><table key="X_Frame_Options">
+<elem>Header: X-Frame-Options: SAMEORIGIN</elem>
+<elem>Description: The browser must not display this content in any frame from a page of different origin than the content itself.</elem>
+</table>
+<table key="Cache_Control">
+<elem>Header: Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0</elem>
+</table>
+<table key="Expires">
+<elem>Header: Expires: Thu, 01 Jan 1970 00:00:01 GMT</elem>
+</table>
+</script><script id="http-chrono" output="Request times for /; avg: 342.02ms; min: 44.11ms; max: 1510.41ms"/><script id="http-comments-displayer" output="Couldn&apos;t find any comments."/><script id="unusual-port" output="http unexpected on port tcp/2082"/><script id="http-sitemap-generator" output="&#xa;  Directory structure:&#xa;  Longest directory structure:&#xa;    Depth: 0&#xa;    Dir: /&#xa;  Total files found (by extension):&#xa;    &#xa;"/><script id="http-mobileversion-checker" output="No mobile version detected."/><script id="http-useragent-tester" output="&#xa;  Status for browser useragent: 403&#xa;  Allowed User Agents: &#xa;    Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)&#xa;    libwww&#xa;    lwp-trivial&#xa;    libcurl-agent/1.0&#xa;    PHP/&#xa;    Python-urllib/2.5&#xa;    GT::WWW&#xa;    Snoopy&#xa;    MFC_Tear_Sample&#xa;    HTTP::Lite&#xa;    PHPCrawl&#xa;    URI::Fetch&#xa;    Zend_Http_Client&#xa;    http client&#xa;    PECL::HTTP&#xa;    Wget/1.13.4 (linux-gnu)&#xa;    WWW-Mechanize/1.34"><elem key="Status for browser useragent">403</elem>
+<table key="Allowed User Agents">
+<elem>Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)</elem>
+<elem>libwww</elem>
+<elem>lwp-trivial</elem>
+<elem>libcurl-agent/1.0</elem>
+<elem>PHP/</elem>
+<elem>Python-urllib/2.5</elem>
+<elem>GT::WWW</elem>
+<elem>Snoopy</elem>
+<elem>MFC_Tear_Sample</elem>
+<elem>HTTP::Lite</elem>
+<elem>PHPCrawl</elem>
+<elem>URI::Fetch</elem>
+<elem>Zend_Http_Client</elem>
+<elem>http client</elem>
+<elem>PECL::HTTP</elem>
+<elem>Wget/1.13.4 (linux-gnu)</elem>
+<elem>WWW-Mechanize/1.34</elem>
+</table>
+</script><script id="http-fetch" output="Please enter the complete path of the directory to save data in."><elem key="ERROR">Please enter the complete path of the directory to save data in.</elem>
+</script><script id="http-headers" output="&#xa;  Date: Tue, 30 Jun 2026 17:30:35 GMT&#xa;  Content-Type: text/plain; charset=UTF-8&#xa;  Content-Length: 17&#xa;  Connection: close&#xa;  Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0&#xa;  Expires: Thu, 01 Jan 1970 00:00:01 GMT&#xa;  Referrer-Policy: same-origin&#xa;  X-Frame-Options: SAMEORIGIN&#xa;  Server: cloudflare&#xa;  CF-RAY: a13ee65249420035-LHR&#xa;  &#xa;  (Request type: GET)&#xa;"/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-title" output="Site doesn&apos;t have a title (text/plain; charset=UTF-8)."></script><script id="http-errors" output="&#xa;Spidering limited to: maxpagecount=40; withinhost=172.67.137.163&#xa;  Found the following error pages: &#xa;  &#xa;  Error Code: 403&#xa;  &#x9;http://172.67.137.163:2082/&#xa;"/><script id="http-vhosts" output="&#xa;128 names had status 403"/><script id="http-referer-checker" output="Couldn&apos;t find any cross-domain scripts."/><script id="http-devframework" output="Couldn&apos;t determine the underlying framework or CMS. Try increasing &apos;httpspider.maxpagecount&apos; value to spider more pages."/><script id="http-slowloris-check" output="&#xa;  VULNERABLE:&#xa;  Slowloris DOS attack&#xa;    State: LIKELY VULNERABLE&#xa;    IDs:  CVE:CVE-2007-6750&#xa;      Slowloris tries to keep many connections to the target web server open and hold&#xa;      them open as long as possible.  It accomplishes this by opening connections to&#xa;      the target web server and sending a partial request. By doing so, it starves&#xa;      the http server&apos;s resources causing Denial Of Service.&#xa;      &#xa;    Disclosure date: 2009-09-17&#xa;    References:&#xa;      http://ha.ckers.org/slowloris/&#xa;      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750&#xa;"><table key="CVE-2007-6750">
+<elem key="title">Slowloris DOS attack</elem>
+<elem key="state">LIKELY VULNERABLE</elem>
+<table key="ids">
+<elem>CVE:CVE-2007-6750</elem>
+</table>
+<table key="description">
+<elem>Slowloris tries to keep many connections to the target web server open and hold&#xa;them open as long as possible.  It accomplishes this by opening connections to&#xa;the target web server and sending a partial request. By doing so, it starves&#xa;the http server&apos;s resources causing Denial Of Service.&#xa;</elem>
+</table>
+<table key="dates">
+<table key="disclosure">
+<elem key="month">09</elem>
+<elem key="year">2009</elem>
+<elem key="day">17</elem>
+</table>
+</table>
+<elem key="disclosure">2009-09-17</elem>
+<table key="exploit_results">
+</table>
+<table key="refs">
+<elem>http://ha.ckers.org/slowloris/</elem>
+<elem>https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750</elem>
+</table>
+</table>
+</script><script id="http-feed" output="Couldn&apos;t find any feeds."/></port>
+<port protocol="tcp" portid="2083"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="nginx" tunnel="ssl" method="probed" conf="10"><cpe>cpe:/a:igor_sysoev:nginx</cpe></service><script id="http-vhosts" output="&#xa;128 names had status 400"/><script id="http-xssed" output="No previously reported XSS vuln."/><script id="http-headers" output="&#xa;  Server: cloudflare&#xa;  Date: Tue, 30 Jun 2026 17:30:07 GMT&#xa;  Content-Type: text/html&#xa;  Content-Length: 253&#xa;  Connection: close&#xa;  CF-RAY: -&#xa;  &#xa;  (Request type: GET)&#xa;"/><script id="http-chrono" output="Request times for /; avg: 3261.78ms; min: 71.60ms; max: 15859.56ms"/><script id="http-feed" output="Couldn&apos;t find any feeds."/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-referer-checker" output="Couldn&apos;t find any cross-domain scripts."/><script id="unusual-port" output="http unexpected on port tcp/2083"/><script id="http-fetch" output="Please enter the complete path of the directory to save data in."><elem key="ERROR">Please enter the complete path of the directory to save data in.</elem>
+</script><script id="http-useragent-tester" output="&#xa;  Status for browser useragent: 400&#xa;  Allowed User Agents: &#xa;    Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)&#xa;    libwww&#xa;    lwp-trivial&#xa;    libcurl-agent/1.0&#xa;    PHP/&#xa;    Python-urllib/2.5&#xa;    GT::WWW&#xa;    Snoopy&#xa;    MFC_Tear_Sample&#xa;    HTTP::Lite&#xa;    PHPCrawl&#xa;    URI::Fetch&#xa;    Zend_Http_Client&#xa;    http client&#xa;    PECL::HTTP&#xa;    Wget/1.13.4 (linux-gnu)&#xa;    WWW-Mechanize/1.34"><elem key="Status for browser useragent">400</elem>
+<table key="Allowed User Agents">
+<elem>Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)</elem>
+<elem>libwww</elem>
+<elem>lwp-trivial</elem>
+<elem>libcurl-agent/1.0</elem>
+<elem>PHP/</elem>
+<elem>Python-urllib/2.5</elem>
+<elem>GT::WWW</elem>
+<elem>Snoopy</elem>
+<elem>MFC_Tear_Sample</elem>
+<elem>HTTP::Lite</elem>
+<elem>PHPCrawl</elem>
+<elem>URI::Fetch</elem>
+<elem>Zend_Http_Client</elem>
+<elem>http client</elem>
+<elem>PECL::HTTP</elem>
+<elem>Wget/1.13.4 (linux-gnu)</elem>
+<elem>WWW-Mechanize/1.34</elem>
+</table>
+</script><script id="http-slowloris-check" output="&#xa;  VULNERABLE:&#xa;  Slowloris DOS attack&#xa;    State: LIKELY VULNERABLE&#xa;    IDs:  CVE:CVE-2007-6750&#xa;      Slowloris tries to keep many connections to the target web server open and hold&#xa;      them open as long as possible.  It accomplishes this by opening connections to&#xa;      the target web server and sending a partial request. By doing so, it starves&#xa;      the http server&apos;s resources causing Denial Of Service.&#xa;      &#xa;    Disclosure date: 2009-09-17&#xa;    References:&#xa;      http://ha.ckers.org/slowloris/&#xa;      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750&#xa;"><table key="CVE-2007-6750">
+<elem key="title">Slowloris DOS attack</elem>
+<elem key="state">LIKELY VULNERABLE</elem>
+<table key="ids">
+<elem>CVE:CVE-2007-6750</elem>
+</table>
+<table key="description">
+<elem>Slowloris tries to keep many connections to the target web server open and hold&#xa;them open as long as possible.  It accomplishes this by opening connections to&#xa;the target web server and sending a partial request. By doing so, it starves&#xa;the http server&apos;s resources causing Denial Of Service.&#xa;</elem>
+</table>
+<table key="dates">
+<table key="disclosure">
+<elem key="month">09</elem>
+<elem key="year">2009</elem>
+<elem key="day">17</elem>
+</table>
+</table>
+<elem key="disclosure">2009-09-17</elem>
+<table key="exploit_results">
+</table>
+<table key="refs">
+<elem>http://ha.ckers.org/slowloris/</elem>
+<elem>https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750</elem>
+</table>
+</table>
+</script><script id="http-title" output="400 The plain HTTP request was sent to HTTPS port"><elem key="title">400 The plain HTTP request was sent to HTTPS port</elem>
+</script><script id="http-date" output="Tue, 30 Jun 2026 17:29:31 GMT; +59m59s from local time."><elem key="date">2026-06-30T18:29:31+00:00</elem>
+<elem key="delta">3599.0</elem>
+</script><script id="http-comments-displayer" output="Couldn&apos;t find any comments."/><script id="http-devframework" output="Couldn&apos;t determine the underlying framework or CMS. Try increasing &apos;httpspider.maxpagecount&apos; value to spider more pages."/><script id="http-sitemap-generator" output="&#xa;  Directory structure:&#xa;  Longest directory structure:&#xa;    Depth: 0&#xa;    Dir: /&#xa;  Total files found (by extension):&#xa;    &#xa;"/><script id="http-mobileversion-checker" output="No mobile version detected."/><script id="http-errors" output="&#xa;Spidering limited to: maxpagecount=40; withinhost=172.67.137.163&#xa;  Found the following error pages: &#xa;  &#xa;  Error Code: 400&#xa;  &#x9;http://172.67.137.163:2083/&#xa;"/><script id="http-security-headers" output="&#xa;  Strict_Transport_Security: &#xa;    HSTS not configured in HTTPS Server"><table key="Strict_Transport_Security">
+<elem>HSTS not configured in HTTPS Server</elem>
+</table>
+</script></port>
+<port protocol="tcp" portid="2086"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="Cloudflare http proxy" method="probed" conf="10"/><script id="http-title" output="Site doesn&apos;t have a title (text/plain; charset=UTF-8)."></script><script id="http-security-headers" output="&#xa;  X_Frame_Options: &#xa;    Header: X-Frame-Options: SAMEORIGIN&#xa;    Description: The browser must not display this content in any frame from a page of different origin than the content itself.&#xa;  Cache_Control: &#xa;    Header: Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0&#xa;  Expires: &#xa;    Header: Expires: Thu, 01 Jan 1970 00:00:01 GMT"><table key="X_Frame_Options">
+<elem>Header: X-Frame-Options: SAMEORIGIN</elem>
+<elem>Description: The browser must not display this content in any frame from a page of different origin than the content itself.</elem>
+</table>
+<table key="Cache_Control">
+<elem>Header: Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0</elem>
+</table>
+<table key="Expires">
+<elem>Header: Expires: Thu, 01 Jan 1970 00:00:01 GMT</elem>
+</table>
+</script><script id="http-fetch" output="Please enter the complete path of the directory to save data in."><elem key="ERROR">Please enter the complete path of the directory to save data in.</elem>
+</script><script id="http-xssed" output="No previously reported XSS vuln."/><script id="unusual-port" output="http unexpected on port tcp/2086"/><script id="http-devframework" output="Couldn&apos;t determine the underlying framework or CMS. Try increasing &apos;httpspider.maxpagecount&apos; value to spider more pages."/><script id="http-referer-checker" output="Couldn&apos;t find any cross-domain scripts."/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-vhosts" output="&#xa;128 names had status 403"/><script id="http-mobileversion-checker" output="No mobile version detected."/><script id="http-errors" output="&#xa;Spidering limited to: maxpagecount=40; withinhost=172.67.137.163&#xa;  Found the following error pages: &#xa;  &#xa;  Error Code: 403&#xa;  &#x9;http://172.67.137.163:2086/&#xa;"/><script id="http-comments-displayer" output="Couldn&apos;t find any comments."/><script id="http-headers" output="&#xa;  Date: Tue, 30 Jun 2026 17:30:06 GMT&#xa;  Content-Type: text/plain; charset=UTF-8&#xa;  Content-Length: 17&#xa;  Connection: close&#xa;  Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0&#xa;  Expires: Thu, 01 Jan 1970 00:00:01 GMT&#xa;  Referrer-Policy: same-origin&#xa;  X-Frame-Options: SAMEORIGIN&#xa;  Server: cloudflare&#xa;  CF-RAY: a13ee5a18c4fedea-LHR&#xa;  &#xa;  (Request type: GET)&#xa;"/><script id="http-sitemap-generator" output="&#xa;  Directory structure:&#xa;  Longest directory structure:&#xa;    Depth: 0&#xa;    Dir: /&#xa;  Total files found (by extension):&#xa;    &#xa;"/><script id="http-chrono" output="Request times for /; avg: 222.57ms; min: 182.01ms; max: 260.19ms"/><script id="http-date" output="Tue, 30 Jun 2026 17:28:58 GMT; +1h00m00s from local time."><elem key="date">2026-06-30T18:28:58+00:00</elem>
+<elem key="delta">3600.0</elem>
+</script><script id="http-feed" output="Couldn&apos;t find any feeds."/><script id="http-useragent-tester" output="&#xa;  Status for browser useragent: 403&#xa;  Allowed User Agents: &#xa;    Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)&#xa;    libwww&#xa;    lwp-trivial&#xa;    libcurl-agent/1.0&#xa;    PHP/&#xa;    Python-urllib/2.5&#xa;    GT::WWW&#xa;    Snoopy&#xa;    MFC_Tear_Sample&#xa;    HTTP::Lite&#xa;    PHPCrawl&#xa;    URI::Fetch&#xa;    Zend_Http_Client&#xa;    http client&#xa;    PECL::HTTP&#xa;    Wget/1.13.4 (linux-gnu)&#xa;    WWW-Mechanize/1.34"><elem key="Status for browser useragent">403</elem>
+<table key="Allowed User Agents">
+<elem>Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)</elem>
+<elem>libwww</elem>
+<elem>lwp-trivial</elem>
+<elem>libcurl-agent/1.0</elem>
+<elem>PHP/</elem>
+<elem>Python-urllib/2.5</elem>
+<elem>GT::WWW</elem>
+<elem>Snoopy</elem>
+<elem>MFC_Tear_Sample</elem>
+<elem>HTTP::Lite</elem>
+<elem>PHPCrawl</elem>
+<elem>URI::Fetch</elem>
+<elem>Zend_Http_Client</elem>
+<elem>http client</elem>
+<elem>PECL::HTTP</elem>
+<elem>Wget/1.13.4 (linux-gnu)</elem>
+<elem>WWW-Mechanize/1.34</elem>
+</table>
+</script></port>
+<port protocol="tcp" portid="2087"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="nginx" tunnel="ssl" method="probed" conf="10"><cpe>cpe:/a:igor_sysoev:nginx</cpe></service><script id="http-vhosts" output="&#xa;128 names had status 400"/><script id="http-xssed" output="No previously reported XSS vuln."/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-useragent-tester" output="&#xa;  Status for browser useragent: 400&#xa;  Allowed User Agents: &#xa;    Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)&#xa;    libwww&#xa;    lwp-trivial&#xa;    libcurl-agent/1.0&#xa;    PHP/&#xa;    Python-urllib/2.5&#xa;    GT::WWW&#xa;    Snoopy&#xa;    MFC_Tear_Sample&#xa;    HTTP::Lite&#xa;    PHPCrawl&#xa;    URI::Fetch&#xa;    Zend_Http_Client&#xa;    http client&#xa;    PECL::HTTP&#xa;    Wget/1.13.4 (linux-gnu)&#xa;    WWW-Mechanize/1.34"><elem key="Status for browser useragent">400</elem>
+<table key="Allowed User Agents">
+<elem>Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)</elem>
+<elem>libwww</elem>
+<elem>lwp-trivial</elem>
+<elem>libcurl-agent/1.0</elem>
+<elem>PHP/</elem>
+<elem>Python-urllib/2.5</elem>
+<elem>GT::WWW</elem>
+<elem>Snoopy</elem>
+<elem>MFC_Tear_Sample</elem>
+<elem>HTTP::Lite</elem>
+<elem>PHPCrawl</elem>
+<elem>URI::Fetch</elem>
+<elem>Zend_Http_Client</elem>
+<elem>http client</elem>
+<elem>PECL::HTTP</elem>
+<elem>Wget/1.13.4 (linux-gnu)</elem>
+<elem>WWW-Mechanize/1.34</elem>
+</table>
+</script><script id="http-comments-displayer" output="Couldn&apos;t find any comments."/><script id="http-feed" output="Couldn&apos;t find any feeds."/><script id="http-errors" output="&#xa;Spidering limited to: maxpagecount=40; withinhost=172.67.137.163&#xa;  Found the following error pages: &#xa;  &#xa;  Error Code: 400&#xa;  &#x9;http://172.67.137.163:2087/&#xa;"/><script id="http-headers" output="&#xa;  Server: cloudflare&#xa;  Date: Tue, 30 Jun 2026 17:30:19 GMT&#xa;  Content-Type: text/html&#xa;  Content-Length: 253&#xa;  Connection: close&#xa;  CF-RAY: -&#xa;  &#xa;  (Request type: GET)&#xa;"/><script id="http-sitemap-generator" output="&#xa;  Directory structure:&#xa;  Longest directory structure:&#xa;    Depth: 0&#xa;    Dir: /&#xa;  Total files found (by extension):&#xa;    &#xa;"/><script id="http-mobileversion-checker" output="No mobile version detected."/><script id="http-date" output="Tue, 30 Jun 2026 17:29:49 GMT; +59m56s from local time."><elem key="date">2026-06-30T18:29:49+00:00</elem>
+<elem key="delta">3596.0</elem>
+</script><script id="http-security-headers" output="&#xa;  Strict_Transport_Security: &#xa;    HSTS not configured in HTTPS Server"><table key="Strict_Transport_Security">
+<elem>HSTS not configured in HTTPS Server</elem>
+</table>
+</script><script id="unusual-port" output="http unexpected on port tcp/2087"/><script id="http-fetch" output="Please enter the complete path of the directory to save data in."><elem key="ERROR">Please enter the complete path of the directory to save data in.</elem>
+</script><script id="http-chrono" output="Request times for /; avg: 259.81ms; min: 216.54ms; max: 373.12ms"/><script id="http-title" output="400 The plain HTTP request was sent to HTTPS port"><elem key="title">400 The plain HTTP request was sent to HTTPS port</elem>
+</script><script id="http-referer-checker" output="Couldn&apos;t find any cross-domain scripts."/><script id="http-devframework" output="Couldn&apos;t determine the underlying framework or CMS. Try increasing &apos;httpspider.maxpagecount&apos; value to spider more pages."/></port>
+<port protocol="tcp" portid="2095"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="Cloudflare http proxy" method="probed" conf="10"/><script id="http-fetch" output="Please enter the complete path of the directory to save data in."><elem key="ERROR">Please enter the complete path of the directory to save data in.</elem>
+</script><script id="http-errors" output="&#xa;Spidering limited to: maxpagecount=40; withinhost=172.67.137.163&#xa;  Found the following error pages: &#xa;  &#xa;  Error Code: 403&#xa;  &#x9;http://172.67.137.163:2095/&#xa;"/><script id="http-date" output="Tue, 30 Jun 2026 17:28:18 GMT; +1h00m00s from local time."><elem key="date">2026-06-30T18:28:18+00:00</elem>
+<elem key="delta">3600.0</elem>
+</script><script id="unusual-port" output="http unexpected on port tcp/2095"/><script id="http-referer-checker" output="Couldn&apos;t find any cross-domain scripts."/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-xssed" output="No previously reported XSS vuln."/><script id="http-comments-displayer" output="Couldn&apos;t find any comments."/><script id="http-useragent-tester" output="&#xa;  Status for browser useragent: 403&#xa;  Allowed User Agents: &#xa;    Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)&#xa;    libwww&#xa;    lwp-trivial&#xa;    libcurl-agent/1.0&#xa;    PHP/&#xa;    Python-urllib/2.5&#xa;    GT::WWW&#xa;    Snoopy&#xa;    MFC_Tear_Sample&#xa;    HTTP::Lite&#xa;    PHPCrawl&#xa;    URI::Fetch&#xa;    Zend_Http_Client&#xa;    http client&#xa;    PECL::HTTP&#xa;    Wget/1.13.4 (linux-gnu)&#xa;    WWW-Mechanize/1.34"><elem key="Status for browser useragent">403</elem>
+<table key="Allowed User Agents">
+<elem>Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)</elem>
+<elem>libwww</elem>
+<elem>lwp-trivial</elem>
+<elem>libcurl-agent/1.0</elem>
+<elem>PHP/</elem>
+<elem>Python-urllib/2.5</elem>
+<elem>GT::WWW</elem>
+<elem>Snoopy</elem>
+<elem>MFC_Tear_Sample</elem>
+<elem>HTTP::Lite</elem>
+<elem>PHPCrawl</elem>
+<elem>URI::Fetch</elem>
+<elem>Zend_Http_Client</elem>
+<elem>http client</elem>
+<elem>PECL::HTTP</elem>
+<elem>Wget/1.13.4 (linux-gnu)</elem>
+<elem>WWW-Mechanize/1.34</elem>
+</table>
+</script><script id="http-security-headers" output="&#xa;  X_Frame_Options: &#xa;    Header: X-Frame-Options: SAMEORIGIN&#xa;    Description: The browser must not display this content in any frame from a page of different origin than the content itself.&#xa;  Cache_Control: &#xa;    Header: Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0&#xa;  Expires: &#xa;    Header: Expires: Thu, 01 Jan 1970 00:00:01 GMT"><table key="X_Frame_Options">
+<elem>Header: X-Frame-Options: SAMEORIGIN</elem>
+<elem>Description: The browser must not display this content in any frame from a page of different origin than the content itself.</elem>
+</table>
+<table key="Cache_Control">
+<elem>Header: Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0</elem>
+</table>
+<table key="Expires">
+<elem>Header: Expires: Thu, 01 Jan 1970 00:00:01 GMT</elem>
+</table>
+</script><script id="http-devframework" output="Couldn&apos;t determine the underlying framework or CMS. Try increasing &apos;httpspider.maxpagecount&apos; value to spider more pages."/><script id="http-sitemap-generator" output="&#xa;  Directory structure:&#xa;  Longest directory structure:&#xa;    Depth: 0&#xa;    Dir: /&#xa;  Total files found (by extension):&#xa;    &#xa;"/><script id="http-chrono" output="Request times for /; avg: 2367.38ms; min: 186.07ms; max: 11044.91ms"/><script id="http-mobileversion-checker" output="No mobile version detected."/><script id="http-headers" output="&#xa;  Date: Tue, 30 Jun 2026 17:30:08 GMT&#xa;  Content-Type: text/plain; charset=UTF-8&#xa;  Content-Length: 17&#xa;  Connection: close&#xa;  Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0&#xa;  Expires: Thu, 01 Jan 1970 00:00:01 GMT&#xa;  Referrer-Policy: same-origin&#xa;  X-Frame-Options: SAMEORIGIN&#xa;  Server: cloudflare&#xa;  CF-RAY: a13ee5ad2922418e-LHR&#xa;  &#xa;  (Request type: GET)&#xa;"/><script id="http-vhosts" output="&#xa;128 names had status 403"/><script id="http-feed" output="Couldn&apos;t find any feeds."/><script id="http-slowloris-check" output="&#xa;  VULNERABLE:&#xa;  Slowloris DOS attack&#xa;    State: LIKELY VULNERABLE&#xa;    IDs:  CVE:CVE-2007-6750&#xa;      Slowloris tries to keep many connections to the target web server open and hold&#xa;      them open as long as possible.  It accomplishes this by opening connections to&#xa;      the target web server and sending a partial request. By doing so, it starves&#xa;      the http server&apos;s resources causing Denial Of Service.&#xa;      &#xa;    Disclosure date: 2009-09-17&#xa;    References:&#xa;      http://ha.ckers.org/slowloris/&#xa;      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750&#xa;"><table key="CVE-2007-6750">
+<elem key="title">Slowloris DOS attack</elem>
+<elem key="state">LIKELY VULNERABLE</elem>
+<table key="ids">
+<elem>CVE:CVE-2007-6750</elem>
+</table>
+<table key="description">
+<elem>Slowloris tries to keep many connections to the target web server open and hold&#xa;them open as long as possible.  It accomplishes this by opening connections to&#xa;the target web server and sending a partial request. By doing so, it starves&#xa;the http server&apos;s resources causing Denial Of Service.&#xa;</elem>
+</table>
+<table key="dates">
+<table key="disclosure">
+<elem key="month">09</elem>
+<elem key="year">2009</elem>
+<elem key="day">17</elem>
+</table>
+</table>
+<elem key="disclosure">2009-09-17</elem>
+<table key="exploit_results">
+</table>
+<table key="refs">
+<elem>http://ha.ckers.org/slowloris/</elem>
+<elem>https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750</elem>
+</table>
+</table>
+</script><script id="http-title" output="Site doesn&apos;t have a title (text/plain; charset=UTF-8)."></script></port>
+<port protocol="tcp" portid="2096"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="nginx" tunnel="ssl" method="probed" conf="10"><cpe>cpe:/a:igor_sysoev:nginx</cpe></service><script id="http-title" output="400 The plain HTTP request was sent to HTTPS port"><elem key="title">400 The plain HTTP request was sent to HTTPS port</elem>
+</script><script id="http-vhosts" output="&#xa;128 names had status 400"/><script id="http-referer-checker" output="Couldn&apos;t find any cross-domain scripts."/><script id="http-fetch" output="Please enter the complete path of the directory to save data in."><elem key="ERROR">Please enter the complete path of the directory to save data in.</elem>
+</script><script id="http-chrono" output="Request times for /; avg: 242.99ms; min: 222.56ms; max: 288.69ms"/><script id="http-xssed" output="No previously reported XSS vuln."/><script id="http-errors" output="&#xa;Spidering limited to: maxpagecount=40; withinhost=172.67.137.163&#xa;  Found the following error pages: &#xa;  &#xa;  Error Code: 400&#xa;  &#x9;http://172.67.137.163:2096/&#xa;"/><script id="unusual-port" output="http unexpected on port tcp/2096"/><script id="http-useragent-tester" output="&#xa;  Status for browser useragent: 400&#xa;  Allowed User Agents: &#xa;    Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)&#xa;    libwww&#xa;    lwp-trivial&#xa;    libcurl-agent/1.0&#xa;    PHP/&#xa;    Python-urllib/2.5&#xa;    GT::WWW&#xa;    Snoopy&#xa;    MFC_Tear_Sample&#xa;    HTTP::Lite&#xa;    PHPCrawl&#xa;    URI::Fetch&#xa;    Zend_Http_Client&#xa;    http client&#xa;    PECL::HTTP&#xa;    Wget/1.13.4 (linux-gnu)&#xa;    WWW-Mechanize/1.34"><elem key="Status for browser useragent">400</elem>
+<table key="Allowed User Agents">
+<elem>Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)</elem>
+<elem>libwww</elem>
+<elem>lwp-trivial</elem>
+<elem>libcurl-agent/1.0</elem>
+<elem>PHP/</elem>
+<elem>Python-urllib/2.5</elem>
+<elem>GT::WWW</elem>
+<elem>Snoopy</elem>
+<elem>MFC_Tear_Sample</elem>
+<elem>HTTP::Lite</elem>
+<elem>PHPCrawl</elem>
+<elem>URI::Fetch</elem>
+<elem>Zend_Http_Client</elem>
+<elem>http client</elem>
+<elem>PECL::HTTP</elem>
+<elem>Wget/1.13.4 (linux-gnu)</elem>
+<elem>WWW-Mechanize/1.34</elem>
+</table>
+</script><script id="http-date" output="Tue, 30 Jun 2026 17:28:36 GMT; +59m59s from local time."><elem key="date">2026-06-30T18:28:36+00:00</elem>
+<elem key="delta">3599.0</elem>
+</script><script id="http-security-headers" output="&#xa;  Strict_Transport_Security: &#xa;    HSTS not configured in HTTPS Server"><table key="Strict_Transport_Security">
+<elem>HSTS not configured in HTTPS Server</elem>
+</table>
+</script><script id="http-sitemap-generator" output="&#xa;  Directory structure:&#xa;  Longest directory structure:&#xa;    Depth: 0&#xa;    Dir: /&#xa;  Total files found (by extension):&#xa;    &#xa;"/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-feed" output="Couldn&apos;t find any feeds."/><script id="http-comments-displayer" output="Couldn&apos;t find any comments."/><script id="http-devframework" output="Couldn&apos;t determine the underlying framework or CMS. Try increasing &apos;httpspider.maxpagecount&apos; value to spider more pages."/><script id="http-headers" output="&#xa;  Server: cloudflare&#xa;  Date: Tue, 30 Jun 2026 17:29:52 GMT&#xa;  Content-Type: text/html&#xa;  Content-Length: 253&#xa;  Connection: close&#xa;  CF-RAY: -&#xa;  &#xa;  (Request type: GET)&#xa;"/><script id="http-mobileversion-checker" output="No mobile version detected."/></port>
+<port protocol="tcp" portid="8080"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="Cloudflare http proxy" method="probed" conf="10"/><script id="http-xssed" output="No previously reported XSS vuln."/><script id="http-date" output="Tue, 30 Jun 2026 17:30:18 GMT; +1h00m00s from local time."><elem key="date">2026-06-30T18:30:18+00:00</elem>
+<elem key="delta">3600.0</elem>
+</script><script id="http-fetch" output="Please enter the complete path of the directory to save data in."><elem key="ERROR">Please enter the complete path of the directory to save data in.</elem>
+</script><script id="http-sitemap-generator" output="&#xa;  Directory structure:&#xa;  Longest directory structure:&#xa;    Depth: 0&#xa;    Dir: /&#xa;  Total files found (by extension):&#xa;    &#xa;"/><script id="http-referer-checker" output="Couldn&apos;t find any cross-domain scripts."/><script id="http-errors" output="&#xa;Spidering limited to: maxpagecount=40; withinhost=172.67.137.163&#xa;  Found the following error pages: &#xa;  &#xa;  Error Code: 403&#xa;  &#x9;http://172.67.137.163:8080/&#xa;"/><script id="http-chrono" output="Request times for /; avg: 1523.85ms; min: 166.40ms; max: 6910.81ms"/><script id="http-vhosts" output="&#xa;128 names had status 403"/><script id="http-title" output="Site doesn&apos;t have a title (text/plain; charset=UTF-8)."></script><script id="http-mobileversion-checker" output="No mobile version detected."/><script id="http-security-headers" output="&#xa;  X_Frame_Options: &#xa;    Header: X-Frame-Options: SAMEORIGIN&#xa;    Description: The browser must not display this content in any frame from a page of different origin than the content itself.&#xa;  Cache_Control: &#xa;    Header: Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0&#xa;  Expires: &#xa;    Header: Expires: Thu, 01 Jan 1970 00:00:01 GMT"><table key="X_Frame_Options">
+<elem>Header: X-Frame-Options: SAMEORIGIN</elem>
+<elem>Description: The browser must not display this content in any frame from a page of different origin than the content itself.</elem>
+</table>
+<table key="Cache_Control">
+<elem>Header: Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0</elem>
+</table>
+<table key="Expires">
+<elem>Header: Expires: Thu, 01 Jan 1970 00:00:01 GMT</elem>
+</table>
+</script><script id="http-useragent-tester" output="&#xa;  Status for browser useragent: 403&#xa;  Allowed User Agents: &#xa;    Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)&#xa;    libwww&#xa;    lwp-trivial&#xa;    libcurl-agent/1.0&#xa;    PHP/&#xa;    Python-urllib/2.5&#xa;    GT::WWW&#xa;    Snoopy&#xa;    MFC_Tear_Sample&#xa;    HTTP::Lite&#xa;    PHPCrawl&#xa;    URI::Fetch&#xa;    Zend_Http_Client&#xa;    http client&#xa;    PECL::HTTP&#xa;    Wget/1.13.4 (linux-gnu)&#xa;    WWW-Mechanize/1.34"><elem key="Status for browser useragent">403</elem>
+<table key="Allowed User Agents">
+<elem>Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)</elem>
+<elem>libwww</elem>
+<elem>lwp-trivial</elem>
+<elem>libcurl-agent/1.0</elem>
+<elem>PHP/</elem>
+<elem>Python-urllib/2.5</elem>
+<elem>GT::WWW</elem>
+<elem>Snoopy</elem>
+<elem>MFC_Tear_Sample</elem>
+<elem>HTTP::Lite</elem>
+<elem>PHPCrawl</elem>
+<elem>URI::Fetch</elem>
+<elem>Zend_Http_Client</elem>
+<elem>http client</elem>
+<elem>PECL::HTTP</elem>
+<elem>Wget/1.13.4 (linux-gnu)</elem>
+<elem>WWW-Mechanize/1.34</elem>
+</table>
+</script><script id="http-devframework" output="Couldn&apos;t determine the underlying framework or CMS. Try increasing &apos;httpspider.maxpagecount&apos; value to spider more pages."/><script id="http-headers" output="&#xa;  Date: Tue, 30 Jun 2026 17:30:18 GMT&#xa;  Content-Type: text/plain; charset=UTF-8&#xa;  Content-Length: 17&#xa;  Connection: close&#xa;  Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0&#xa;  Expires: Thu, 01 Jan 1970 00:00:01 GMT&#xa;  Referrer-Policy: same-origin&#xa;  X-Frame-Options: SAMEORIGIN&#xa;  Server: cloudflare&#xa;  CF-RAY: a13ee5eab8846535-LHR&#xa;  &#xa;  (Request type: GET)&#xa;"/><script id="http-comments-displayer" output="Couldn&apos;t find any comments."/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-feed" output="Couldn&apos;t find any feeds."/></port>
+<port protocol="tcp" portid="8443"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="https-alt" product="cloudflare" tunnel="ssl" method="probed" conf="10"/><script id="http-chrono" output="Request times for /; avg: 2353.89ms; min: 221.97ms; max: 10860.12ms"/><script id="http-fetch" output="Please enter the complete path of the directory to save data in."><elem key="ERROR">Please enter the complete path of the directory to save data in.</elem>
+</script><script id="http-date" output="Tue, 30 Jun 2026 17:28:26 GMT; +58m42s from local time."><elem key="date">2026-06-30T18:28:26+00:00</elem>
+<elem key="delta">3522.0</elem>
+</script><script id="http-vhosts" output="&#xa;128 names had status 400"/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-slowloris-check" output="&#xa;  VULNERABLE:&#xa;  Slowloris DOS attack&#xa;    State: LIKELY VULNERABLE&#xa;    IDs:  CVE:CVE-2007-6750&#xa;      Slowloris tries to keep many connections to the target web server open and hold&#xa;      them open as long as possible.  It accomplishes this by opening connections to&#xa;      the target web server and sending a partial request. By doing so, it starves&#xa;      the http server&apos;s resources causing Denial Of Service.&#xa;      &#xa;    Disclosure date: 2009-09-17&#xa;    References:&#xa;      http://ha.ckers.org/slowloris/&#xa;      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750&#xa;"><table key="CVE-2007-6750">
+<elem key="title">Slowloris DOS attack</elem>
+<elem key="state">LIKELY VULNERABLE</elem>
+<table key="ids">
+<elem>CVE:CVE-2007-6750</elem>
+</table>
+<table key="description">
+<elem>Slowloris tries to keep many connections to the target web server open and hold&#xa;them open as long as possible.  It accomplishes this by opening connections to&#xa;the target web server and sending a partial request. By doing so, it starves&#xa;the http server&apos;s resources causing Denial Of Service.&#xa;</elem>
+</table>
+<table key="dates">
+<table key="disclosure">
+<elem key="month">09</elem>
+<elem key="year">2009</elem>
+<elem key="day">17</elem>
+</table>
+</table>
+<elem key="disclosure">2009-09-17</elem>
+<table key="exploit_results">
+</table>
+<table key="refs">
+<elem>http://ha.ckers.org/slowloris/</elem>
+<elem>https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750</elem>
+</table>
+</table>
+</script><script id="http-title" output="400 The plain HTTP request was sent to HTTPS port"><elem key="title">400 The plain HTTP request was sent to HTTPS port</elem>
+</script><script id="http-headers" output="&#xa;  Server: cloudflare&#xa;  Date: Tue, 30 Jun 2026 17:30:31 GMT&#xa;  Content-Type: text/html&#xa;  Content-Length: 253&#xa;  Connection: close&#xa;  CF-RAY: -&#xa;  &#xa;  (Request type: GET)&#xa;"/></port>
+<port protocol="tcp" portid="8880"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="Cloudflare http proxy" method="probed" conf="10"/><script id="http-mobileversion-checker" output="No mobile version detected."/><script id="http-feed" output="Couldn&apos;t find any feeds."/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-security-headers" output="&#xa;  X_Frame_Options: &#xa;    Header: X-Frame-Options: SAMEORIGIN&#xa;    Description: The browser must not display this content in any frame from a page of different origin than the content itself.&#xa;  Cache_Control: &#xa;    Header: Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0&#xa;  Expires: &#xa;    Header: Expires: Thu, 01 Jan 1970 00:00:01 GMT"><table key="X_Frame_Options">
+<elem>Header: X-Frame-Options: SAMEORIGIN</elem>
+<elem>Description: The browser must not display this content in any frame from a page of different origin than the content itself.</elem>
+</table>
+<table key="Cache_Control">
+<elem>Header: Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0</elem>
+</table>
+<table key="Expires">
+<elem>Header: Expires: Thu, 01 Jan 1970 00:00:01 GMT</elem>
+</table>
+</script><script id="http-useragent-tester" output="&#xa;  Status for browser useragent: 403&#xa;  Allowed User Agents: &#xa;    Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)&#xa;    libwww&#xa;    lwp-trivial&#xa;    libcurl-agent/1.0&#xa;    PHP/&#xa;    Python-urllib/2.5&#xa;    GT::WWW&#xa;    Snoopy&#xa;    MFC_Tear_Sample&#xa;    HTTP::Lite&#xa;    PHPCrawl&#xa;    URI::Fetch&#xa;    Zend_Http_Client&#xa;    http client&#xa;    PECL::HTTP&#xa;    Wget/1.13.4 (linux-gnu)&#xa;    WWW-Mechanize/1.34"><elem key="Status for browser useragent">403</elem>
+<table key="Allowed User Agents">
+<elem>Mozilla/5.0 (compatible; Nmap Scripting Engine; https://nmap.org/book/nse.html)</elem>
+<elem>libwww</elem>
+<elem>lwp-trivial</elem>
+<elem>libcurl-agent/1.0</elem>
+<elem>PHP/</elem>
+<elem>Python-urllib/2.5</elem>
+<elem>GT::WWW</elem>
+<elem>Snoopy</elem>
+<elem>MFC_Tear_Sample</elem>
+<elem>HTTP::Lite</elem>
+<elem>PHPCrawl</elem>
+<elem>URI::Fetch</elem>
+<elem>Zend_Http_Client</elem>
+<elem>http client</elem>
+<elem>PECL::HTTP</elem>
+<elem>Wget/1.13.4 (linux-gnu)</elem>
+<elem>WWW-Mechanize/1.34</elem>
+</table>
+</script><script id="http-referer-checker" output="Couldn&apos;t find any cross-domain scripts."/><script id="http-chrono" output="Request times for /; avg: 716.73ms; min: 169.20ms; max: 2846.78ms"/><script id="http-vhosts" output="&#xa;128 names had status 403"/><script id="http-fetch" output="Please enter the complete path of the directory to save data in."><elem key="ERROR">Please enter the complete path of the directory to save data in.</elem>
+</script><script id="unusual-port" output="http unexpected on port tcp/8880"/><script id="http-devframework" output="Couldn&apos;t determine the underlying framework or CMS. Try increasing &apos;httpspider.maxpagecount&apos; value to spider more pages."/><script id="http-date" output="Tue, 30 Jun 2026 17:30:12 GMT; +59m59s from local time."><elem key="date">2026-06-30T18:30:12+00:00</elem>
+<elem key="delta">3599.0</elem>
+</script><script id="http-headers" output="&#xa;  Date: Tue, 30 Jun 2026 17:30:41 GMT&#xa;  Content-Type: text/plain; charset=UTF-8&#xa;  Content-Length: 17&#xa;  Connection: close&#xa;  Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0&#xa;  Expires: Thu, 01 Jan 1970 00:00:01 GMT&#xa;  Referrer-Policy: same-origin&#xa;  X-Frame-Options: SAMEORIGIN&#xa;  Server: cloudflare&#xa;  CF-RAY: a13ee6794eb49442-LHR&#xa;  &#xa;  (Request type: GET)&#xa;"/><script id="http-errors" output="&#xa;Spidering limited to: maxpagecount=40; withinhost=172.67.137.163&#xa;  Found the following error pages: &#xa;  &#xa;  Error Code: 403&#xa;  &#x9;http://172.67.137.163:8880/&#xa;"/><script id="http-xssed" output="No previously reported XSS vuln."/><script id="http-sitemap-generator" output="&#xa;  Directory structure:&#xa;  Longest directory structure:&#xa;    Depth: 0&#xa;    Dir: /&#xa;  Total files found (by extension):&#xa;    &#xa;"/><script id="http-comments-displayer" output="Couldn&apos;t find any comments."/><script id="http-title" output="Site doesn&apos;t have a title (text/plain; charset=UTF-8)."></script></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80"/>
+</os>
+<uptime seconds="290" lastboot="Tue Jun 30 18:27:44 2026"/>
+<distance value="9"/>
+<tcpsequence index="261" difficulty="Good luck!" values="BF3A75EC,5D1E5A38,4A1A1104,70C536CF,72FE11F,6E62BBA0"/>
+<ipidsequence class="Broken little-endian incremental" values="C0C6,C1C6,C2C6,C3C6,C4C6,C5C6"/>
+<tcptssequence class="other" values="88B7D507,5EA8E06D,3B466D5C,3FC31A2B,F8D111B,6E029082"/>
+<hostscript><script id="dns-brute" output="Can&apos;t guess domain of &quot;172.67.137.163&quot;; use dns-brute.domain script argument."/><script id="whois-domain" output="You should provide a domain name."/><script id="port-states" output="&#xa;  tcp: &#xa;    open: 80,443,2052-2053,2082-2083,2086-2087,2095-2096,8080,8443,8880&#xa;    filtered: 1-79,81-442,444-2051,2054-2081,2084-2085,2088-2094,2097-8079,8081-8442,8444-8879,8881-65535"><table key="tcp">
+<elem key="open">80,443,2052-2053,2082-2083,2086-2087,2095-2096,8080,8443,8880</elem>
+<elem key="filtered">1-79,81-442,444-2051,2054-2081,2084-2085,2088-2094,2097-8079,8081-8442,8444-8879,8881-65535</elem>
+</table>
+</script><script id="asn-query" output="&#xa;BGP: 172.67.128.0/20 | Country: US&#xa;  Origin AS: 13335 - CLOUDFLARENET - Cloudflare, Inc., US&#xa;    Peer AS: 2914 6461 6939 13335 23352"/><script id="path-mtu" output="PMTU == 1480"/><script id="traceroute-geolocation" output="&#xa;  HOP  RTT   ADDRESS                      GEOLOCATION&#xa;  1    1.12  skysr213.Home (192.168.0.1)  - ,- &#xa;  2    1.82  94.9.175.244                 - ,- &#xa;  3    ...&#xa;  4    ...&#xa;  5    7.31  2.120.11.158                 - ,- &#xa;  6    7.30  141.101.71.18                - ,- &#xa;  7    7.96  141.101.71.129               - ,- &#xa;  8    7.28  141.101.71.63                - ,- &#xa;  9    7.57  172.67.137.163               - ,- &#xa;"><table>
+<elem key="ip">192.168.0.1</elem>
+<elem key="rtt">1.12</elem>
+<elem key="hostname">skysr213.Home</elem>
+<elem key="hop">1</elem>
+</table>
+<table>
+<elem key="ip">94.9.175.244</elem>
+<elem key="rtt">1.82</elem>
+<elem key="hop">2</elem>
+</table>
+<table>
+<elem key="hop">3</elem>
+</table>
+<table>
+<elem key="hop">4</elem>
+</table>
+<table>
+<elem key="ip">2.120.11.158</elem>
+<elem key="rtt">7.31</elem>
+<elem key="hop">5</elem>
+</table>
+<table>
+<elem key="ip">141.101.71.18</elem>
+<elem key="rtt">7.30</elem>
+<elem key="hop">6</elem>
+</table>
+<table>
+<elem key="ip">141.101.71.129</elem>
+<elem key="rtt">7.96</elem>
+<elem key="hop">7</elem>
+</table>
+<table>
+<elem key="ip">141.101.71.63</elem>
+<elem key="rtt">7.28</elem>
+<elem key="hop">8</elem>
+</table>
+<table>
+<elem key="ip">172.67.137.163</elem>
+<elem key="rtt">7.57</elem>
+<elem key="hop">9</elem>
+</table>
+</script><script id="ipidseq" output="Randomized"/><script id="firewalk" output="&#xa;HOP  HOST           PROTOCOL  BLOCKED PORTS&#xa;8    141.101.71.63  tcp       5,7&#xa;"/><script id="clock-skew" output="mean: 59m53s, deviation: 21s, median: 59m59s"><elem key="count">13</elem>
+<elem key="median">3599</elem>
+<elem key="mean">3593</elem>
+<elem key="stddev">21</elem>
+</script><script id="qscan" output="&#xa;PORT  FAMILY  MEAN (us)  STDDEV  LOSS (%)&#xa;80    0       8047.40    581.94  0.0%&#xa;443   0       7965.33    750.21  40.0%&#xa;2052  0       7991.20    563.54  0.0%&#xa;2053  1       7352.80    540.33  50.0%&#xa;2082  0       8390.20    925.84  0.0%&#xa;2083  1       7579.38    422.27  20.0%&#xa;2086  0       7945.30    576.33  0.0%&#xa;2087  0       8115.40    765.95  50.0%&#xa;"/><script id="fcrdns" output="FAIL (No PTR record)"><table key="&lt;none&gt;">
+<elem key="status">fail</elem>
+<elem key="reason">No PTR record</elem>
+</table>
+</script><script id="whois-ip" output="Record found at whois.arin.net&#xa;netrange: 172.64.0.0 - 172.71.255.255&#xa;netname: CLOUDFLARENET&#xa;orgname: Cloudflare, Inc.&#xa;orgid: CLOUD14&#xa;country: US stateprov: CA"/><script id="dns-blacklist" output="&#xa;  SPAM&#xa;    list.quorum.to - SPAM&#xa;    l2.apews.org - FAIL&#xa;"/><script id="ip-geolocation-geoplugin" output="coordinates: nil, nil"><elem key="latitude">nil</elem>
+<elem key="longitude">nil</elem>
+<elem key="city">nil</elem>
+<elem key="region">nil</elem>
+<elem key="country">nil</elem>
+</script></hostscript><trace port="443" proto="tcp">
+<hop ttl="1" ipaddr="192.168.0.1" rtt="1.12" host="skysr213.Home"/>
+<hop ttl="2" ipaddr="94.9.175.244" rtt="1.82"/>
+<hop ttl="5" ipaddr="2.120.11.158" rtt="7.31"/>
+<hop ttl="6" ipaddr="141.101.71.18" rtt="7.30"/>
+<hop ttl="7" ipaddr="141.101.71.129" rtt="7.96"/>
+<hop ttl="8" ipaddr="141.101.71.63" rtt="7.28"/>
+<hop ttl="9" ipaddr="172.67.137.163" rtt="7.57"/>
+</trace>
+<times srtt="8110" rttvar="861" to="100000"/>
+</host>
+<postscript><script id="reverse-index" output="&#xa;  80/tcp: 172.67.137.163&#xa;  443/tcp: 172.67.137.163&#xa;  2052/tcp: 172.67.137.163&#xa;  2053/tcp: 172.67.137.163&#xa;  2082/tcp: 172.67.137.163&#xa;  2083/tcp: 172.67.137.163&#xa;  2086/tcp: 172.67.137.163&#xa;  2087/tcp: 172.67.137.163&#xa;  2095/tcp: 172.67.137.163&#xa;  2096/tcp: 172.67.137.163&#xa;  8080/tcp: 172.67.137.163&#xa;  8443/tcp: 172.67.137.163&#xa;  8880/tcp: 172.67.137.163"><table key="80/tcp">
+<elem>172.67.137.163</elem>
+</table>
+<table key="443/tcp">
+<elem>172.67.137.163</elem>
+</table>
+<table key="2052/tcp">
+<elem>172.67.137.163</elem>
+</table>
+<table key="2053/tcp">
+<elem>172.67.137.163</elem>
+</table>
+<table key="2082/tcp">
+<elem>172.67.137.163</elem>
+</table>
+<table key="2083/tcp">
+<elem>172.67.137.163</elem>
+</table>
+<table key="2086/tcp">
+<elem>172.67.137.163</elem>
+</table>
+<table key="2087/tcp">
+<elem>172.67.137.163</elem>
+</table>
+<table key="2095/tcp">
+<elem>172.67.137.163</elem>
+</table>
+<table key="2096/tcp">
+<elem>172.67.137.163</elem>
+</table>
+<table key="8080/tcp">
+<elem>172.67.137.163</elem>
+</table>
+<table key="8443/tcp">
+<elem>172.67.137.163</elem>
+</table>
+<table key="8880/tcp">
+<elem>172.67.137.163</elem>
+</table>
+</script></postscript><runstats><finished time="1782840754" timestr="Tue Jun 30 18:32:34 2026" summary="Nmap done at Tue Jun 30 18:32:34 2026; 1 IP address (1 host up) scanned in 433.27 seconds" elapsed="433.27" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>

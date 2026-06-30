@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.95 scan initiated Tue Jun 30 18:09:26 2026 as: /usr/lib/nmap/nmap -&#45;privileged -v -sC -sV -p- -&#45;script vuln -oA vuln_scan 172.67.137.163 -->
+<nmaprun scanner="nmap" args="/usr/lib/nmap/nmap -&#45;privileged -v -sC -sV -p- -&#45;script vuln -oA vuln_scan 172.67.137.163" start="1782839366" startstr="Tue Jun 30 18:09:26 2026" version="7.95" xmloutputversion="1.05">
+<scaninfo type="syn" protocol="tcp" numservices="65535" services="1-65535"/>
+<verbose level="1"/>
+<debugging level="0"/>
+<taskbegin task="NSE" time="1782839366"/>
+<taskend task="NSE" time="1782839376"/>
+<taskbegin task="NSE" time="1782839376"/>
+<taskend task="NSE" time="1782839376"/>
+<taskbegin task="Ping Scan" time="1782839376"/>
+<hosthint><status state="up" reason="unknown-response" reason_ttl="0"/>
+<address addr="172.67.137.163" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+</hosthint>
+<taskend task="Ping Scan" time="1782839376" extrainfo="1 total hosts"/>
+<taskbegin task="Parallel DNS resolution of 1 host." time="1782839376"/>
+<taskend task="Parallel DNS resolution of 1 host." time="1782839376"/>
+<taskbegin task="SYN Stealth Scan" time="1782839376"/>
+<taskprogress task="SYN Stealth Scan" time="1782839407" percent="20.99" remaining="117" etc="1782839524"/>
+<taskprogress task="SYN Stealth Scan" time="1782839437" percent="49.72" remaining="62" etc="1782839499"/>
+<taskend task="SYN Stealth Scan" time="1782839479" extrainfo="65535 total ports"/>
+<taskbegin task="Service scan" time="1782839479"/>
+<taskend task="Service scan" time="1782839490" extrainfo="13 services on 1 host"/>
+<taskbegin task="NSE" time="1782839490"/>
+<taskend task="NSE" time="1782839634"/>
+<taskbegin task="NSE" time="1782839634"/>
+<taskend task="NSE" time="1782839636"/>
+<host starttime="1782839376" endtime="1782839636"><status state="up" reason="syn-ack" reason_ttl="56"/>
+<address addr="172.67.137.163" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><extraports state="filtered" count="65522">
+<extrareasons reason="no-response" count="65522" proto="tcp" ports="1-79,81-442,444-2051,2054-2081,2084-2085,2088-2094,2097-8079,8081-8442,8444-8879,8881-65535"/>
+</extraports>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="Cloudflare http proxy" method="probed" conf="10"/><script id="http-csrf" output="Couldn&apos;t find any CSRF vulnerabilities."/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-dombased-xss" output="Couldn&apos;t find any DOM based XSS."/><script id="http-stored-xss" output="Couldn&apos;t find any stored XSS vulnerabilities."/></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="https" product="cloudflare" tunnel="ssl" method="probed" conf="10"/><script id="http-slowloris-check" output="&#xa;  VULNERABLE:&#xa;  Slowloris DOS attack&#xa;    State: LIKELY VULNERABLE&#xa;    IDs:  CVE:CVE-2007-6750&#xa;      Slowloris tries to keep many connections to the target web server open and hold&#xa;      them open as long as possible.  It accomplishes this by opening connections to&#xa;      the target web server and sending a partial request. By doing so, it starves&#xa;      the http server&apos;s resources causing Denial Of Service.&#xa;      &#xa;    Disclosure date: 2009-09-17&#xa;    References:&#xa;      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750&#xa;      http://ha.ckers.org/slowloris/&#xa;"><table key="CVE-2007-6750">
+<elem key="title">Slowloris DOS attack</elem>
+<elem key="state">LIKELY VULNERABLE</elem>
+<table key="ids">
+<elem>CVE:CVE-2007-6750</elem>
+</table>
+<table key="description">
+<elem>Slowloris tries to keep many connections to the target web server open and hold&#xa;them open as long as possible.  It accomplishes this by opening connections to&#xa;the target web server and sending a partial request. By doing so, it starves&#xa;the http server&apos;s resources causing Denial Of Service.&#xa;</elem>
+</table>
+<table key="dates">
+<table key="disclosure">
+<elem key="day">17</elem>
+<elem key="year">2009</elem>
+<elem key="month">09</elem>
+</table>
+</table>
+<elem key="disclosure">2009-09-17</elem>
+<table key="exploit_results">
+</table>
+<table key="refs">
+<elem>https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750</elem>
+<elem>http://ha.ckers.org/slowloris/</elem>
+</table>
+</table>
+</script><script id="http-csrf" output="Couldn&apos;t find any CSRF vulnerabilities."/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-dombased-xss" output="Couldn&apos;t find any DOM based XSS."/><script id="http-stored-xss" output="Couldn&apos;t find any stored XSS vulnerabilities."/></port>
+<port protocol="tcp" portid="2052"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="Cloudflare http proxy" method="probed" conf="10"/><script id="http-stored-xss" output="Couldn&apos;t find any stored XSS vulnerabilities."/><script id="http-slowloris-check" output="&#xa;  VULNERABLE:&#xa;  Slowloris DOS attack&#xa;    State: LIKELY VULNERABLE&#xa;    IDs:  CVE:CVE-2007-6750&#xa;      Slowloris tries to keep many connections to the target web server open and hold&#xa;      them open as long as possible.  It accomplishes this by opening connections to&#xa;      the target web server and sending a partial request. By doing so, it starves&#xa;      the http server&apos;s resources causing Denial Of Service.&#xa;      &#xa;    Disclosure date: 2009-09-17&#xa;    References:&#xa;      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750&#xa;      http://ha.ckers.org/slowloris/&#xa;"><table key="CVE-2007-6750">
+<elem key="title">Slowloris DOS attack</elem>
+<elem key="state">LIKELY VULNERABLE</elem>
+<table key="ids">
+<elem>CVE:CVE-2007-6750</elem>
+</table>
+<table key="description">
+<elem>Slowloris tries to keep many connections to the target web server open and hold&#xa;them open as long as possible.  It accomplishes this by opening connections to&#xa;the target web server and sending a partial request. By doing so, it starves&#xa;the http server&apos;s resources causing Denial Of Service.&#xa;</elem>
+</table>
+<table key="dates">
+<table key="disclosure">
+<elem key="day">17</elem>
+<elem key="year">2009</elem>
+<elem key="month">09</elem>
+</table>
+</table>
+<elem key="disclosure">2009-09-17</elem>
+<table key="exploit_results">
+</table>
+<table key="refs">
+<elem>https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750</elem>
+<elem>http://ha.ckers.org/slowloris/</elem>
+</table>
+</table>
+</script><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-csrf" output="Couldn&apos;t find any CSRF vulnerabilities."/><script id="http-dombased-xss" output="Couldn&apos;t find any DOM based XSS."/></port>
+<port protocol="tcp" portid="2053"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="nginx" tunnel="ssl" method="probed" conf="10"><cpe>cpe:/a:igor_sysoev:nginx</cpe></service><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-slowloris-check" output="&#xa;  VULNERABLE:&#xa;  Slowloris DOS attack&#xa;    State: LIKELY VULNERABLE&#xa;    IDs:  CVE:CVE-2007-6750&#xa;      Slowloris tries to keep many connections to the target web server open and hold&#xa;      them open as long as possible.  It accomplishes this by opening connections to&#xa;      the target web server and sending a partial request. By doing so, it starves&#xa;      the http server&apos;s resources causing Denial Of Service.&#xa;      &#xa;    Disclosure date: 2009-09-17&#xa;    References:&#xa;      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750&#xa;      http://ha.ckers.org/slowloris/&#xa;"><table key="CVE-2007-6750">
+<elem key="title">Slowloris DOS attack</elem>
+<elem key="state">LIKELY VULNERABLE</elem>
+<table key="ids">
+<elem>CVE:CVE-2007-6750</elem>
+</table>
+<table key="description">
+<elem>Slowloris tries to keep many connections to the target web server open and hold&#xa;them open as long as possible.  It accomplishes this by opening connections to&#xa;the target web server and sending a partial request. By doing so, it starves&#xa;the http server&apos;s resources causing Denial Of Service.&#xa;</elem>
+</table>
+<table key="dates">
+<table key="disclosure">
+<elem key="day">17</elem>
+<elem key="year">2009</elem>
+<elem key="month">09</elem>
+</table>
+</table>
+<elem key="disclosure">2009-09-17</elem>
+<table key="exploit_results">
+</table>
+<table key="refs">
+<elem>https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750</elem>
+<elem>http://ha.ckers.org/slowloris/</elem>
+</table>
+</table>
+</script><script id="http-csrf" output="Couldn&apos;t find any CSRF vulnerabilities."/><script id="http-stored-xss" output="Couldn&apos;t find any stored XSS vulnerabilities."/><script id="http-dombased-xss" output="Couldn&apos;t find any DOM based XSS."/></port>
+<port protocol="tcp" portid="2082"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="Cloudflare http proxy" method="probed" conf="10"/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-csrf" output="Couldn&apos;t find any CSRF vulnerabilities."/><script id="http-stored-xss" output="Couldn&apos;t find any stored XSS vulnerabilities."/><script id="http-dombased-xss" output="Couldn&apos;t find any DOM based XSS."/></port>
+<port protocol="tcp" portid="2083"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="nginx" tunnel="ssl" method="probed" conf="10"><cpe>cpe:/a:igor_sysoev:nginx</cpe></service><script id="http-stored-xss" output="Couldn&apos;t find any stored XSS vulnerabilities."/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-csrf" output="Couldn&apos;t find any CSRF vulnerabilities."/><script id="http-dombased-xss" output="Couldn&apos;t find any DOM based XSS."/></port>
+<port protocol="tcp" portid="2086"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="Cloudflare http proxy" method="probed" conf="10"/><script id="http-dombased-xss" output="Couldn&apos;t find any DOM based XSS."/><script id="http-stored-xss" output="Couldn&apos;t find any stored XSS vulnerabilities."/><script id="http-csrf" output="Couldn&apos;t find any CSRF vulnerabilities."/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script></port>
+<port protocol="tcp" portid="2087"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="nginx" tunnel="ssl" method="probed" conf="10"><cpe>cpe:/a:igor_sysoev:nginx</cpe></service><script id="http-dombased-xss" output="Couldn&apos;t find any DOM based XSS."/><script id="http-stored-xss" output="Couldn&apos;t find any stored XSS vulnerabilities."/><script id="http-csrf" output="Couldn&apos;t find any CSRF vulnerabilities."/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script></port>
+<port protocol="tcp" portid="2095"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="Cloudflare http proxy" method="probed" conf="10"/><script id="http-stored-xss" output="Couldn&apos;t find any stored XSS vulnerabilities."/><script id="http-csrf" output="Couldn&apos;t find any CSRF vulnerabilities."/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script><script id="http-dombased-xss" output="Couldn&apos;t find any DOM based XSS."/></port>
+<port protocol="tcp" portid="2096"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="nginx" tunnel="ssl" method="probed" conf="10"><cpe>cpe:/a:igor_sysoev:nginx</cpe></service><script id="http-stored-xss" output="Couldn&apos;t find any stored XSS vulnerabilities."/><script id="http-dombased-xss" output="Couldn&apos;t find any DOM based XSS."/><script id="http-csrf" output="Couldn&apos;t find any CSRF vulnerabilities."/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script></port>
+<port protocol="tcp" portid="8080"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="Cloudflare http proxy" method="probed" conf="10"/><script id="http-stored-xss" output="Couldn&apos;t find any stored XSS vulnerabilities."/><script id="http-csrf" output="Couldn&apos;t find any CSRF vulnerabilities."/><script id="http-dombased-xss" output="Couldn&apos;t find any DOM based XSS."/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script></port>
+<port protocol="tcp" portid="8443"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="https-alt" product="cloudflare" tunnel="ssl" method="probed" conf="10"/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script></port>
+<port protocol="tcp" portid="8880"><state state="open" reason="syn-ack" reason_ttl="56"/><service name="http" product="Cloudflare http proxy" method="probed" conf="10"/><script id="http-csrf" output="Couldn&apos;t find any CSRF vulnerabilities."/><script id="http-dombased-xss" output="Couldn&apos;t find any DOM based XSS."/><script id="http-stored-xss" output="Couldn&apos;t find any stored XSS vulnerabilities."/><script id="http-server-header" output="cloudflare"><elem>cloudflare</elem>
+</script></port>
+</ports>
+<times srtt="8653" rttvar="1321" to="100000"/>
+</host>
+<taskbegin task="NSE" time="1782839636"/>
+<taskend task="NSE" time="1782839636"/>
+<taskbegin task="NSE" time="1782839636"/>
+<taskend task="NSE" time="1782839636"/>
+<runstats><finished time="1782839636" timestr="Tue Jun 30 18:13:56 2026" summary="Nmap done at Tue Jun 30 18:13:56 2026; 1 IP address (1 host up) scanned in 270.50 seconds" elapsed="270.50" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>
