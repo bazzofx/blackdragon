@@ -162,31 +162,13 @@
         }
 
         /* Print styles */
-        @media print {
-            body { background: #fff; color: #000; }
-            .glass-card { background: #f8f8f8; border: 1px solid #ddd; box-shadow: none; }
-            .btn-print { display: none; }
-        }
-
-        .collapsible {
-            cursor: pointer;
-            user-select: none;
-        }
-        .collapsible::after {
-            content: ' \25BC';
-            font-size: 10px;
-            color: var(--text-muted);
-        }
-        .collapsible.open::after {
-            content: ' \25B2';
-        }
-        .collapsible-content {
-            display: none;
-            padding-top: 12px;
-        }
-        .collapsible-content.open {
-            display: block;
-        }
+                @media print {
+                    body { background: #fff; color: #000; }
+                    .glass-card { background: #f8f8f8; border: 1px solid #ddd; box-shadow: none; }
+                    .btn-print { display: none; }
+                    .tabs-nav { display: none; }
+                    .tab-content { display: block !important; opacity: 1 !important; }
+                }
     </style>
 </head>
 <body>
@@ -225,7 +207,7 @@
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">Report Generated</span>
-                        <span class="meta-val">01 July 2026, 00:08</span>
+                        <span class="meta-val">01 July 2026, 00:15</span>
                     </div>
                 </div>
             </div>
@@ -312,9 +294,20 @@
             </div>
         </div>
 
-        <!-- ═══ Section: Open Ports & Services ═══ -->
-        <h2 class="section-title">Open Ports &amp; Services</h2>
-        
+        <!-- ═══ Tab Navigation ═══ -->
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('tab-ports')">Open Ports</button>
+            <button class="tab-btn" onclick="switchTab('tab-vulns')">Vulnerabilities</button>
+            <button class="tab-btn" onclick="switchTab('tab-dirsearch')">Directory Enum</button>
+            <button class="tab-btn" onclick="switchTab('tab-git')">.git Exposure</button>
+            <button class="tab-btn" onclick="switchTab('tab-tech')">Tech Fingerprint</button>
+            <button class="tab-btn" onclick="switchTab('tab-headers')">Security Headers</button>
+        </div>
+
+        <!-- ═══ Tab: Open Ports & Services ═══ -->
+        <div class="tab-content active" id="tab-ports">
+            <h2 class="section-title">Open Ports &amp; Services</h2>
+            
     <div class="glass-card">
         <div class="card-title">Discovered Services (13 open ports)</div>
         <p class="summary-text" style="margin-bottom:12px">
@@ -430,10 +423,12 @@
         </div>
     </div>
     
+        </div>
 
-        <!-- ═══ Section: Vulnerability Findings ═══ -->
-        <h2 class="section-title">Vulnerability Findings</h2>
-        
+        <!-- ═══ Tab: Vulnerability Findings ═══ -->
+        <div class="tab-content" id="tab-vulns">
+            <h2 class="section-title">Vulnerability Findings</h2>
+            
         <div class="glass-card card-red">
             <div class="card-title">Slowloris DOS attack</div>
             <div style="margin:8px 0">
@@ -472,10 +467,12 @@ the http server&#x27;s resources causing Denial Of Service.</p>
             </p>
         </div>
         
+        </div>
 
-        <!-- ═══ Section: Directory Enumeration ═══ -->
-        <h2 class="section-title">Directory &amp; File Enumeration</h2>
-        
+        <!-- ═══ Tab: Directory Enumeration ═══ -->
+        <div class="tab-content" id="tab-dirsearch">
+            <h2 class="section-title">Directory &amp; File Enumeration</h2>
+            
     <div class="glass-card">
         <div class="card-title">Dirsearch Scan Results</div>
         <p class="summary-text" style="margin-bottom:12px">
@@ -777,9 +774,11 @@ the http server&#x27;s resources causing Denial Of Service.</p>
         </div>
     </div>
     
+        </div>
 
-        <!-- ═══ Section: .git Exposure Details ═══ -->
-        
+        <!-- ═══ Tab: .git Exposure Details ═══ -->
+        <div class="tab-content" id="tab-git">
+            
     <h2 class="section-title">.git Repository Exposure <span class="badge badge-red">CRITICAL</span></h2>
 
     <div class="glass-card card-red">
@@ -1030,10 +1029,12 @@ the http server&#x27;s resources causing Denial Of Service.</p>
         </div>
     </div>
     
+        </div>
 
-        <!-- ═══ Section: Technology Fingerprint ═══ -->
-        <h2 class="section-title">Technology Fingerprint</h2>
-        
+        <!-- ═══ Tab: Technology Fingerprint ═══ -->
+        <div class="tab-content" id="tab-tech">
+            <h2 class="section-title">Technology Fingerprint</h2>
+            
     <div class="glass-card">
         <div class="card-title">Web Technology Stack</div>
         <p class="summary-text" style="margin-bottom:12px">
@@ -1084,10 +1085,12 @@ the http server&#x27;s resources causing Denial Of Service.</p>
         </table>
     </div>
     
+        </div>
 
-        <!-- ═══ Section: Security Header Analysis ═══ -->
-        <h2 class="section-title">Security Header Analysis</h2>
-        
+        <!-- ═══ Tab: Security Header Analysis ═══ -->
+        <div class="tab-content" id="tab-headers">
+            <h2 class="section-title">Security Header Analysis</h2>
+            
         <div class="glass-card card-orange">
             <div class="card-title">Missing: HTTP Strict Transport Security (HSTS)</div>
             <p class="summary-text">
@@ -1307,24 +1310,28 @@ the http server&#x27;s resources causing Denial Of Service.</p>
             </table>
         </div>
         
+        </div>
 
         <!-- ═══ Footer ═══ -->
         <div class="footer">
             <p>Cyber Samurai &mdash; Fingerprint &amp; Vulnerability Assessment Report</p>
-            <p style="font-size:11px;margin-top:4px">Generated on 01 July 2026, 00:08 | This report contains confidential security findings.</p>
+            <p style="font-size:11px;margin-top:4px">Generated on 01 July 2026, 00:15 | This report contains confidential security findings.</p>
         </div>
     </div>
 
     <script>
-        // Collapsible sections
-        document.querySelectorAll('.collapsible').forEach(el => {
-            el.addEventListener('click', function() {
-                this.classList.toggle('open');
-                this.nextElementSibling.classList.toggle('open');
-            });
-        });
-        // Open first collapsible by default
-        document.querySelectorAll('.collapsible-content').forEach(el => el.classList.add('open'));
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(function(btn) { btn.classList.remove('active'); });
+            document.querySelectorAll('.tab-content').forEach(function(tc) { tc.classList.remove('active'); });
+            var target = document.getElementById(tabId);
+            if (target) { target.classList.add('active'); }
+            var allBtns = document.querySelectorAll('.tab-btn');
+            for (var i = 0; i < allBtns.length; i++) {
+                if (allBtns[i].getAttribute('onclick') && allBtns[i].getAttribute('onclick').indexOf(tabId) !== -1) {
+                    allBtns[i].classList.add('active');
+                }
+            }
+        }
     </script>
 </body>
 </html>

@@ -723,31 +723,13 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, output_path):
         }}
 
         /* Print styles */
-        @media print {{
-            body {{ background: #fff; color: #000; }}
-            .glass-card {{ background: #f8f8f8; border: 1px solid #ddd; box-shadow: none; }}
-            .btn-print {{ display: none; }}
-        }}
-
-        .collapsible {{
-            cursor: pointer;
-            user-select: none;
-        }}
-        .collapsible::after {{
-            content: ' \\25BC';
-            font-size: 10px;
-            color: var(--text-muted);
-        }}
-        .collapsible.open::after {{
-            content: ' \\25B2';
-        }}
-        .collapsible-content {{
-            display: none;
-            padding-top: 12px;
-        }}
-        .collapsible-content.open {{
-            display: block;
-        }}
+                @media print {{
+                    body {{ background: #fff; color: #000; }}
+                    .glass-card {{ background: #f8f8f8; border: 1px solid #ddd; box-shadow: none; }}
+                    .btn-print {{ display: none; }}
+                    .tabs-nav {{ display: none; }}
+                    .tab-content {{ display: block !important; opacity: 1 !important; }}
+                }}
     </style>
 </head>
 <body>
@@ -826,28 +808,50 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, output_path):
             </div>
         </div>
 
-        <!-- ═══ Section: Open Ports & Services ═══ -->
-        <h2 class="section-title">Open Ports &amp; Services</h2>
-        {_build_ports_section(nmap_data)}
+        <!-- ═══ Tab Navigation ═══ -->
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('tab-ports')">Open Ports</button>
+            <button class="tab-btn" onclick="switchTab('tab-vulns')">Vulnerabilities</button>
+            <button class="tab-btn" onclick="switchTab('tab-dirsearch')">Directory Enum</button>
+            <button class="tab-btn" onclick="switchTab('tab-git')">.git Exposure</button>
+            <button class="tab-btn" onclick="switchTab('tab-tech')">Tech Fingerprint</button>
+            <button class="tab-btn" onclick="switchTab('tab-headers')">Security Headers</button>
+        </div>
 
-        <!-- ═══ Section: Vulnerability Findings ═══ -->
-        <h2 class="section-title">Vulnerability Findings</h2>
-        {_build_vulnerabilities_section(nmap_data)}
+        <!-- ═══ Tab: Open Ports & Services ═══ -->
+        <div class="tab-content active" id="tab-ports">
+            <h2 class="section-title">Open Ports &amp; Services</h2>
+            {_build_ports_section(nmap_data)}
+        </div>
 
-        <!-- ═══ Section: Directory Enumeration ═══ -->
-        <h2 class="section-title">Directory &amp; File Enumeration</h2>
-        {_build_dirsearch_section(dirsearch_data)}
+        <!-- ═══ Tab: Vulnerability Findings ═══ -->
+        <div class="tab-content" id="tab-vulns">
+            <h2 class="section-title">Vulnerability Findings</h2>
+            {_build_vulnerabilities_section(nmap_data)}
+        </div>
 
-        <!-- ═══ Section: .git Exposure Details ═══ -->
-        {_build_git_exposure_section(dirsearch_data)}
+        <!-- ═══ Tab: Directory Enumeration ═══ -->
+        <div class="tab-content" id="tab-dirsearch">
+            <h2 class="section-title">Directory &amp; File Enumeration</h2>
+            {_build_dirsearch_section(dirsearch_data)}
+        </div>
 
-        <!-- ═══ Section: Technology Fingerprint ═══ -->
-        <h2 class="section-title">Technology Fingerprint</h2>
-        {_build_tech_fingerprint_section(whatweb_data)}
+        <!-- ═══ Tab: .git Exposure Details ═══ -->
+        <div class="tab-content" id="tab-git">
+            {_build_git_exposure_section(dirsearch_data)}
+        </div>
 
-        <!-- ═══ Section: Security Header Analysis ═══ -->
-        <h2 class="section-title">Security Header Analysis</h2>
-        {_build_security_headers_section(nmap_data)}
+        <!-- ═══ Tab: Technology Fingerprint ═══ -->
+        <div class="tab-content" id="tab-tech">
+            <h2 class="section-title">Technology Fingerprint</h2>
+            {_build_tech_fingerprint_section(whatweb_data)}
+        </div>
+
+        <!-- ═══ Tab: Security Header Analysis ═══ -->
+        <div class="tab-content" id="tab-headers">
+            <h2 class="section-title">Security Header Analysis</h2>
+            {_build_security_headers_section(nmap_data)}
+        </div>
 
         <!-- ═══ Footer ═══ -->
         <div class="footer">
@@ -857,15 +861,18 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, output_path):
     </div>
 
     <script>
-        // Collapsible sections
-        document.querySelectorAll('.collapsible').forEach(el => {{
-            el.addEventListener('click', function() {{
-                this.classList.toggle('open');
-                this.nextElementSibling.classList.toggle('open');
-            }});
-        }});
-        // Open first collapsible by default
-        document.querySelectorAll('.collapsible-content').forEach(el => el.classList.add('open'));
+        function switchTab(tabId) {{
+            document.querySelectorAll('.tab-btn').forEach(function(btn) {{ btn.classList.remove('active'); }});
+            document.querySelectorAll('.tab-content').forEach(function(tc) {{ tc.classList.remove('active'); }});
+            var target = document.getElementById(tabId);
+            if (target) {{ target.classList.add('active'); }}
+            var allBtns = document.querySelectorAll('.tab-btn');
+            for (var i = 0; i < allBtns.length; i++) {{
+                if (allBtns[i].getAttribute('onclick') && allBtns[i].getAttribute('onclick').indexOf(tabId) !== -1) {{
+                    allBtns[i].classList.add('active');
+                }}
+            }}
+        }}
     </script>
 </body>
 </html>
