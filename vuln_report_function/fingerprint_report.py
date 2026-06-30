@@ -600,9 +600,9 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, output_path):
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            padding: 12px 0;
+            padding: 14px 0 14px 20px;
             border-bottom: 1px solid rgba(255,255,255,0.04);
-            gap: 12px;
+            gap: 20px;
         }}
         .finding-row:last-child {{ border-bottom: none; }}
         .finding-label {{
@@ -614,6 +614,12 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, output_path):
             min-width: 100px;
         }}
         .finding-value {{
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            flex: 1;
+        }}
+        .finding-text {{
             color: var(--text-primary);
             font-size: 13.5px;
             font-family: monospace;
@@ -976,61 +982,27 @@ def _build_key_findings(nmap_data, dirsearch_data, whatweb_data):
     # .git exposure
     if dirsearch_data and dirsearch_data.get("git_summary"):
         summary = dirsearch_data["git_summary"]
-        items.append(f"""
-            <div class="finding-row finding-severity-critical">
-                <span class="finding-label">Git Exposure</span>
-                <span class="finding-value">
-                    <span class="badge badge-red">{summary['risk_level']}</span>
-                    &nbsp;{summary['exposed_file_count']} Git files publicly accessible
-                    &mdash; source code and config leakage risk.
-                </span>
-            </div>
-        """)
+        items.append(f"""\n            <div class="finding-row finding-severity-critical">\n                <span class="finding-label">Git Exposure</span>\n                <span class="finding-value">\n                    <span class="badge badge-red">{summary['risk_level']}</span>\n                    <span class="finding-text">{summary['exposed_file_count']} Git files publicly accessible &mdash; source code and config leakage risk.</span>\n                </span>\n            </div>\n        """)
 
     # Vulnerabilities from nmap
     if nmap_data and nmap_data.get("host"):
         vulns = nmap_data["host"].get("vulnerabilities", [])
         for v in vulns:
             sev = "badge-red" if "VULNERABLE" in v.get("state", "") else "badge-yellow"
-            items.append(f"""
-                <div class="finding-row finding-severity-high">
-                    <span class="finding-label">Vulnerability</span>
-                    <span class="finding-value">
-                        <span class="badge {sev}">{v.get('state', 'FOUND')}</span>
-                        &nbsp;{html_escape(v.get('title', 'Unknown finding'))}
-                        {f"&nbsp;(<code>{html_escape(v.get('cve_id', ''))}</code>)" if v.get('cve_id') and v['cve_id'] != 'N/A' else ""}
-                    </span>
-                </div>
-            """)
+            items.append(f"""\n                <div class="finding-row finding-severity-high">\n                    <span class="finding-label">Vulnerability</span>\n                    <span class="finding-value">\n                        <span class="badge {sev}">{v.get('state', 'FOUND')}</span>\n                        <span class="finding-text">{html_escape(v.get('title', 'Unknown finding'))}{f" ({html_escape(v.get('cve_id', ''))})" if v.get('cve_id') and v['cve_id'] != 'N/A' else ""}</span>\n                    </span>\n                </div>\n            """)
 
     # Unusual ports
     if nmap_data and nmap_data.get("host"):
         unusual = nmap_data["host"].get("unusual_ports", [])
         if unusual:
-            items.append(f"""
-                <div class="finding-row finding-severity-medium">
-                    <span class="finding-label">Unusual Ports</span>
-                    <span class="finding-value">
-                        <span class="badge badge-blue">INFO</span>
-                        &nbsp;{len(unusual)} non-standard HTTP ports detected: {', '.join(str(p) for p in unusual)}
-                    </span>
-                </div>
-            """)
+            items.append(f"""\n                <div class="finding-row finding-severity-medium">\n                    <span class="finding-label">Unusual Ports</span>\n                    <span class="finding-value">\n                        <span class="badge badge-blue">INFO</span>\n                        <span class="finding-text">{len(unusual)} non-standard HTTP ports detected: {', '.join(str(p) for p in unusual)}</span>\n                    </span>\n                </div>\n            """)
 
     # WhatWeb tech count
     if whatweb_data:
         tech = whatweb_data.get("technology_stack", [])
         if tech:
             tech_names = [t["plugin"] for t in tech]
-            items.append(f"""
-                <div class="finding-row finding-severity-low">
-                    <span class="finding-label">Tech Stack</span>
-                    <span class="finding-value">
-                        <span class="badge badge-green">DETECTED</span>
-                        &nbsp;{', '.join(tech_names)}
-                    </span>
-                </div>
-            """)
+            items.append(f"""\n                <div class="finding-row finding-severity-low">\n                    <span class="finding-label">Tech Stack</span>\n                    <span class="finding-value">\n                        <span class="badge badge-green">DETECTED</span>\n                        <span class="finding-text">{', '.join(tech_names)}</span>\n                    </span>\n                </div>\n            """)
 
     if not items:
         items.append('<p class="summary-text">No significant findings detected.</p>')

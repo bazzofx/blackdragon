@@ -39,9 +39,9 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            padding: 12px 0;
+            padding: 14px 0 14px 20px;
             border-bottom: 1px solid rgba(255,255,255,0.04);
-            gap: 12px;
+            gap: 20px;
         }
         .finding-row:last-child { border-bottom: none; }
         .finding-label {
@@ -53,6 +53,12 @@
             min-width: 100px;
         }
         .finding-value {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            flex: 1;
+        }
+        .finding-text {
             color: var(--text-primary);
             font-size: 13.5px;
             font-family: monospace;
@@ -207,7 +213,7 @@
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">Report Generated</span>
-                        <span class="meta-val">01 July 2026, 00:15</span>
+                        <span class="meta-val">01 July 2026, 00:33</span>
                     </div>
                 </div>
             </div>
@@ -248,8 +254,7 @@
                 <span class="finding-label">Git Exposure</span>
                 <span class="finding-value">
                     <span class="badge badge-red">CRITICAL</span>
-                    &nbsp;10 Git files publicly accessible
-                    &mdash; source code and config leakage risk.
+                    <span class="finding-text">10 Git files publicly accessible &mdash; source code and config leakage risk.</span>
                 </span>
             </div>
         
@@ -258,8 +263,7 @@
                     <span class="finding-label">Vulnerability</span>
                     <span class="finding-value">
                         <span class="badge badge-red">LIKELY VULNERABLE</span>
-                        &nbsp;Slowloris DOS attack
-                        &nbsp;(<code>CVE:CVE-2007-6750</code>)
+                        <span class="finding-text">Slowloris DOS attack (CVE:CVE-2007-6750)</span>
                     </span>
                 </div>
             
@@ -268,8 +272,7 @@
                     <span class="finding-label">Vulnerability</span>
                     <span class="finding-value">
                         <span class="badge badge-yellow">MISSING</span>
-                        &nbsp;HTTP Strict Transport Security (HSTS) Not Configured
-                        
+                        <span class="finding-text">HTTP Strict Transport Security (HSTS) Not Configured</span>
                     </span>
                 </div>
             
@@ -278,7 +281,7 @@
                     <span class="finding-label">Unusual Ports</span>
                     <span class="finding-value">
                         <span class="badge badge-blue">INFO</span>
-                        &nbsp;9 non-standard HTTP ports detected: 2052, 2053, 2082, 2083, 2086, 2087, 2095, 2096, 8880
+                        <span class="finding-text">9 non-standard HTTP ports detected: 2052, 2053, 2082, 2083, 2086, 2087, 2095, 2096, 8880</span>
                     </span>
                 </div>
             
@@ -287,7 +290,7 @@
                     <span class="finding-label">Tech Stack</span>
                     <span class="finding-value">
                         <span class="badge badge-green">DETECTED</span>
-                        &nbsp;Country, Script, UncommonHeaders
+                        <span class="finding-text">Country, Script, UncommonHeaders</span>
                     </span>
                 </div>
             
@@ -1315,7 +1318,7 @@ the http server&#x27;s resources causing Denial Of Service.</p>
         <!-- ═══ Footer ═══ -->
         <div class="footer">
             <p>Cyber Samurai &mdash; Fingerprint &amp; Vulnerability Assessment Report</p>
-            <p style="font-size:11px;margin-top:4px">Generated on 01 July 2026, 00:15 | This report contains confidential security findings.</p>
+            <p style="font-size:11px;margin-top:4px">Generated on 01 July 2026, 00:33 | This report contains confidential security findings.</p>
         </div>
     </div>
 
