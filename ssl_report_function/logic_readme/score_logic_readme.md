@@ -6,7 +6,7 @@ This document provides a detailed walkthrough of the security health score calcu
 
 ## 🔍 1. Brief Description
 
-The health scoring logic is located in the [generate_html_report](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/tls/generateTLSEnhanceReport.py#L323) function of the [generateTLSEnhanceReport.py](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/tls/generateTLSEnhanceReport.py) script.
+The health scoring logic is located in the [generate_html_report](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/generateTLSReport.py#L621) function of the [generateTLSReport.py](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/generateTLSReport.py) script.
 
 This function evaluates parsed TLS scan findings (including vulnerabilities, supported/vulnerable protocols, and cipher suites), computes an overall percentage score (the **Health Score**), maps it to a qualitative rating, assigns styling/theme configurations, and constructs a responsive, premium HTML report containing interactive elements and dynamic SVG progress rings.
 
@@ -14,12 +14,9 @@ This function evaluates parsed TLS scan findings (including vulnerabilities, sup
 
 ## 💻 2. Code Implementation
 
-Below is the code section from [generateTLSEnhanceReport.py:L323-373](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/tls/generateTLSEnhanceReport.py#L323-L373) that handles the categorization of vulnerabilities, calculation of the score, and mapping of the rating metadata:
+Below is the code section from [generateTLSReport.py:L848-884](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/generateTLSReport.py#L848-L884) that handles the categorization of vulnerabilities, calculation of the score, and mapping of the rating metadata:
 
 ```python
-def generate_html_report(findings: Dict, input_file: str) -> str:
-    """Generate a premium, branded HTML report from findings."""
-
     # Count issues by severity
     critical_vulns = {k: v for k, v in findings['vulnerabilities'].items() if v['severity'] == 'CRITICAL'}
     warning_vulns = {k: v for k, v in findings['vulnerabilities'].items() if v['severity'] == 'WARNING'}
@@ -33,23 +30,13 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
     # Deprecated protocols
     deprecated_protos = [p for p in findings['protocols']['vulnerable'] if p in ['TLSv1', 'TLSv1.1']]
 
-    # New health score logic:
-    # - If >= 2 criticals -> 10% health score
-    # - If exactly 1 critical -> 25% health score
-    # - If 0 criticals but warnings exist -> 50% base, and for more than 1 warning: -5% per warning (floor of 10%)
-    # - If 0 criticals and 0 warnings -> 100% health score
-    if critical_count >= 2:
-        score = 10
-    elif critical_count == 1:
-        score = 25
-    elif warning_count > 0:
-        if warning_count == 1:
-            score = 50
-        else:
-            score = 50 - (warning_count * 5)
-            score = max(10, score)
-    else:
-        score = 100
+    # Updated health score logic:
+    # - Start at 100%
+    # - Deduct 25% for every critical issue
+    # - Deduct 5% for every warning issue
+    # - Capped at a minimum of 0%
+    score = 100 - (critical_count * 25) - (warning_count * 5)
+    score = max(0, score)
 
     if score >= 90:
         score_rating = "SECURE"
@@ -73,47 +60,32 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
 
 ## 🧮 3. Logical Breakdown
 
-The scoring metric prioritizes severity issues in a hierarchical structure:
+The scoring metric applies linear deductions based on vulnerability severity:
 
 ### ⚠️ Severity Assessment Rules
-1. **Multiple Critical Vulnerabilities**
-   - **Condition**: $\text{critical\_count} \ge 2$
-   - **Outcome**: Health score drops immediately to **10%**.
-2. **Single Critical Vulnerability**
-   - **Condition**: $\text{critical\_count} = 1$
-   - **Outcome**: Health score is set to **25%** (ignoring the number of warnings present).
-3. **Single Warning (No Criticals)**
-   - **Condition**: $\text{critical\_count} = 0 \text{ and } \text{warning\_count} = 1$
-   - **Outcome**: Health score is set to **50%**.
-4. **Multiple Warnings (No Criticals)**
-   - **Condition**: $\text{critical\_count} = 0 \text{ and } \text{warning\_count} > 1$
-   - **Outcome**: Calculated by subtracting $5\%$ for each warning starting from a $50\%$ base, bounded by a lower limit of $10\%$:
-     $$\text{score} = \max(10, 50 - (\text{warning\_count} \times 5))$$
-5. **No Issues Found**
-   - **Condition**: $\text{critical\_count} = 0 \text{ and } \text{warning\_count} = 0$
-   - **Outcome**: Health score is set to **100%**.
+1. **Starting Score**:
+   - The health score starts at a perfect baseline of **100%**.
+2. **Critical Vulnerabilities Deduction**:
+   - For every critical vulnerability identified, **25%** is deducted.
+     $$\text{Deduction}_{\text{critical}} = \text{critical\_count} \times 25$$
+3. **Warning Vulnerabilities Deduction**:
+   - For every warning vulnerability identified, **5%** is deducted.
+     $$\text{Deduction}_{\text{warning}} = \text{warning\_count} \times 5$$
+4. **Calculated Score Formula**:
+   - The final score is computed by subtracting both deductions, bounded by a lower limit of **0%**:
+     $$\text{score} = \max(0, 100 - (\text{critical\_count} \times 25) - (\text{warning\_count} \times 5))$$
 
 ### 📊 Calculation & Rating Flowchart
 
 ```mermaid
 graph TD
-    Start([Start Calculation]) --> CheckCriticals{critical_count?}
-    CheckCriticals -- ">= 2" --> Score10[score = 10]
-    CheckCriticals -- "== 1" --> Score25[score = 25]
-    CheckCriticals -- "== 0" --> CheckWarnings{warning_count?}
-    CheckWarnings -- "> 0" --> CheckOneWarning{warning_count == 1?}
-    CheckOneWarning -- "Yes" --> Score50[score = 50]
-    CheckOneWarning -- "No (Multiple)" --> ScoreDeduct[score = 50 - warning_count * 5]
-    ScoreDeduct --> FloorCheck{score < 10?}
-    FloorCheck -- "Yes" --> ScoreFloor[score = 10]
-    FloorCheck -- "No" --> MapRating
-    CheckWarnings -- "== 0" --> Score100[score = 100]
-    
-    Score10 --> MapRating
-    Score25 --> MapRating
-    Score50 --> MapRating
-    ScoreFloor --> MapRating
-    Score100 --> MapRating
+    Start([Start Calculation]) --> CountIssues[Count Critical & Warning Issues]
+    CountIssues --> CalcRaw[Raw Score = 100 - critical_count * 25 - warning_count * 5]
+    CalcRaw --> FloorCheck{Raw Score < 0?}
+    FloorCheck -- "Yes" --> SetZero[score = 0]
+    FloorCheck -- "No" --> SetRaw[score = Raw Score]
+    SetZero --> MapRating
+    SetRaw --> MapRating
     
     MapRating{score?}
     MapRating -- ">= 90" --> Secure[SECURE / #10b981 / secure]
@@ -139,7 +111,7 @@ The following table details the primary variables used during score assessment a
 | `pass_count` | `int` | The calculated count of passed checks. |
 | `total_protocols` | `int` | Total number of protocols detected in the assessment. |
 | `deprecated_protos`| `List[str]` | List of deprecated protocols (`TLSv1` or `TLSv1.1`) present in the vulnerable list. |
-| `score` | `int` | Calculated security health rating (percentage, $10\% \text{ to } 100\%$). |
+| `score` | `int` | Calculated security health rating (percentage, $0\%$ to $100\%$). |
 | `score_rating` | `str` | Qualitative status descriptor (`SECURE`, `STRONG`, `WARNING`, `CRITICAL`). |
 | `score_color` | `str` | Hex color code applied to UI elements based on severity. |
 | `score_class` | `str` | CSS class name injected into the HTML template to apply custom visual properties. |
