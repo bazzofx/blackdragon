@@ -1,1 +1,0 @@
-# Nmap 7.95 scan initiated Wed Jul  1 02:05:46 2026 as: nmap -sS -sV -O -p- -T4 -A -oA C:\\Users\\joker\\OneDrive\\Documents\\Github\\cybersamurai_business\\blackdragon\\vuln_report_function\\nmap_scan 8.8.8.8
