@@ -190,5 +190,4 @@ if [[ -n "$proxy" ]]; then
 fi
 
 
-python3 fingerprint_report.py
 echo "END"
