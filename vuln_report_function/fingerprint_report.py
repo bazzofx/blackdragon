@@ -476,65 +476,90 @@ def parse_whatweb_results(file_path):
         return None
 
     with open(file_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
+        raw = f.read().strip()
 
-    findings = []
+        # WhatWeb --log-json outputs newline-delimited JSON (NDJSON), not a
+        # single JSON array.  Try to parse as a proper array first; if that
+        # fails, treat each non-empty line as a standalone JSON object.
+        if raw.startswith("["):
+            try:
+                data = json.loads(raw)
+            except json.JSONDecodeError:
+                data = []
+                for line in raw.splitlines():
+                    line = line.strip()
+                    if line:
+                        try:
+                            data.append(json.loads(line))
+                        except json.JSONDecodeError as e:
+                            print(f"    [!] Skipping unparseable whatweb line: {e}")
+        else:
+            data = []
+            for line in raw.splitlines():
+                line = line.strip()
+                if line:
+                    try:
+                        data.append(json.loads(line))
+                    except json.JSONDecodeError as e:
+                        print(f"    [!] Skipping unparseable whatweb line: {e}")
 
-    for entry in data:
-        target = entry.get("target", "Unknown")
-        http_status = entry.get("http_status", 0)
-        plugins = entry.get("plugins", {})
+        findings = []
 
-        # Flatten plugins into readable findings
-        tech_stack = []
-        server_info = {}
-        page_metadata = {}
+        for entry in data:
+            target = entry.get("target", "Unknown")
+            http_status = entry.get("http_status", 0)
+            plugins = entry.get("plugins", {})
 
-        for plugin_name, plugin_data in plugins.items():
-            finding = {
-                "plugin": plugin_name,
-                "strings": plugin_data.get("string", []),
-                "module": plugin_data.get("module", []),
+            # Flatten plugins into readable findings
+            tech_stack = []
+            server_info = {}
+            page_metadata = {}
+
+            for plugin_name, plugin_data in plugins.items():
+                finding = {
+                    "plugin": plugin_name,
+                    "strings": plugin_data.get("string", []),
+                    "module": plugin_data.get("module", []),
+                }
+
+                # Categorize
+                if plugin_name in ("HTTPServer", "IP", "CloudFlare"):
+                    if plugin_name == "HTTPServer":
+                        server_info["server"] = (
+                            plugin_data.get("string", ["Unknown"])[0]
+                        )
+                    elif plugin_name == "IP":
+                        server_info["ip"] = (
+                            plugin_data.get("string", ["Unknown"])[0]
+                        )
+                    elif plugin_name == "CloudFlare":
+                        server_info["cdn"] = "Cloudflare"
+                elif plugin_name in ("Title", "X-UA-Compatible", "HTML5"):
+                    if plugin_name == "Title":
+                        page_metadata["title"] = (
+                            plugin_data.get("string", ["Untitled"])[0]
+                        )
+                    elif plugin_name == "X-UA-Compatible":
+                        page_metadata["x_ua_compatible"] = (
+                            plugin_data.get("string", ["N/A"])[0]
+                        )
+                    elif plugin_name == "HTML5":
+                        page_metadata["html5"] = True
+                else:
+                    tech_stack.append(finding)
+
+                findings.append(finding)
+
+            return {
+                "target": target,
+                "http_status": http_status,
+                "server_info": server_info,
+                "page_metadata": page_metadata,
+                "technology_stack": tech_stack,
+                "all_plugins": plugins,
             }
 
-            # Categorize
-            if plugin_name in ("HTTPServer", "IP", "CloudFlare"):
-                if plugin_name == "HTTPServer":
-                    server_info["server"] = (
-                        plugin_data.get("string", ["Unknown"])[0]
-                    )
-                elif plugin_name == "IP":
-                    server_info["ip"] = (
-                        plugin_data.get("string", ["Unknown"])[0]
-                    )
-                elif plugin_name == "CloudFlare":
-                    server_info["cdn"] = "Cloudflare"
-            elif plugin_name in ("Title", "X-UA-Compatible", "HTML5"):
-                if plugin_name == "Title":
-                    page_metadata["title"] = (
-                        plugin_data.get("string", ["Untitled"])[0]
-                    )
-                elif plugin_name == "X-UA-Compatible":
-                    page_metadata["x_ua_compatible"] = (
-                        plugin_data.get("string", ["N/A"])[0]
-                    )
-                elif plugin_name == "HTML5":
-                    page_metadata["html5"] = True
-            else:
-                tech_stack.append(finding)
-
-            findings.append(finding)
-
-        return {
-            "target": target,
-            "http_status": http_status,
-            "server_info": server_info,
-            "page_metadata": page_metadata,
-            "technology_stack": tech_stack,
-            "all_plugins": plugins,
-        }
-
-    return None
+        return None
 
 
 # ─── HTML Report Builder ─────────────────────────────────────────────────────
