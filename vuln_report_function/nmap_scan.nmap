@@ -1,0 +1,81 @@
+# Nmap 7.95 scan initiated Thu Jul  2 10:48:48 2026 as: "C:\\Program Files (x86)\\Nmap\\nmap.exe" -sT -sV -O -p- -T4 -A -oA C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/vuln_report_function/nmap_scan 8.8.8.8
+Nmap scan report for dns.google (8.8.8.8)
+Host is up (0.0069s latency).
+Not shown: 65532 filtered tcp ports (no-response)
+PORT    STATE SERVICE    VERSION
+53/tcp  open  tcpwrapped
+443/tcp open  ssl/https  HTTP server (unknown)
+| fingerprint-strings: 
+|   Kerberos: 
+|     HTTP/1.0 400 Bad Request
+|     Content-Length: 54
+|     Content-Type: text/html; charset=UTF-8
+|     Date: Thu, 02 Jul 2026 09:52:48 GMT
+|     <html><title>Error 400 (Bad Request)!!1</title></html>
+|   afp: 
+|     HTTP/1.0 400 Bad Request
+|     Content-Length: 54
+|     Content-Type: text/html; charset=UTF-8
+|     Date: Thu, 02 Jul 2026 09:53:24 GMT
+|     <html><title>Error 400 (Bad Request)!!1</title></html>
+|   tor-versions: 
+|     HTTP/1.0 400 Bad Request
+|     Content-Length: 54
+|     Content-Type: text/html; charset=UTF-8
+|     Date: Thu, 02 Jul 2026 09:52:37 GMT
+|_    <html><title>Error 400 (Bad Request)!!1</title></html>
+| ssl-cert: Subject: commonName=dns.google
+| Subject Alternative Name: DNS:dns.google, DNS:dns.google.com, DNS:*.dns.google.com, DNS:8888.google, DNS:dns64.dns.google, IP Address:8.8.8.8, IP Address:8.8.4.4, IP Address:8.8.8.53, IP Address:2001:4860:4860:0:0:0:0:8888, IP Address:2001:4860:4860:0:0:0:0:8844, IP Address:2001:4860:4860:0:0:0:0:6464, IP Address:2001:4860:4860:0:0:0:0:64
+| Not valid before: 2026-06-08T08:39:05
+|_Not valid after:  2026-08-31T08:39:04
+|_ssl-date: TLS randomness does not represent time
+| http-server-header: 
+|   HTTP server (unknown)
+|_  scaffolding on HTTPServer2
+|_http-title: Google Public DNS
+853/tcp open  ssl/domain (generic dns response: SERVFAIL)
+| fingerprint-strings: 
+|   DNSVersionBindReqTCP: 
+|     version
+|_    bind
+| ssl-cert: Subject: commonName=dns.google
+| Subject Alternative Name: DNS:dns.google, DNS:dns.google.com, DNS:*.dns.google.com, DNS:8888.google, DNS:dns64.dns.google, IP Address:8.8.8.8, IP Address:8.8.4.4, IP Address:8.8.8.53, IP Address:2001:4860:4860:0:0:0:0:8888, IP Address:2001:4860:4860:0:0:0:0:8844, IP Address:2001:4860:4860:0:0:0:0:6464, IP Address:2001:4860:4860:0:0:0:0:64
+| Not valid before: 2026-06-08T08:39:05
+|_Not valid after:  2026-08-31T08:39:04
+|_ssl-date: TLS randomness does not represent time
+2 services unrecognized despite returning data. If you know the service/version, please submit the following fingerprints at https://nmap.org/cgi-bin/submit.cgi?new-service :
+==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+SF-Port443-TCP:V=7.95%T=SSL%I=7%D=7/2%Time=6A4634E4%P=i686-pc-windows-wind
+SF:ows%r(tor-versions,B3,"HTTP/1\.0\x20400\x20Bad\x20Request\r\nContent-Le
+SF:ngth:\x2054\r\nContent-Type:\x20text/html;\x20charset=UTF-8\r\nDate:\x2
+SF:0Thu,\x2002\x20Jul\x202026\x2009:52:37\x20GMT\r\n\r\n<html><title>Error
+SF:\x20400\x20\(Bad\x20Request\)!!1</title></html>")%r(Kerberos,B3,"HTTP/1
+SF:\.0\x20400\x20Bad\x20Request\r\nContent-Length:\x2054\r\nContent-Type:\
+SF:x20text/html;\x20charset=UTF-8\r\nDate:\x20Thu,\x2002\x20Jul\x202026\x2
+SF:009:52:48\x20GMT\r\n\r\n<html><title>Error\x20400\x20\(Bad\x20Request\)
+SF:!!1</title></html>")%r(afp,B3,"HTTP/1\.0\x20400\x20Bad\x20Request\r\nCo
+SF:ntent-Length:\x2054\r\nContent-Type:\x20text/html;\x20charset=UTF-8\r\n
+SF:Date:\x20Thu,\x2002\x20Jul\x202026\x2009:53:24\x20GMT\r\n\r\n<html><tit
+SF:le>Error\x20400\x20\(Bad\x20Request\)!!1</title></html>");
+==============NEXT SERVICE FINGERPRINT (SUBMIT INDIVIDUALLY)==============
+SF-Port853-TCP:V=7.95%T=SSL%I=7%D=7/2%Time=6A4634E9%P=i686-pc-windows-wind
+SF:ows%r(DNSVersionBindReqTCP,20,"\0\x1e\0\x06\x81\x82\0\x01\0\0\0\0\0\0\x
+SF:07version\x04bind\0\0\x10\0\x03");
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+OS fingerprint not ideal because: Missing a closed TCP port so results incomplete
+No OS matches for host
+Network Distance: 9 hops
+
+TRACEROUTE (using proto 1/icmp)
+HOP RTT     ADDRESS
+1   2.00 ms 192.168.0.1
+2   1.00 ms 94.9.175.244
+3   ... 4
+5   7.00 ms 2.120.13.46
+6   6.00 ms 2.127.241.189
+7   7.00 ms 192.178.97.191
+8   7.00 ms 209.85.248.241
+9   6.00 ms dns.google (8.8.8.8)
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Thu Jul  2 10:53:42 2026 -- 1 IP address (1 host up) scanned in 293.97 seconds

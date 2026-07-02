@@ -2,16 +2,23 @@
 """
 fingerprint_report.py - Cyber Samurai Fingerprint & Vulnerability Report Generator
 =============================================================================
-Parses nmap_rawReport.xml, dirsearch_rawReoirt.json, and whatweb_rawReport.json to
+Parses nmap scan data, dirsearch results, and whatweb results to
 extract actionable security findings, then compiles a professional HTML report
 styled with the Cyber Samurai global_report.css theme.
 
 Usage:
+    python fingerprint_report.py <domain>
+    (reads from vuln_report_function/<domain>/ folder)
+
+    python fingerprint_report.py </absolute/path>
+    (reads from the given path directly — used by fetchVuln.sh)
+
     python fingerprint_report.py
-    (defaults: reads from vuln_report_function/ folder, outputs fingerprintReport.html)
+    (reads from vuln_report_function/ folder — legacy fallback)
 """
 
 import os
+import sys
 import json
 import xml.etree.ElementTree as ET
 from datetime import datetime
@@ -20,9 +27,21 @@ from html import escape as html_escape
 # ─── Configuration ───────────────────────────────────────────────────────────
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-NMAP_FILE = os.path.join(BASE_DIR, "nmap_rawReport.xml")
-DIRSEARCH_FILE = os.path.join(BASE_DIR, "dirsearch_rawReoirt.json")
-WHATWEB_FILE = os.path.join(BASE_DIR, "whatweb_rawReport.json")
+
+# Accept domain or path as optional CLI argument
+if len(sys.argv) > 1:
+    domain_arg = sys.argv[1].strip()
+    # If it's an absolute path, use it directly; otherwise treat as domain name
+    if os.path.isabs(domain_arg):
+        DATA_DIR = domain_arg
+    else:
+        DATA_DIR = os.path.join(BASE_DIR, domain_arg)
+else:
+    DATA_DIR = BASE_DIR
+
+NMAP_FILE = os.path.join(DATA_DIR, "nmap_scan.xml")
+DIRSEARCH_FILE = os.path.join(DATA_DIR, "dirsearch_rawReport.json")
+WHATWEB_FILE = os.path.join(DATA_DIR, "whatweb_rawReport.json")
 OUTPUT_FILE = os.path.join(BASE_DIR, "fingerprintReport.html")
 CSS_PATH = os.path.join(BASE_DIR, "..", "reference", "global_report.css")
 REPORT_TITLE = "Cyber Samurai — Fingerprint & Security Assessment Report"
@@ -33,7 +52,7 @@ SCAN_DATE = datetime.now().strftime("%d %B %Y, %H:%M")
 
 def parse_nmap_scan(file_path):
     """
-    Parse nmap_rawReport.xml and extract:
+    Parse nmap_scan.xml and extract:
       - Scan metadata (target, args, start/end time)
       - Open ports with service details
       - Discovered vulnerabilities (Slowloris, missing HSTS)
@@ -316,7 +335,7 @@ def parse_nmap_scan(file_path):
 
 def parse_dirsearch_results(file_path):
     """
-    Parse dirsearch_rawReoirt.json and extract:
+    Parse dirsearch_rawReport.json and extract:
       - Scan metadata (command, timestamp)
       - True positive findings (non-404 status codes)
       - .git exposure summary

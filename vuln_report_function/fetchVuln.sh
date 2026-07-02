@@ -5,6 +5,9 @@
 # Collects initial reconnaissance data for a target domain:
 #   whatweb, nmap, dirsearch, nikto, nuclei, (optional wpscan)
 #===============================================================================
+
+export PATH="$HOME/.local/bin:$PATH"
+
 # Usage:
 #   ./fetchVuln.sh example.com
 #   ./fetchVuln.sh -d example.com
@@ -86,9 +89,8 @@ if [[ -n "$proxy" ]]; then
     echo "[*] Proxy configured: http://${proxy_clean}"
 fi
 
-#--- Create output directory named after the domain ---
-output_dir="./${domain}"
-mkdir -p "$output_dir"
+#--- Output goes to current working directory ---
+output_dir="$(pwd)"
 echo "[*] Output directory: $output_dir/"
 
 #--- Perform NSLOOKUP to find the IP and save it to a variable called ip ---
@@ -120,13 +122,14 @@ whatweb "http://$domain" -v -a 3 --follow-redirect=always $proxy_whatweb --log-j
 ###############################
 #Purpose:
 # Comprehensive port scanning to identify open ports, running services, service
-# versions, and the operating system of the target. Uses SYN scan (-sS), version
-# detection (-sV), OS detection (-O), full port range (-p-), aggressive timing
-# (-T4), and default NSE scripts (-A) for thorough infrastructure reconnaissance.
-# NOTE: --proxies only affects HTTP-based version probes, not the SYN scan itself.
+# versions, and the operating system of the target. Uses TCP connect scan (-sT),
+# version detection (-sV), OS detection (-O), full port range (-p-), aggressive
+# timing (-T4), and default NSE scripts (-A) for thorough infrastructure
+# reconnaissance. Uses -sT instead of -sS to avoid requiring root privileges.
+# NOTE: --proxies only affects HTTP-based version probes, not the scan itself.
 echo ""
 echo "[*] Running nmap against $ip ..."
-nmap -sS -sV -O -p- -T4 -A $proxy_nmap -oA "${output_dir}/nmap_scan" "$ip"
+nmap -sT -sV -O -p- -T4 -A $proxy_nmap -oA "${output_dir}/nmap_scan" "$ip"
 
 ###############################
 #           DIRSEARCH 
@@ -157,11 +160,11 @@ nikto -h "$domain" -ssl -Tuning 123456789abc $proxy_nikto -o "${output_dir}/nikt
 ###############################
 #Purpose:
 # Fast vulnerability scanning using YAML-based templates, targeting known CVEs.
-# Scans for critical-severity vulnerabilities using CVE-focused templates (-t cves/).
-# Outputs raw results in text format (-o) and JSON format (-je) for further analysis.
+# Scans for critical-severity vulnerabilities with all CVE-related templates.
+# Outputs raw results in text format (-o) and JSON format (-je) for analysis.
 echo ""
 echo "[*] Running nuclei against $domain ..."
-nuclei -u "http://$domain" -t cves/ -severity critical $proxy_nuclei -o "${output_dir}/nuclei_rawReport.txt" -je "${output_dir}/nuclei_rawReport.json"
+nuclei -u "http://$domain" -t ~/nuclei-templates/ -tags cve -severity critical $proxy_nuclei -o "${output_dir}/nuclei_rawReport.txt" -je "${output_dir}/nuclei_rawReport.json"
 
 #--- If the server is identified as WordPress, run WPScan ---
 ###############################
@@ -189,5 +192,5 @@ if [[ -n "$proxy" ]]; then
     echo "[*] Used proxy: http://${proxy_clean}"
 fi
 
-
+python3 fingerprint_report.py "$output_dir"
 echo "END"
