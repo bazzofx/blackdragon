@@ -25,17 +25,21 @@ from html import escape as html_escape
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Accept domain as optional CLI argument
+# Accept domain or path as optional CLI argument
 if len(sys.argv) > 1:
     domain_arg = sys.argv[1].strip()
-    DATA_DIR = os.path.join(BASE_DIR, domain_arg)
+    # If it's an absolute path, use it directly; otherwise treat as domain name
+    if os.path.isabs(domain_arg):
+        DATA_DIR = domain_arg
+    else:
+        DATA_DIR = os.path.join(BASE_DIR, domain_arg)
 else:
     DATA_DIR = BASE_DIR
 
-NMAP_FILE = os.path.join(DATA_DIR, "nmap_scan.xml")
+NMAP_FILE = os.path.join(DATA_DIR, "nmap_rawReport.xml")
 DIRSEARCH_FILE = os.path.join(DATA_DIR, "dirsearch_rawReport.json")
 WHATWEB_FILE = os.path.join(DATA_DIR, "whatweb_rawReport.json")
-OUTPUT_FILE = os.path.join(BASE_DIR, "fingerprintReport.html")
+OUTPUT_FILE = os.path.join(DATA_DIR, "vulnReport.html")
 CSS_PATH = os.path.join(BASE_DIR, "..", "reference", "global_report.css")
 REPORT_TITLE = "Cyber Samurai — Fingerprint & Security Assessment Report"
 SCAN_DATE = datetime.now().strftime("%d %B %Y, %H:%M")
@@ -45,7 +49,7 @@ SCAN_DATE = datetime.now().strftime("%d %B %Y, %H:%M")
 
 def parse_nmap_scan(file_path):
     """
-    Parse nmap_scan.xml and extract:
+    Parse nmap_rawReport.xml and extract:
       - Scan metadata (target, args, start/end time)
       - Open ports with service details
       - Discovered vulnerabilities (Slowloris, missing HSTS)
@@ -469,7 +473,32 @@ def parse_whatweb_results(file_path):
         return None
 
     with open(file_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
+        raw = f.read().strip()
+
+    # WhatWeb --log-json outputs newline-delimited JSON (NDJSON), not a
+    # single JSON array.  Try to parse as a proper array first; if that
+    # fails, treat each non-empty line as a standalone JSON object.
+    if raw.startswith("["):
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError:
+            data = []
+            for line in raw.splitlines():
+                line = line.strip()
+                if line:
+                    try:
+                        data.append(json.loads(line))
+                    except json.JSONDecodeError as e:
+                        print(f"    [!] Skipping unparseable whatweb line: {e}")
+    else:
+        data = []
+        for line in raw.splitlines():
+            line = line.strip()
+            if line:
+                try:
+                    data.append(json.loads(line))
+                except json.JSONDecodeError as e:
+                    print(f"    [!] Skipping unparseable whatweb line: {e}")
 
     findings = []
 

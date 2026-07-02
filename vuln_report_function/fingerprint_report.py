@@ -39,10 +39,10 @@ if len(sys.argv) > 1:
 else:
     DATA_DIR = BASE_DIR
 
-NMAP_FILE = os.path.join(DATA_DIR, "nmap_scan.xml")
+NMAP_FILE = os.path.join(DATA_DIR, "nmap_rawReport.xml")
 DIRSEARCH_FILE = os.path.join(DATA_DIR, "dirsearch_rawReport.json")
 WHATWEB_FILE = os.path.join(DATA_DIR, "whatweb_rawReport.json")
-OUTPUT_FILE = os.path.join(BASE_DIR, "fingerprintReport.html")
+OUTPUT_FILE = os.path.join(DATA_DIR, "vulnReport.html")
 CSS_PATH = os.path.join(BASE_DIR, "..", "reference", "global_report.css")
 REPORT_TITLE = "Cyber Samurai — Fingerprint & Security Assessment Report"
 SCAN_DATE = datetime.now().strftime("%d %B %Y, %H:%M")

@@ -126,7 +126,7 @@ whatweb "http://$domain" -v -a 3 --follow-redirect=always $proxy_whatweb --log-j
 # NOTE: --proxies only affects HTTP-based version probes, not the SYN scan itself.
 echo ""
 echo "[*] Running nmap against $ip ..."
-nmap -sS -sV -O -p- -T4 -A $proxy_nmap -oA "${output_dir}/nmap_scan" "$ip"
+nmap -sS -sV -O -p- -T4 -A $proxy_nmap -oX "${output_dir}/nmap_rawReport.xml" "$ip"
 
 ###############################
 #           DIRSEARCH 
@@ -180,15 +180,15 @@ echo ""
 echo "[+] All scans complete. Results saved in: ${output_dir}/"
 echo "[*] Summary:"
 echo "      whatweb   -> ${output_dir}/whatweb_rawReport.json"
-echo "      nmap      -> ${output_dir}/nmap_scan.*"
+echo "      nmap      -> ${output_dir}/nmap_rawReport.xml"
 echo "      dirsearch -> ${output_dir}/dirsearch_rawReport.json"
-echo "      nikto     -> ${output_dir}/nikto_report.html"
-echo "      nuclei    -> ${output_dir}/nuclei_rawReport.*"
+#echo "      nikto     -> ${output_dir}/nikto_report.html"
+#echo "      nuclei    -> ${output_dir}/nuclei_rawReport.*"
 
 if [[ -n "$proxy" ]]; then
     echo "[*] Used proxy: http://${proxy_clean}"
 fi
 
 
-python3 fingerprint_report.py
+python3 fingerprint_report.py "$output_dir"
 echo "END"
