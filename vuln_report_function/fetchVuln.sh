@@ -153,7 +153,7 @@ dirsearch -u "http://$domain" -e php,asp,aspx,jsp,html,js,txt,bak,old,zip,sql,co
 # (1-6, 9a-b-c), verbose HTML output (-Display V), with a 60-minute timeout limit.
 echo ""
 echo "[*] Running nikto against $domain ..."
-nikto -h "$domain" -ssl -Tuning 123456789abc $proxy_nikto -o "${output_dir}/nikto_report.html" -Format htm -Display V -timeout 15 -maxtime 3600
+#nikto -h "$domain" -ssl -Tuning 123456789abc $proxy_nikto -o "${output_dir}/nikto_report.html" -Format htm -Display V -timeout 15 -maxtime 3600
 
 ###############################
 #           NUCLEI
@@ -164,7 +164,7 @@ nikto -h "$domain" -ssl -Tuning 123456789abc $proxy_nikto -o "${output_dir}/nikt
 # Outputs raw results in text format (-o) and JSON format (-je) for analysis.
 echo ""
 echo "[*] Running nuclei against $domain ..."
-nuclei -u "http://$domain" -t ~/nuclei-templates/ -tags cve -severity critical $proxy_nuclei -o "${output_dir}/nuclei_rawReport.txt" -je "${output_dir}/nuclei_rawReport.json"
+#nuclei -u "http://$domain" -t ~/nuclei-templates/ -tags cve -severity critical $proxy_nuclei -o "${output_dir}/nuclei_rawReport.txt" -je "${output_dir}/nuclei_rawReport.json"
 
 #--- If the server is identified as WordPress, run WPScan ---
 ###############################
