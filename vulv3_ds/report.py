@@ -17,7 +17,6 @@ Usage:
 import os
 import sys
 import json
-import re
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from html import escape as html_escape
@@ -26,129 +25,27 @@ from html import escape as html_escape
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Accept domain or path as optional CLI argument
+# Accept domain as optional CLI argument
 if len(sys.argv) > 1:
     domain_arg = sys.argv[1].strip()
-    # If it's an absolute path, use it directly; otherwise treat as domain name
-    if os.path.isabs(domain_arg):
-        DATA_DIR = domain_arg
-    else:
-        DATA_DIR = os.path.join(BASE_DIR, domain_arg)
+    DATA_DIR = os.path.join(BASE_DIR, domain_arg)
 else:
     DATA_DIR = BASE_DIR
 
-NMAP_FILE = os.path.join(DATA_DIR, "nmap_rawReport.xml")
+NMAP_FILE = os.path.join(DATA_DIR, "nmap_scan.xml")
 DIRSEARCH_FILE = os.path.join(DATA_DIR, "dirsearch_rawReport.json")
 WHATWEB_FILE = os.path.join(DATA_DIR, "whatweb_rawReport.json")
-OUTPUT_FILE = os.path.join(DATA_DIR, "vulnReport.html")
-
-# Try to find CSS file in multiple locations
-CSS_PATHS = [
-    os.path.join(BASE_DIR, "..", "reference", "global_report.css"),
-    os.path.join(BASE_DIR, "global_report.css"),
-    os.path.join(BASE_DIR, "..", "global_report.css"),
-]
-
-CSS_PATH = None
-for path in CSS_PATHS:
-    if os.path.exists(path):
-        CSS_PATH = path
-        break
-
+OUTPUT_FILE = os.path.join(BASE_DIR, "fingerprintReport.html")
+CSS_PATH = os.path.join(BASE_DIR, "..", "reference", "global_report.css")
 REPORT_TITLE = "Cyber Samurai — Fingerprint & Security Assessment Report"
 SCAN_DATE = datetime.now().strftime("%d %B %Y, %H:%M")
-
-
-# ─── Helper: Risk Calculation ────────────────────────────────────────────────
-
-def _risk_color(score):
-    """Return CSS color variable based on risk score."""
-    if score >= 70:
-        return "var(--color-critical)"
-    elif score >= 40:
-        return "var(--color-warning)"
-    return "var(--color-pass)"
-
-
-def _vuln_count(nmap_data):
-    """Count vulnerabilities from nmap data."""
-    if nmap_data and nmap_data.get("host"):
-        return len(nmap_data["host"].get("vulnerabilities", []))
-    return 0
-
-
-def _open_port_count(nmap_data):
-    """Count open ports from nmap data."""
-    if nmap_data and nmap_data.get("host"):
-        return len(nmap_data["host"].get("open_ports", []))
-    return 0
-
-
-def _git_exposed_count(dirsearch_data):
-    """Count git exposure findings."""
-    if dirsearch_data and dirsearch_data.get("git_exposure"):
-        return len(dirsearch_data["git_exposure"])
-    return 0
-
-
-def _tech_count(whatweb_data):
-    """Count technologies from whatweb data."""
-    if whatweb_data and whatweb_data.get("technology_stack"):
-        return len(whatweb_data["technology_stack"])
-    return 0
-
-
-def _calculate_risk_score(nmap_data, dirsearch_data, whatweb_data):
-    """Compute a weighted risk score 0-100 from findings."""
-    score = 0
-
-    # Nmap vulnerabilities
-    if nmap_data and nmap_data.get("host"):
-        vulns = nmap_data["host"].get("vulnerabilities", [])
-        for v in vulns:
-            if v.get("state") == "LIKELY VULNERABLE":
-                score += 12
-            elif v.get("state") == "MISSING":
-                score += 8
-
-        # Unusual ports
-        unusual = nmap_data["host"].get("unusual_ports", [])
-        score += len(unusual) * 2
-
-        # Open ports beyond standard
-        open_ports = nmap_data["host"].get("open_ports", [])
-        standard = {80, 443}
-        non_standard = [p for p in open_ports if p["port"] not in standard]
-        score += len(non_standard) * 3
-
-    # .git exposure
-    if dirsearch_data and dirsearch_data.get("git_exposure"):
-        score += len(dirsearch_data["git_exposure"]) * 2
-        if dirsearch_data.get("git_summary"):
-            if dirsearch_data["git_summary"]["risk_level"] == "CRITICAL":
-                score += 25
-            elif dirsearch_data["git_summary"]["risk_level"] == "HIGH":
-                score += 15
-
-    score = min(score, 100)
-
-    if score >= 70:
-        label = "CRITICAL"
-    elif score >= 40:
-        label = "ELEVATED"
-    elif score >= 15:
-        label = "MODERATE"
-    else:
-        label = "LOW"
-
-    return score, label
 
 
 # ─── Nmap Parsing ────────────────────────────────────────────────────────────
 
 def parse_nmap_scan(file_path):
     """
-    Parse nmap_rawReport.xml and extract:
+    Parse nmap_scan.xml and extract:
       - Scan metadata (target, args, start/end time)
       - Open ports with service details
       - Discovered vulnerabilities (Slowloris, missing HSTS)
@@ -162,12 +59,8 @@ def parse_nmap_scan(file_path):
         print(f"[-] Nmap XML not found: {file_path}")
         return None
 
-    try:
-        tree = ET.parse(file_path)
-        root = tree.getroot()
-    except ET.ParseError as e:
-        print(f"[-] Error parsing Nmap XML: {e}")
-        return None
+    tree = ET.parse(file_path)
+    root = tree.getroot()
 
     # ── Scan metadata ──
     scan_info = {
@@ -232,12 +125,9 @@ def parse_nmap_scan(file_path):
             # Extra ports (filtered)
             extra_el = ports_el.find("extraports")
             if extra_el is not None:
-                try:
-                    host_data["extra_ports"]["filtered"] = int(
-                        extra_el.get("count", 0)
-                    )
-                except ValueError:
-                    host_data["extra_ports"]["filtered"] = 0
+                host_data["extra_ports"]["filtered"] = int(
+                    extra_el.get("count", 0)
+                )
                 host_data["extra_ports"]["filtered_ranges"] = (
                     extra_el.get("ports", "").split(",")
                 )
@@ -248,10 +138,7 @@ def parse_nmap_scan(file_path):
                 if state_el is None or state_el.get("state") != "open":
                     continue
 
-                try:
-                    port_id = int(port_el.get("portid", "0"))
-                except ValueError:
-                    port_id = 0
+                port_id = int(port_el.get("portid", "0"))
                 protocol = port_el.get("protocol", "tcp")
 
                 svc_el = port_el.find("service")
@@ -326,11 +213,7 @@ def parse_nmap_scan(file_path):
 
                     # ── Missing HSTS ──
                     if script_id == "http-security-headers":
-                        # More robust HSTS detection
-                        if "hsts" in script_output.lower() and (
-                            "not configured" in script_output.lower() or 
-                            "missing" in script_output.lower()
-                        ):
+                        if "HSTS not configured" in script_output:
                             vulns_found.append({
                                 "type": "Missing Header",
                                 "script_id": script_id,
@@ -386,12 +269,9 @@ def parse_nmap_scan(file_path):
                     host_data["unusual_ports"].append(port_id)
 
             # Collect all vulnerabilities
-            seen_vulns = set()
             for port_info in host_data["open_ports"]:
                 for vuln in port_info.get("vulnerabilities", []):
-                    vuln_key = vuln.get("title", "") + vuln.get("cve_id", "")
-                    if vuln_key not in seen_vulns:
-                        seen_vulns.add(vuln_key)
+                    if vuln not in host_data["vulnerabilities"]:
                         host_data["vulnerabilities"].append(vuln)
 
             # Collect security notes (headers summary)
@@ -460,12 +340,8 @@ def parse_dirsearch_results(file_path):
         print(f"[-] Dirsearch JSON not found: {file_path}")
         return None
 
-    try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-    except json.JSONDecodeError as e:
-        print(f"[-] Error parsing Dirsearch JSON: {e}")
-        return None
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
 
     scan_info = data.get("info", {})
     all_results = data.get("results", [])
@@ -496,8 +372,8 @@ def parse_dirsearch_results(file_path):
         # True positives: anything not 404
         if status != 404:
             true_positives.append(parsed)
-            # Flag .git exposure with improved regex
-            if re.search(r'/\.git(/|$|\.)', url, re.IGNORECASE):
+            # Flag .git exposure
+            if "/.git" in url or "/.github" in url:
                 git_exposure.append(parsed)
         else:
             false_positives.append(parsed)
@@ -552,8 +428,8 @@ def _summarize_git_exposure(git_entries):
 
     risk_level = "HIGH"
     if exposed_files:
-        has_index = any("index" in f["path"].lower() for f in exposed_files)
-        has_config = any("config" in f["path"].lower() for f in exposed_files)
+        has_index = any("index" in f["path"] for f in exposed_files)
+        has_config = any("config" in f["path"] for f in exposed_files)
         if has_index and has_config:
             risk_level = "CRITICAL"
         elif has_config or has_index:
@@ -592,91 +468,521 @@ def parse_whatweb_results(file_path):
         print(f"[-] WhatWeb JSON not found: {file_path}")
         return None
 
-    try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            raw = f.read().strip()
-    except IOError as e:
-        print(f"[-] Error reading WhatWeb JSON: {e}")
-        return None
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
 
-    # WhatWeb --log-json outputs newline-delimited JSON (NDJSON), not a
-    # single JSON array.  Try to parse as a proper array first; if that
-    # fails, treat each non-empty line as a standalone JSON object.
-    data = []
-    if raw.startswith("["):
-        try:
-            data = json.loads(raw)
-        except json.JSONDecodeError:
-            for line in raw.splitlines():
-                line = line.strip()
-                if line:
-                    try:
-                        data.append(json.loads(line))
-                    except json.JSONDecodeError as e:
-                        print(f"    [!] Skipping unparseable whatweb line: {e}")
-    else:
-        for line in raw.splitlines():
-            line = line.strip()
-            if line:
-                try:
-                    data.append(json.loads(line))
-                except json.JSONDecodeError as e:
-                    print(f"    [!] Skipping unparseable whatweb line: {e}")
+    findings = []
 
-    if not data:
-        return None
+    for entry in data:
+        target = entry.get("target", "Unknown")
+        http_status = entry.get("http_status", 0)
+        plugins = entry.get("plugins", {})
 
-    entry = data[0]  # Take first entry
-    target = entry.get("target", "Unknown")
-    http_status = entry.get("http_status", 0)
-    plugins = entry.get("plugins", {})
+        # Flatten plugins into readable findings
+        tech_stack = []
+        server_info = {}
+        page_metadata = {}
 
-    # Flatten plugins into readable findings
-    tech_stack = []
-    server_info = {}
-    page_metadata = {}
+        for plugin_name, plugin_data in plugins.items():
+            finding = {
+                "plugin": plugin_name,
+                "strings": plugin_data.get("string", []),
+                "module": plugin_data.get("module", []),
+            }
 
-    for plugin_name, plugin_data in plugins.items():
-        finding = {
-            "plugin": plugin_name,
-            "strings": plugin_data.get("string", []),
-            "module": plugin_data.get("module", []),
+            # Categorize
+            if plugin_name in ("HTTPServer", "IP", "CloudFlare"):
+                if plugin_name == "HTTPServer":
+                    server_info["server"] = (
+                        plugin_data.get("string", ["Unknown"])[0]
+                    )
+                elif plugin_name == "IP":
+                    server_info["ip"] = (
+                        plugin_data.get("string", ["Unknown"])[0]
+                    )
+                elif plugin_name == "CloudFlare":
+                    server_info["cdn"] = "Cloudflare"
+            elif plugin_name in ("Title", "X-UA-Compatible", "HTML5"):
+                if plugin_name == "Title":
+                    page_metadata["title"] = (
+                        plugin_data.get("string", ["Untitled"])[0]
+                    )
+                elif plugin_name == "X-UA-Compatible":
+                    page_metadata["x_ua_compatible"] = (
+                        plugin_data.get("string", ["N/A"])[0]
+                    )
+                elif plugin_name == "HTML5":
+                    page_metadata["html5"] = True
+            else:
+                tech_stack.append(finding)
+
+            findings.append(finding)
+
+        return {
+            "target": target,
+            "http_status": http_status,
+            "server_info": server_info,
+            "page_metadata": page_metadata,
+            "technology_stack": tech_stack,
+            "all_plugins": plugins,
         }
 
-        # Categorize
-        if plugin_name in ("HTTPServer", "IP", "CloudFlare"):
-            if plugin_name == "HTTPServer":
-                server_info["server"] = (
-                    plugin_data.get("string", ["Unknown"])[0]
-                )
-            elif plugin_name == "IP":
-                server_info["ip"] = (
-                    plugin_data.get("string", ["Unknown"])[0]
-                )
-            elif plugin_name == "CloudFlare":
-                server_info["cdn"] = "Cloudflare"
-        elif plugin_name in ("Title", "X-UA-Compatible", "HTML5"):
-            if plugin_name == "Title":
-                page_metadata["title"] = (
-                    plugin_data.get("string", ["Untitled"])[0]
-                )
-            elif plugin_name == "X-UA-Compatible":
-                page_metadata["x_ua_compatible"] = (
-                    plugin_data.get("string", ["N/A"])[0]
-                )
-            elif plugin_name == "HTML5":
-                page_metadata["html5"] = True
-        else:
-            tech_stack.append(finding)
+    return None
 
-    return {
-        "target": target,
-        "http_status": http_status,
-        "server_info": server_info,
-        "page_metadata": page_metadata,
-        "technology_stack": tech_stack,
-        "all_plugins": plugins,
-    }
+
+# ─── HTML Report Builder ─────────────────────────────────────────────────────
+
+def build_html_report(nmap_data, dirsearch_data, whatweb_data, output_path):
+    """
+    Compile all parsed findings into a professional HTML report
+    styled with the Cyber Samurai global_report.css theme.
+
+    The report includes:
+      - Executive summary / hero section
+      - Open ports & services table
+      - Vulnerability findings
+      - .git exposure details
+      - Technology fingerprint
+      - Security header analysis
+    """
+    # Derive overall risk score
+    risk_score, risk_label = _calculate_risk_score(
+        nmap_data, dirsearch_data, whatweb_data
+    )
+
+    # ── Determine scan target ──
+    target_ip = "Unknown"
+    target_hostname = "Unknown"
+    if nmap_data and nmap_data.get("host"):
+        target_ip = nmap_data["host"]["ip"]
+    if whatweb_data:
+        target_hostname = whatweb_data.get("target", "Unknown")
+
+    scan_start = "Unknown"
+    if nmap_data and nmap_data.get("scan_info"):
+        scan_start = nmap_data["scan_info"].get("start_time", "Unknown")
+    if dirsearch_data and dirsearch_data.get("scan_info"):
+        ds_time = dirsearch_data["scan_info"].get("time", "")
+        if ds_time:
+            # Format: "Tue Jun 30 18:19:53 2026"
+            scan_start = ds_time
+
+    # Resolve CSS path relative to output
+    css_relative = os.path.relpath(CSS_PATH, os.path.dirname(output_path))
+    css_relative = css_relative.replace("\\", "/")
+
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{REPORT_TITLE}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{css_relative}">
+    <style>
+        /* ---- Report-specific extensions ---- */
+        .finding-severity-critical {{ border-left: 3px solid var(--color-critical) !important; }}
+        .finding-severity-high {{ border-left: 3px solid var(--color-warning) !important; }}
+        .finding-severity-medium {{ border-left: 3px solid var(--color-info) !important; }}
+        .finding-severity-low {{ border-left: 3px solid var(--color-pass) !important; }}
+
+        .section-title {{
+            font-family: 'Outfit', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            margin: 36px 0 16px 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }}
+        .section-title::before {{
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 20px;
+            background: var(--accent-red);
+            border-radius: 2px;
+        }}
+
+        .finding-row {{
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 14px 0 14px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            gap: 20px;
+        }}
+        .finding-row:last-child {{ border-bottom: none; }}
+        .finding-label {{
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            min-width: 100px;
+        }}
+        .finding-value {{
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            flex: 1;
+        }}
+        .finding-text {{
+            color: var(--text-primary);
+            font-size: 13.5px;
+            font-family: monospace;
+            word-break: break-all;
+            flex: 1;
+        }}
+
+        .port-badge {{
+            display: inline-block;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--text-primary);
+            margin: 2px 4px;
+        }}
+        .port-badge.ssl {{ border-color: var(--color-info); color: var(--color-info); }}
+
+        .data-table {{
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }}
+        .data-table th {{
+            text-align: left;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+        }}
+        .data-table td {{
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            color: var(--text-secondary);
+            vertical-align: top;
+        }}
+        .data-table tr:hover td {{
+            background: rgba(255,255,255,0.01);
+        }}
+        .data-table .mono {{
+            font-family: monospace;
+            color: var(--text-primary);
+        }}
+
+        .exposure-card {{
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+        }}
+        .exposure-card.exposed-file {{
+            border-left: 3px solid var(--color-critical);
+        }}
+        .exposure-card.dir-listing {{
+            border-left: 3px solid var(--color-warning);
+        }}
+        .exposure-card.forbidden {{
+            border-left: 3px solid var(--color-info);
+        }}
+
+        .highlight-box {{
+            background: rgba(255,46,59,0.06);
+            border: 1px solid rgba(255,46,59,0.15);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            font-size: 13.5px;
+            line-height: 1.65;
+            color: var(--text-secondary);
+        }}
+
+        .tech-tag {{
+            display: inline-block;
+            background: rgba(59,130,246,0.1);
+            border: 1px solid rgba(59,130,246,0.25);
+            color: var(--color-info);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 3px 4px;
+        }}
+
+        .summary-stat {{
+            text-align: center;
+            padding: 20px 12px;
+        }}
+        .summary-stat .stat-number {{
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            line-height: 1;
+        }}
+        .summary-stat .stat-desc {{
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }}
+
+        /* Print styles */
+                @media print {{
+                    body {{ background: #fff; color: #000; }}
+                    .glass-card {{ background: #f8f8f8; border: 1px solid #ddd; box-shadow: none; }}
+                    .btn-print {{ display: none; }}
+                    .tabs-nav {{ display: none; }}
+                    .tab-content {{ display: block !important; opacity: 1 !important; }}
+                }}
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- ═══ Header Bar ═══ -->
+        <div class="header-bar">
+            <div class="brand">
+                <span class="brand-logo">CYBER<span>SAMURAI</span></span>
+                <span class="brand-japanese">サイバー侍</span>
+            </div>
+            <button class="btn-print" onclick="window.print()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                Print Report
+            </button>
+        </div>
+
+        <!-- ═══ Hero Section ═══ -->
+        <div class="hero-section">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <div class="hero-tagline">Security Fingerprint Assessment</div>
+                <h1 class="hero-title">Fingerprint &amp;<br>Vulnerability Report</h1>
+                <div class="hero-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Target</span>
+                        <span class="meta-val">{html_escape(target_hostname)}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">IP Address</span>
+                        <span class="meta-val">{html_escape(target_ip)}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Scan Date</span>
+                        <span class="meta-val">{html_escape(scan_start)}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Report Generated</span>
+                        <span class="meta-val">{html_escape(SCAN_DATE)}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ Dashboard Summary ═══ -->
+        <div class="dashboard-grid">
+            <div class="glass-card card-red">
+                <div class="card-title">Overall Risk Score</div>
+                <div class="health-score-container">
+                    <span class="score-num" style="color:{_risk_color(risk_score)}">{risk_score}%</span>
+                    <span class="score-label" style="color:{_risk_color(risk_score)}">{risk_label}</span>
+                </div>
+                <div class="stat-grid" style="margin-top:16px">
+                    <div class="stat-card">
+                        <span class="stat-val stat-critical">{_vuln_count(nmap_data)}</span>
+                        <span class="stat-lbl">Vulnerabilities</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-info">{_open_port_count(nmap_data)}</span>
+                        <span class="stat-lbl">Open Ports</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-warning">{_git_exposed_count(dirsearch_data)}</span>
+                        <span class="stat-lbl">.git Files Exposed</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-pass">{_tech_count(whatweb_data)}</span>
+                        <span class="stat-lbl">Technologies</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card card-blue">
+                <div class="card-title">Key Findings Summary</div>
+                {_build_key_findings(nmap_data, dirsearch_data, whatweb_data)}
+            </div>
+        </div>
+
+        <!-- ═══ Tab Navigation ═══ -->
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('tab-ports')">Open Ports</button>
+            <button class="tab-btn" onclick="switchTab('tab-vulns')">Vulnerabilities</button>
+            <button class="tab-btn" onclick="switchTab('tab-dirsearch')">Directory Enum</button>
+            <button class="tab-btn" onclick="switchTab('tab-git')">.git Exposure</button>
+            <button class="tab-btn" onclick="switchTab('tab-tech')">Tech Fingerprint</button>
+            <button class="tab-btn" onclick="switchTab('tab-headers')">Security Headers</button>
+        </div>
+
+        <!-- ═══ Tab: Open Ports & Services ═══ -->
+        <div class="tab-content active" id="tab-ports">
+            <h2 class="section-title">Open Ports &amp; Services</h2>
+            {_build_ports_section(nmap_data)}
+        </div>
+
+        <!-- ═══ Tab: Vulnerability Findings ═══ -->
+        <div class="tab-content" id="tab-vulns">
+            <h2 class="section-title">Vulnerability Findings</h2>
+            {_build_vulnerabilities_section(nmap_data)}
+        </div>
+
+        <!-- ═══ Tab: Directory Enumeration ═══ -->
+        <div class="tab-content" id="tab-dirsearch">
+            <h2 class="section-title">Directory &amp; File Enumeration</h2>
+            {_build_dirsearch_section(dirsearch_data)}
+        </div>
+
+        <!-- ═══ Tab: .git Exposure Details ═══ -->
+        <div class="tab-content" id="tab-git">
+            {_build_git_exposure_section(dirsearch_data)}
+        </div>
+
+        <!-- ═══ Tab: Technology Fingerprint ═══ -->
+        <div class="tab-content" id="tab-tech">
+            <h2 class="section-title">Technology Fingerprint</h2>
+            {_build_tech_fingerprint_section(whatweb_data)}
+        </div>
+
+        <!-- ═══ Tab: Security Header Analysis ═══ -->
+        <div class="tab-content" id="tab-headers">
+            <h2 class="section-title">Security Header Analysis</h2>
+            {_build_security_headers_section(nmap_data)}
+        </div>
+
+        <!-- ═══ Footer ═══ -->
+        <div class="footer">
+            <p>Cyber Samurai &mdash; Fingerprint &amp; Vulnerability Assessment Report</p>
+            <p style="font-size:11px;margin-top:4px">Generated on {html_escape(SCAN_DATE)} | This report contains confidential security findings.</p>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabId) {{
+            document.querySelectorAll('.tab-btn').forEach(function(btn) {{ btn.classList.remove('active'); }});
+            document.querySelectorAll('.tab-content').forEach(function(tc) {{ tc.classList.remove('active'); }});
+            var target = document.getElementById(tabId);
+            if (target) {{ target.classList.add('active'); }}
+            var allBtns = document.querySelectorAll('.tab-btn');
+            for (var i = 0; i < allBtns.length; i++) {{
+                if (allBtns[i].getAttribute('onclick') && allBtns[i].getAttribute('onclick').indexOf(tabId) !== -1) {{
+                    allBtns[i].classList.add('active');
+                }}
+            }}
+        }}
+    </script>
+</body>
+</html>
+"""
+
+    # Write output
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(html)
+
+    print(f"[+] Report compiled successfully: {output_path}")
+    return html
+
+
+# ─── Helper: Risk Calculation ────────────────────────────────────────────────
+
+def _risk_color(score):
+    if score >= 70:
+        return "var(--color-critical)"
+    elif score >= 40:
+        return "var(--color-warning)"
+    return "var(--color-pass)"
+
+
+def _calculate_risk_score(nmap_data, dirsearch_data, whatweb_data):
+    """Compute a weighted risk score 0-100 from findings."""
+    score = 0
+
+    # Nmap vulnerabilities
+    if nmap_data and nmap_data.get("host"):
+        vulns = nmap_data["host"].get("vulnerabilities", [])
+        for v in vulns:
+            if v.get("state") == "LIKELY VULNERABLE":
+                score += 12
+            elif v.get("state") == "MISSING":
+                score += 8
+
+        # Unusual ports
+        unusual = nmap_data["host"].get("unusual_ports", [])
+        score += len(unusual) * 2
+
+        # Open ports beyond standard
+        open_ports = nmap_data["host"].get("open_ports", [])
+        standard = {80, 443}
+        non_standard = [p for p in open_ports if p["port"] not in standard]
+        score += len(non_standard) * 3
+
+    # .git exposure
+    if dirsearch_data and dirsearch_data.get("git_exposure"):
+        score += len(dirsearch_data["git_exposure"]) * 2
+        if dirsearch_data.get("git_summary"):
+            if dirsearch_data["git_summary"]["risk_level"] == "CRITICAL":
+                score += 25
+            elif dirsearch_data["git_summary"]["risk_level"] == "HIGH":
+                score += 15
+
+    score = min(score, 100)
+
+    if score >= 70:
+        label = "CRITICAL"
+    elif score >= 40:
+        label = "ELEVATED"
+    elif score >= 15:
+        label = "MODERATE"
+    else:
+        label = "LOW"
+
+    return score, label
+
+
+def _vuln_count(nmap_data):
+    if nmap_data and nmap_data.get("host"):
+        return len(nmap_data["host"].get("vulnerabilities", []))
+    return 0
+
+
+def _open_port_count(nmap_data):
+    if nmap_data and nmap_data.get("host"):
+        return len(nmap_data["host"].get("open_ports", []))
+    return 0
+
+
+def _git_exposed_count(dirsearch_data):
+    if dirsearch_data and dirsearch_data.get("git_exposure"):
+        return len(dirsearch_data["git_exposure"])
+    return 0
+
+
+def _tech_count(whatweb_data):
+    if whatweb_data and whatweb_data.get("technology_stack"):
+        return len(whatweb_data["technology_stack"])
+    return 0
 
 
 # ─── HTML Section Builders ───────────────────────────────────────────────────
@@ -688,62 +994,27 @@ def _build_key_findings(nmap_data, dirsearch_data, whatweb_data):
     # .git exposure
     if dirsearch_data and dirsearch_data.get("git_summary"):
         summary = dirsearch_data["git_summary"]
-        items.append(f"""
-            <div class="finding-row finding-severity-critical">
-                <span class="finding-label">Git Exposure</span>
-                <span class="finding-value">
-                    <span class="badge badge-red">{summary['risk_level']}</span>
-                    <span class="finding-text">{summary['exposed_file_count']} Git files publicly accessible &mdash; source code and config leakage risk.</span>
-                </span>
-            </div>
-        """)
+        items.append(f"""\n            <div class="finding-row finding-severity-critical">\n                <span class="finding-label">Git Exposure</span>\n                <span class="finding-value">\n                    <span class="badge badge-red">{summary['risk_level']}</span>\n                    <span class="finding-text">{summary['exposed_file_count']} Git files publicly accessible &mdash; source code and config leakage risk.</span>\n                </span>\n            </div>\n        """)
 
     # Vulnerabilities from nmap
     if nmap_data and nmap_data.get("host"):
         vulns = nmap_data["host"].get("vulnerabilities", [])
-        for v in vulns[:5]:  # Show top 5 vulnerabilities
+        for v in vulns:
             sev = "badge-red" if "VULNERABLE" in v.get("state", "") else "badge-yellow"
-            items.append(f"""
-                <div class="finding-row finding-severity-high">
-                    <span class="finding-label">Vulnerability</span>
-                    <span class="finding-value">
-                        <span class="badge {sev}">{v.get('state', 'FOUND')}</span>
-                        <span class="finding-text">{html_escape(v.get('title', 'Unknown finding'))}{f" ({html_escape(v.get('cve_id', ''))})" if v.get('cve_id') and v['cve_id'] != 'N/A' else ""}</span>
-                    </span>
-                </div>
-            """)
+            items.append(f"""\n                <div class="finding-row finding-severity-high">\n                    <span class="finding-label">Vulnerability</span>\n                    <span class="finding-value">\n                        <span class="badge {sev}">{v.get('state', 'FOUND')}</span>\n                        <span class="finding-text">{html_escape(v.get('title', 'Unknown finding'))}{f" ({html_escape(v.get('cve_id', ''))})" if v.get('cve_id') and v['cve_id'] != 'N/A' else ""}</span>\n                    </span>\n                </div>\n            """)
 
     # Unusual ports
     if nmap_data and nmap_data.get("host"):
         unusual = nmap_data["host"].get("unusual_ports", [])
         if unusual:
-            items.append(f"""
-                <div class="finding-row finding-severity-medium">
-                    <span class="finding-label">Unusual Ports</span>
-                    <span class="finding-value">
-                        <span class="badge badge-blue">INFO</span>
-                        <span class="finding-text">{len(unusual)} non-standard HTTP ports detected: {', '.join(str(p) for p in unusual[:5])}{'...' if len(unusual) > 5 else ''}</span>
-                    </span>
-                </div>
-            """)
+            items.append(f"""\n                <div class="finding-row finding-severity-medium">\n                    <span class="finding-label">Unusual Ports</span>\n                    <span class="finding-value">\n                        <span class="badge badge-blue">INFO</span>\n                        <span class="finding-text">{len(unusual)} non-standard HTTP ports detected: {', '.join(str(p) for p in unusual)}</span>\n                    </span>\n                </div>\n            """)
 
     # WhatWeb tech count
     if whatweb_data:
         tech = whatweb_data.get("technology_stack", [])
         if tech:
-            tech_names = [t["plugin"] for t in tech[:10]]
-            tech_display = ', '.join(tech_names)
-            if len(tech) > 10:
-                tech_display += f' and {len(tech) - 10} more'
-            items.append(f"""
-                <div class="finding-row finding-severity-low">
-                    <span class="finding-label">Tech Stack</span>
-                    <span class="finding-value">
-                        <span class="badge badge-green">DETECTED</span>
-                        <span class="finding-text">{html_escape(tech_display)}</span>
-                    </span>
-                </div>
-            """)
+            tech_names = [t["plugin"] for t in tech]
+            items.append(f"""\n                <div class="finding-row finding-severity-low">\n                    <span class="finding-label">Tech Stack</span>\n                    <span class="finding-value">\n                        <span class="badge badge-green">DETECTED</span>\n                        <span class="finding-text">{', '.join(tech_names)}</span>\n                    </span>\n                </div>\n            """)
 
     if not items:
         items.append('<p class="summary-text">No significant findings detected.</p>')
@@ -779,14 +1050,13 @@ def _build_ports_section(nmap_data):
             </tr>
         """
 
-    filtered_count = host.get("extra_ports", {}).get("filtered", 0)
-    
     return f"""
     <div class="glass-card">
         <div class="card-title">Discovered Services ({len(ports)} open ports)</div>
         <p class="summary-text" style="margin-bottom:12px">
             Nmap detected <strong>{len(ports)} open ports</strong> on {html_escape(host['ip'])}
-            with <strong>{filtered_count:,} filtered ports</strong>.
+            with <strong>{host['extra_ports']['filtered']:,} filtered ports</strong>.
+            The target is behind Cloudflare's network (AS13335).
         </p>
         <div style="overflow-x:auto">
             <table class="data-table">
@@ -1180,747 +1450,6 @@ def _build_security_headers_section(nmap_data):
         """
 
     return cards
-
-
-# ─── HTML Report Builder ─────────────────────────────────────────────────────
-
-def build_html_report(nmap_data, dirsearch_data, whatweb_data, output_path):
-    """
-    Compile all parsed findings into a professional HTML report
-    styled with the Cyber Samurai global_report.css theme.
-
-    The report includes:
-      - Executive summary / hero section
-      - Open ports & services table
-      - Vulnerability findings
-      - .git exposure details
-      - Technology fingerprint
-      - Security header analysis
-    """
-    # Derive overall risk score
-    risk_score, risk_label = _calculate_risk_score(
-        nmap_data, dirsearch_data, whatweb_data
-    )
-
-    # ── Determine scan target ──
-    target_ip = "Unknown"
-    target_hostname = "Unknown"
-    if nmap_data and nmap_data.get("host"):
-        target_ip = nmap_data["host"]["ip"]
-    if whatweb_data:
-        target_hostname = whatweb_data.get("target", "Unknown")
-
-    scan_start = "Unknown"
-    if nmap_data and nmap_data.get("scan_info"):
-        scan_start = nmap_data["scan_info"].get("start_time", "Unknown")
-    if dirsearch_data and dirsearch_data.get("scan_info"):
-        ds_time = dirsearch_data["scan_info"].get("time", "")
-        if ds_time:
-            # Format: "Tue Jun 30 18:19:53 2026"
-            scan_start = ds_time
-
-    # Resolve CSS path relative to output
-    if CSS_PATH:
-        css_relative = os.path.relpath(CSS_PATH, os.path.dirname(output_path))
-        css_relative = css_relative.replace("\\", "/")
-        css_link = f'<link rel="stylesheet" href="{css_relative}">'
-    else:
-        css_link = ""
-        print("[!] Warning: global_report.css not found. Using inline styles only.")
-
-    # Generate risk color
-    risk_color = _risk_color(risk_score)
-
-    html = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{REPORT_TITLE}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
-    {css_link}
-    <style>
-        /* ---- Fallback styles if CSS not loaded ---- */
-        :root {{
-            --color-critical: #ff2e3b;
-            --color-warning: #f59e0b;
-            --color-info: #3b82f6;
-            --color-pass: #10b981;
-            --color-red: #ff2e3b;
-            --color-yellow: #f59e0b;
-            --color-blue: #3b82f6;
-            --color-green: #10b981;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --border-color: rgba(255,255,255,0.08);
-            --card-bg: rgba(30,41,59,0.6);
-            --glass-blur: blur(12px);
-        }}
-        
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }}
-        
-        body {{
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #0a0e17;
-            color: var(--text-primary);
-            line-height: 1.6;
-            padding: 20px;
-            min-height: 100vh;
-        }}
-        
-        .container {{
-            max-width: 1400px;
-            margin: 0 auto;
-        }}
-        
-        .glass-card {{
-            background: var(--card-bg);
-            backdrop-filter: var(--glass-blur);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 20px;
-            transition: all 0.2s ease;
-        }}
-        
-        .glass-card:hover {{
-            border-color: rgba(255,255,255,0.15);
-        }}
-        
-        .card-title {{
-            font-family: 'Outfit', sans-serif;
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: var(--text-primary);
-        }}
-        
-        .card-red {{ border-left: 3px solid var(--color-critical); }}
-        .card-orange {{ border-left: 3px solid var(--color-warning); }}
-        .card-green {{ border-left: 3px solid var(--color-pass); }}
-        .card-blue {{ border-left: 3px solid var(--color-info); }}
-        
-        .badge {{
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            background: rgba(255,255,255,0.05);
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
-        }}
-        
-        .badge-red {{ background: rgba(255,46,59,0.15); color: var(--color-critical); border-color: var(--color-critical); }}
-        .badge-yellow {{ background: rgba(245,158,11,0.15); color: var(--color-warning); border-color: var(--color-warning); }}
-        .badge-green {{ background: rgba(16,185,129,0.15); color: var(--color-pass); border-color: var(--color-pass); }}
-        .badge-blue {{ background: rgba(59,130,246,0.15); color: var(--color-info); border-color: var(--color-info); }}
-        
-        .summary-text {{
-            color: var(--text-secondary);
-            font-size: 14px;
-            line-height: 1.7;
-        }}
-        
-        .header-bar {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0;
-            margin-bottom: 30px;
-            border-bottom: 1px solid var(--border-color);
-        }}
-        
-        .brand {{
-            font-family: 'Outfit', sans-serif;
-            font-size: 20px;
-            font-weight: 800;
-            letter-spacing: 1px;
-        }}
-        
-        .brand span {{
-            color: var(--color-critical);
-        }}
-        
-        .brand-japanese {{
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-left: 12px;
-            font-weight: 400;
-        }}
-        
-        .btn-print {{
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }}
-        
-        .btn-print:hover {{
-            background: rgba(255,255,255,0.1);
-        }}
-        
-        .hero-section {{
-            position: relative;
-            border-radius: 16px;
-            padding: 48px 40px;
-            margin-bottom: 32px;
-            background: linear-gradient(135deg, rgba(255,46,59,0.08) 0%, rgba(59,130,246,0.04) 100%);
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-        }}
-        
-        .hero-content {{
-            position: relative;
-            z-index: 1;
-        }}
-        
-        .hero-tagline {{
-            color: var(--color-critical);
-            font-size: 13px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-bottom: 8px;
-        }}
-        
-        .hero-title {{
-            font-family: 'Outfit', sans-serif;
-            font-size: 36px;
-            font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: 20px;
-        }}
-        
-        .hero-meta {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 16px;
-            margin-top: 20px;
-        }}
-        
-        .meta-item {{
-            display: flex;
-            flex-direction: column;
-        }}
-        
-        .meta-label {{
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            font-weight: 600;
-        }}
-        
-        .meta-val {{
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-primary);
-            margin-top: 2px;
-        }}
-        
-        .dashboard-grid {{
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 32px;
-        }}
-        
-        .health-score-container {{
-            display: flex;
-            align-items: baseline;
-            gap: 12px;
-        }}
-        
-        .score-num {{
-            font-family: 'Outfit', sans-serif;
-            font-size: 48px;
-            font-weight: 800;
-            line-height: 1;
-        }}
-        
-        .score-label {{
-            font-size: 16px;
-            font-weight: 600;
-        }}
-        
-        .stat-grid {{
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-        }}
-        
-        .stat-card {{
-            text-align: center;
-            padding: 12px;
-            background: rgba(255,255,255,0.03);
-            border-radius: 8px;
-        }}
-        
-        .stat-val {{
-            font-family: 'Outfit', sans-serif;
-            font-size: 24px;
-            font-weight: 700;
-            display: block;
-        }}
-        
-        .stat-critical {{ color: var(--color-critical); }}
-        .stat-warning {{ color: var(--color-warning); }}
-        .stat-info {{ color: var(--color-info); }}
-        .stat-pass {{ color: var(--color-pass); }}
-        
-        .stat-lbl {{
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 2px;
-            display: block;
-        }}
-        
-        .tabs-nav {{
-            display: flex;
-            gap: 4px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 12px;
-        }}
-        
-        .tab-btn {{
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            padding: 8px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-        }}
-        
-        .tab-btn:hover {{
-            color: var(--text-primary);
-            background: rgba(255,255,255,0.05);
-        }}
-        
-        .tab-btn.active {{
-            color: var(--text-primary);
-            background: rgba(255,255,255,0.08);
-        }}
-        
-        .tab-content {{
-            display: none;
-        }}
-        
-        .tab-content.active {{
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }}
-        
-        @keyframes fadeIn {{
-            from {{ opacity: 0; transform: translateY(8px); }}
-            to {{ opacity: 1; transform: translateY(0); }}
-        }}
-        
-        .finding-row {{
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 14px 0 14px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            gap: 20px;
-        }}
-        
-        .finding-row:last-child {{ border-bottom: none; }}
-        .finding-label {{
-            color: var(--text-secondary);
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            min-width: 100px;
-        }}
-        
-        .finding-value {{
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            flex: 1;
-        }}
-        
-        .finding-text {{
-            color: var(--text-primary);
-            font-size: 13.5px;
-            word-break: break-word;
-            flex: 1;
-        }}
-        
-        .finding-severity-critical {{ border-left: 3px solid var(--color-critical); }}
-        .finding-severity-high {{ border-left: 3px solid var(--color-warning); }}
-        .finding-severity-medium {{ border-left: 3px solid var(--color-info); }}
-        .finding-severity-low {{ border-left: 3px solid var(--color-pass); }}
-        
-        .section-title {{
-            font-family: 'Outfit', sans-serif;
-            font-size: 22px;
-            font-weight: 700;
-            margin: 36px 0 16px 0;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }}
-        
-        .section-title::before {{
-            content: '';
-            display: inline-block;
-            width: 5px;
-            height: 20px;
-            background: var(--color-critical);
-            border-radius: 2px;
-        }}
-        
-        .port-badge {{
-            display: inline-block;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border-color);
-            padding: 3px 10px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 12px;
-            color: var(--text-primary);
-            margin: 2px 4px;
-        }}
-        
-        .port-badge.ssl {{ border-color: var(--color-info); color: var(--color-info); }}
-        
-        .data-table {{
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }}
-        
-        .data-table th {{
-            text-align: left;
-            color: var(--text-muted);
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border-color);
-        }}
-        
-        .data-table td {{
-            padding: 10px 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            color: var(--text-secondary);
-            vertical-align: top;
-        }}
-        
-        .data-table tr:hover td {{
-            background: rgba(255,255,255,0.01);
-        }}
-        
-        .data-table .mono {{
-            font-family: monospace;
-            color: var(--text-primary);
-        }}
-        
-        .exposure-card {{
-            background: var(--card-bg);
-            backdrop-filter: var(--glass-blur);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 18px 20px;
-            margin-bottom: 12px;
-        }}
-        
-        .exposure-card.exposed-file {{
-            border-left: 3px solid var(--color-critical);
-        }}
-        
-        .exposure-card.dir-listing {{
-            border-left: 3px solid var(--color-warning);
-        }}
-        
-        .exposure-card.forbidden {{
-            border-left: 3px solid var(--color-info);
-        }}
-        
-        .highlight-box {{
-            background: rgba(255,46,59,0.06);
-            border: 1px solid rgba(255,46,59,0.15);
-            border-radius: 8px;
-            padding: 16px 20px;
-            margin: 12px 0;
-            font-size: 13.5px;
-            line-height: 1.65;
-            color: var(--text-secondary);
-        }}
-        
-        .tech-tag {{
-            display: inline-block;
-            background: rgba(59,130,246,0.1);
-            border: 1px solid rgba(59,130,246,0.25);
-            color: var(--color-info);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            margin: 3px 4px;
-        }}
-        
-        .cert-table {{
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }}
-        
-        .cert-table td {{
-            padding: 8px 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            color: var(--text-secondary);
-        }}
-        
-        .cert-table tr:last-child td {{
-            border-bottom: none;
-        }}
-        
-        .cert-table .mono {{
-            font-family: monospace;
-            color: var(--text-primary);
-        }}
-        
-        .footer {{
-            margin-top: 48px;
-            padding: 24px 0;
-            border-top: 1px solid var(--border-color);
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 13px;
-        }}
-        
-        @media (max-width: 768px) {{
-            .dashboard-grid {{
-                grid-template-columns: 1fr;
-            }}
-            .stat-grid {{
-                grid-template-columns: repeat(2, 1fr);
-            }}
-            .hero-title {{
-                font-size: 28px;
-            }}
-            .hero-meta {{
-                grid-template-columns: 1fr;
-            }}
-            .finding-row {{
-                flex-direction: column;
-                gap: 6px;
-            }}
-            .tabs-nav {{
-                gap: 2px;
-            }}
-            .tab-btn {{
-                padding: 6px 12px;
-                font-size: 11px;
-            }}
-        }}
-        
-        @media print {{
-            body {{ background: #fff; color: #000; }}
-            .glass-card {{ background: #f8f8f8; border: 1px solid #ddd; box-shadow: none; }}
-            .btn-print {{ display: none; }}
-            .tabs-nav {{ display: none; }}
-            .tab-content {{ display: block !important; opacity: 1 !important; }}
-        }}
-    </style>
-</head>
-<body>
-    <div class="container">
-
-        <!-- ═══ Header Bar ═══ -->
-        <div class="header-bar">
-            <div class="brand">
-                <span class="brand-logo">CYBER<span>SAMURAI</span></span>
-                <span class="brand-japanese">サイバー侍</span>
-            </div>
-            <button class="btn-print" onclick="window.print()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                Print Report
-            </button>
-        </div>
-
-        <!-- ═══ Hero Section ═══ -->
-        <div class="hero-section">
-            <div class="hero-overlay"></div>
-            <div class="hero-content">
-                <div class="hero-tagline">Security Fingerprint Assessment</div>
-                <h1 class="hero-title">Fingerprint &amp;<br>Vulnerability Report</h1>
-                <div class="hero-meta">
-                    <div class="meta-item">
-                        <span class="meta-label">Target</span>
-                        <span class="meta-val">{html_escape(target_hostname)}</span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">IP Address</span>
-                        <span class="meta-val">{html_escape(target_ip)}</span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Scan Date</span>
-                        <span class="meta-val">{html_escape(scan_start)}</span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Report Generated</span>
-                        <span class="meta-val">{html_escape(SCAN_DATE)}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ═══ Dashboard Summary ═══ -->
-        <div class="dashboard-grid">
-            <div class="glass-card card-red">
-                <div class="card-title">Overall Risk Score</div>
-                <div class="health-score-container">
-                    <span class="score-num" style="color:{risk_color}">{risk_score}%</span>
-                    <span class="score-label" style="color:{risk_color}">{risk_label}</span>
-                </div>
-                <div class="stat-grid" style="margin-top:16px">
-                    <div class="stat-card">
-                        <span class="stat-val stat-critical">{_vuln_count(nmap_data)}</span>
-                        <span class="stat-lbl">Vulnerabilities</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-val stat-info">{_open_port_count(nmap_data)}</span>
-                        <span class="stat-lbl">Open Ports</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-val stat-warning">{_git_exposed_count(dirsearch_data)}</span>
-                        <span class="stat-lbl">.git Files Exposed</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-val stat-pass">{_tech_count(whatweb_data)}</span>
-                        <span class="stat-lbl">Technologies</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-card card-blue">
-                <div class="card-title">Key Findings Summary</div>
-                {_build_key_findings(nmap_data, dirsearch_data, whatweb_data)}
-            </div>
-        </div>
-
-        <!-- ═══ Tab Navigation ═══ -->
-        <div class="tabs-nav">
-            <button class="tab-btn active" onclick="switchTab('tab-ports')">Open Ports</button>
-            <button class="tab-btn" onclick="switchTab('tab-vulns')">Vulnerabilities</button>
-            <button class="tab-btn" onclick="switchTab('tab-dirsearch')">Directory Enum</button>
-            <button class="tab-btn" onclick="switchTab('tab-git')">.git Exposure</button>
-            <button class="tab-btn" onclick="switchTab('tab-tech')">Tech Fingerprint</button>
-            <button class="tab-btn" onclick="switchTab('tab-headers')">Security Headers</button>
-        </div>
-
-        <!-- ═══ Tab: Open Ports & Services ═══ -->
-        <div class="tab-content active" id="tab-ports">
-            <h2 class="section-title">Open Ports &amp; Services</h2>
-            {_build_ports_section(nmap_data)}
-        </div>
-
-        <!-- ═══ Tab: Vulnerability Findings ═══ -->
-        <div class="tab-content" id="tab-vulns">
-            <h2 class="section-title">Vulnerability Findings</h2>
-            {_build_vulnerabilities_section(nmap_data)}
-        </div>
-
-        <!-- ═══ Tab: Directory Enumeration ═══ -->
-        <div class="tab-content" id="tab-dirsearch">
-            <h2 class="section-title">Directory &amp; File Enumeration</h2>
-            {_build_dirsearch_section(dirsearch_data)}
-        </div>
-
-        <!-- ═══ Tab: .git Exposure Details ═══ -->
-        <div class="tab-content" id="tab-git">
-            {_build_git_exposure_section(dirsearch_data)}
-        </div>
-
-        <!-- ═══ Tab: Technology Fingerprint ═══ -->
-        <div class="tab-content" id="tab-tech">
-            <h2 class="section-title">Technology Fingerprint</h2>
-            {_build_tech_fingerprint_section(whatweb_data)}
-        </div>
-
-        <!-- ═══ Tab: Security Header Analysis ═══ -->
-        <div class="tab-content" id="tab-headers">
-            <h2 class="section-title">Security Header Analysis</h2>
-            {_build_security_headers_section(nmap_data)}
-        </div>
-
-        <!-- ═══ Footer ═══ -->
-        <div class="footer">
-            <p>Cyber Samurai &mdash; Fingerprint &amp; Vulnerability Assessment Report</p>
-            <p style="font-size:11px;margin-top:4px">Generated on {html_escape(SCAN_DATE)} | This report contains confidential security findings.</p>
-        </div>
-    </div>
-
-    <script>
-        function switchTab(tabId) {{
-            document.querySelectorAll('.tab-btn').forEach(function(btn) {{ btn.classList.remove('active'); }});
-            document.querySelectorAll('.tab-content').forEach(function(tc) {{ tc.classList.remove('active'); }});
-            var target = document.getElementById(tabId);
-            if (target) {{ target.classList.add('active'); }}
-            var allBtns = document.querySelectorAll('.tab-btn');
-            for (var i = 0; i < allBtns.length; i++) {{
-                if (allBtns[i].getAttribute('onclick') && allBtns[i].getAttribute('onclick').indexOf(tabId) !== -1) {{
-                    allBtns[i].classList.add('active');
-                }}
-            }}
-        }}
-        
-        // Set first tab as active on page load
-        document.addEventListener('DOMContentLoaded', function() {{
-            var firstTab = document.querySelector('.tab-btn');
-            if (firstTab) {{
-                var onclickAttr = firstTab.getAttribute('onclick');
-                if (onclickAttr) {{
-                    var tabId = onclickAttr.match(/['"]([^'"]+)['"]/);
-                    if (tabId && tabId[1]) {{
-                        switchTab(tabId[1]);
-                    }}
-                }}
-            }}
-        }});
-    </script>
-</body>
-</html>
-"""
-
-    # Write output
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write(html)
-
-    print(f"[+] Report compiled successfully: {output_path}")
-    return html
 
 
 # ─── Main ────────────────────────────────────────────────────────────────────
