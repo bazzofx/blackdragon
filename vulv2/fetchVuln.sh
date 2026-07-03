@@ -183,7 +183,7 @@ else
 fi
 
 ###############################
-#           DIRSEARCH 
+#           FFUF 
 ###############################
 #Purpose:
 # Directory and file brute-forcing to discover hidden paths, backup files,
@@ -191,9 +191,19 @@ fi
 # web server. Targets common web-application extensions and filters out
 # rate-limiting responses (429) and server errors (500, 503) to reduce noise.
 echo ""
-echo "[*] Running dirsearch against $domain ..."
-dirsearch -u "http://$domain" -e php,asp,aspx,jsp,html,js,txt,bak,old,zip,sql,conf,config,env,log,swp --random-agent -t 30 -x 429,500,503 $proxy_dirsearch --format=json -o "${output_dir}/dirsearch_rawReport.json"
+echo "[*] Running FFUF against $domain ..."
+output_dir="/home/kali/Documents/pbtools/blackdragon_dev/test"
+domain="cybersamurai.co.uk"
 
+ffuf -u "https://$domain/FUZZ" \
+    -w /home/kali/wordlist/pblist/fuzzing/common.txt \
+    -fc 403,404,429,500,503 \
+    -t 30 \
+    -o "${output_dir}/ffuf_report.json" \
+    -of json \
+    -c \
+    -v \
+    -r
 ###############################
 #           NIKTO 
 ###############################
