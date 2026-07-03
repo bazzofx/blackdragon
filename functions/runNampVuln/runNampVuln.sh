@@ -53,7 +53,6 @@ nmap -sS -sV -O -p "$OPEN_PORTS" \
     --script default,vuln,vulners \
     $PROXY_CMD \
     -oX "${OUTPUT_DIR}/nmap_scan.xml" \
-    -oN "${OUTPUT_DIR}/nmap_scan.txt" \
     "$TARGET_IP"
 
 # ==========================================

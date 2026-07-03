@@ -124,9 +124,63 @@ whatweb "http://$domain" -v -a 3 --follow-redirect=always $proxy_whatweb --log-j
 # detection (-sV), OS detection (-O), full port range (-p-), aggressive timing
 # (-T4), and default NSE scripts (-A) for thorough infrastructure reconnaissance.
 # NOTE: --proxies only affects HTTP-based version probes, not the SYN scan itself.
-echo ""
-echo "[*] Running nmap against $ip ..."
-nmap -sS -sV -O -p- -T4 -A $proxy_nmap -oX "${output_dir}/nmap_rawReport.xml" "$ip"
+# ==========================================
+# STAGE 1: Find all open ports (fast scan)
+# ==========================================
+echo "[*] Stage 1: Scanning for all open ports..."
+
+if [ -n "$PROXY_NMAP" ]; then
+    PROXY_CMD="$PROXY_NMAP"
+else
+    PROXY_CMD=""
+fi
+
+# Fast port discovery (all ports, top speed)
+PORTS_FILE="${output_dir}/open_ports.txt"
+nmap -p- -T4 --min-rate=1000 $PROXY_CMD "$ip" | \
+    grep -E '^[0-9]+/tcp' | \
+    cut -d '/' -f 1 | \
+    tr '\n' ',' | \
+    sed 's/,$//' > "$PORTS_FILE"
+
+# Read the ports back
+OPEN_PORTS=$(cat "$PORTS_FILE")
+
+if [ -z "$OPEN_PORTS" ]; then
+    echo "[-] No open ports found. Exiting."
+    exit 1
+fi
+
+echo "[+] Open ports identified: $OPEN_PORTS"
+echo "[+] Open ports saved to: $PORTS_FILE"
+
+# ==========================================
+# STAGE 2: Detailed scan on open ports
+# ==========================================
+echo "[*] Stage 2: Running detailed scan on open ports..."
+
+nmap -sS -sV -O -p "$OPEN_PORTS" \
+    -T4 -A \
+    --script default,vuln,vulners \
+    $PROXY_CMD \
+    -oX "${output_dir}/nmap_scan.xml" \
+    "$ip"
+
+# ==========================================
+# Check results
+# ==========================================
+if [ $? -eq 0 ]; then
+    echo "[+] Scan completed successfully!"
+    echo "[+] XML report: ${output_dir}/nmap_scan.xml"
+
+    # Extract summary from XML
+    echo -e "\n[*] Scan Summary:"
+    xmlstarlet sel -t -m "//port" -v "concat(@portid,'/',protocol,' ',state/@state)" -n "${output_dir}/nmap_scan.xml" 2>/dev/null || \
+    echo "  (Install xmlstarlet for detailed summary)"
+else
+    echo "[-] Scan failed. Check your inputs."
+    exit 1
+fi
 
 ###############################
 #           DIRSEARCH 
