@@ -1394,8 +1394,12 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
                         <span class="stat-lbl">Open Ports</span>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-val stat-warning">{_git_exposed_count(dirsearch_data)}</span>
+                        <span class="stat-val stat-warning">{_git_exposed_count(dirsearch_data, ffuf_data)}</span>
                         <span class="stat-lbl">.git Files Exposed</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-critical">{_vuln_count(nmap_data)}</span>
+                        <span class="stat-lbl">Vulnerabilities</span>
                     </div>
                     <div class="stat-card">
                         <span class="stat-val stat-pass">{_tech_count(whatweb_data)}</span>
@@ -1643,10 +1647,27 @@ def _open_port_count(nmap_data):
     return 0
 
 
-def _git_exposed_count(dirsearch_data):
+def _git_exposed_count(dirsearch_data, ffuf_data=None):
+    """Count .git file exposures from both dirsearch and FFUF (Asset Discovery)."""
+    count = 0
     if dirsearch_data and dirsearch_data.get("git_exposure"):
-        return len(dirsearch_data["git_exposure"])
-    return 0
+        count += len(dirsearch_data["git_exposure"])
+    if ffuf_data and ffuf_data.get("git_findings"):
+        count += len(ffuf_data["git_findings"])
+    return count
+
+
+def _vuln_count(nmap_data):
+    """Count unique vulnerability findings from the Vulnerabilities tab."""
+    if not nmap_data or not nmap_data.get("host"):
+        return 0
+    vulns = nmap_data["host"].get("vulnerabilities", [])
+    seen = set()
+    for v in vulns:
+        key = v.get("title", "") + v.get("cve_id", "")
+        if key not in seen:
+            seen.add(key)
+    return len(seen)
 
 
 def _git_exposed_from_ffuf_count(ffuf_data):
