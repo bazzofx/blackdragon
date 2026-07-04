@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Samurai — Fingerprint & Security Assessment Report</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../reference/global_report.css">
+    <style>
+        /* ---- Report-specific extensions ---- */
+        .finding-severity-critical { border-left: 3px solid var(--color-critical) !important; }
+        .finding-severity-high { border-left: 3px solid var(--color-warning) !important; }
+        .finding-severity-medium { border-left: 3px solid var(--color-info) !important; }
+        .finding-severity-low { border-left: 3px solid var(--color-pass) !important; }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            margin: 36px 0 16px 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 20px;
+            background: var(--accent-red);
+            border-radius: 2px;
+        }
+
+        .finding-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 14px 0 14px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            gap: 20px;
+        }
+        .finding-row:last-child { border-bottom: none; }
+        .finding-label {
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            min-width: 100px;
+        }
+        .finding-value {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            flex: 1;
+        }
+        .finding-text {
+            color: var(--text-primary);
+            font-size: 13.5px;
+            font-family: monospace;
+            word-break: break-all;
+            flex: 1;
+        }
+
+        .port-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--text-primary);
+            margin: 2px 4px;
+        }
+        .port-badge.ssl { border-color: var(--color-info); color: var(--color-info); }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .data-table th {
+            text-align: left;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            color: var(--text-secondary);
+            vertical-align: top;
+        }
+        .data-table tr:hover td {
+            background: rgba(255,255,255,0.01);
+        }
+        .data-table .mono {
+            font-family: monospace;
+            color: var(--text-primary);
+        }
+
+        .exposure-card {
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+        }
+        .exposure-card.exposed-file {
+            border-left: 3px solid var(--color-critical);
+        }
+        .exposure-card.dir-listing {
+            border-left: 3px solid var(--color-warning);
+        }
+        .exposure-card.forbidden {
+            border-left: 3px solid var(--color-info);
+        }
+
+        .highlight-box {
+            background: rgba(255,46,59,0.06);
+            border: 1px solid rgba(255,46,59,0.15);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            font-size: 13.5px;
+            line-height: 1.65;
+            color: var(--text-secondary);
+        }
+
+        .tech-tag {
+            display: inline-block;
+            background: rgba(59,130,246,0.1);
+            border: 1px solid rgba(59,130,246,0.25);
+            color: var(--color-info);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 3px 4px;
+        }
+
+        .summary-stat {
+            text-align: center;
+            padding: 20px 12px;
+        }
+        .summary-stat .stat-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .summary-stat .stat-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .key-findings-subsection {
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin: 16px 0 6px 0;
+            padding-bottom: 4px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .pie-chart-container {
+            margin-bottom: 18px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .pie-chart-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .inner-tabs-nav {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 0;
+        }
+        .inner-tab-btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.15s;
+        }
+        .inner-tab-btn.active {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border-bottom-color: transparent;
+            font-weight: 600;
+        }
+        .inner-tab-btn:hover {
+            color: var(--text-primary);
+        }
+        .inner-tab-content {
+            display: none;
+        }
+        .inner-tab-content.active {
+            display: block;
+        }
+
+        /* ---- Executive Summary ---- */
+                .exec-summary {
+                    background: var(--card-bg);
+                    border: 1px solid var(--border-color);
+                    border-radius: 12px;
+                    padding: 28px 32px;
+                    margin-bottom: 28px;
+                }
+                .exec-summary h2 {
+                    font-family: 'Outfit', sans-serif;
+                    font-size: 20px;
+                    font-weight: 700;
+                    margin: 0 0 16px 0;
+                    color: var(--text-primary);
+                }
+                .exec-summary .risk-narrative {
+                    font-size: 14px;
+                    line-height: 1.75;
+                    color: var(--text-secondary);
+                    margin-bottom: 20px;
+                }
+                .exec-summary .risk-narrative strong {
+                    color: var(--text-primary);
+                }
+                .exec-summary .impact-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                    gap: 14px;
+                    margin-top: 16px;
+                }
+                .impact-item {
+                    background: rgba(255,255,255,0.03);
+                    border: 1px solid rgba(255,255,255,0.06);
+                    border-radius: 8px;
+                    padding: 16px 18px;
+                }
+                .impact-item .impact-icon {
+                    font-size: 18px;
+                    margin-bottom: 6px;
+                }
+                .impact-item .impact-title {
+                    font-family: 'Outfit', sans-serif;
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: var(--text-primary);
+                    margin-bottom: 4px;
+                }
+                .impact-item .impact-desc {
+                    font-size: 12px;
+                    color: var(--text-muted);
+                    line-height: 1.5;
+                }
+
+                /* ---- Remediation / Business Impact ---- */
+                .vuln-business-impact {
+                    background: rgba(255,193,7,0.06);
+                    border: 1px solid rgba(255,193,7,0.12);
+                    border-radius: 6px;
+                    padding: 12px 14px;
+                    margin: 12px 0 8px 0;
+                    font-size: 13px;
+                    color: var(--text-secondary);
+                    line-height: 1.55;
+                }
+                .vuln-business-impact strong {
+                    color: var(--color-warning);
+                }
+                .vuln-remediation {
+                    background: rgba(16,185,129,0.06);
+                    border: 1px solid rgba(16,185,129,0.12);
+                    border-radius: 6px;
+                    padding: 12px 14px;
+                    margin: 8px 0;
+                    font-size: 13px;
+                    color: var(--text-secondary);
+                    line-height: 1.55;
+                }
+                .vuln-remediation strong {
+                    color: var(--color-pass);
+                }
+
+                
+
+                /* ---- Severity Risk Matrix ---- */
+                .risk-matrix {
+                    display: grid;
+                    grid-template-columns: 80px repeat(4, 1fr);
+                    gap: 1px;
+                    background: var(--border-color);
+                    border: 1px solid var(--border-color);
+                    border-radius: 8px;
+                    overflow: hidden;
+                    margin: 12px 0;
+                }
+                .risk-matrix .rm-cell {
+                    background: var(--bg-primary);
+                    padding: 8px 10px;
+                    text-align: center;
+                    font-size: 11px;
+                }
+                .risk-matrix .rm-header {
+                    background: rgba(255,255,255,0.04);
+                    font-weight: 700;
+                    color: var(--text-secondary);
+                    font-size: 10px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+                .risk-matrix .rm-filled {
+                    font-weight: 700;
+                    font-size: 14px;
+                    font-family: 'Outfit', sans-serif;
+                }
+                .rm-sev-critical { background: rgba(255,46,59,0.25) !important; color: var(--color-critical); }
+                .rm-sev-high     { background: rgba(255,140,0,0.20) !important; color: var(--color-warning); }
+                .rm-sev-medium   { background: rgba(59,130,246,0.15) !important; color: var(--color-info); }
+                .rm-sev-low      { background: rgba(16,185,129,0.10) !important; color: var(--color-pass); }
+
+                /* Print styles */
+                        @media print {
+                    body { background: #fff; color: #000; }
+                    .glass-card { background: #f8f8f8; border: 1px solid #ddd; box-shadow: none; }
+                    .btn-print { display: none; }
+                    .tabs-nav { display: none; }
+                    .tab-content { display: block !important; opacity: 1 !important; }
+                }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- ═══ Header Bar ═══ -->
+        <div class="header-bar">
+            <div class="brand">
+                <span class="brand-logo">CYBER<span>SAMURAI</span></span>
+                <span class="brand-japanese">サイバー侍</span>
+            </div>
+            <button class="btn-print" onclick="window.print()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                Print Report
+            </button>
+        </div>
+
+        <!-- ═══ Hero Section ═══ -->
+        <div class="hero-section">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <div class="hero-tagline">Security Fingerprint Assessment</div>
+                <h1 class="hero-title">Fingerprint &amp;<br>Vulnerability Report</h1>
+                <div class="hero-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Target</span>
+                        <span class="meta-val">Unknown</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">IP Address</span>
+                        <span class="meta-val">Unknown</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Scan Date</span>
+                        <span class="meta-val">Unknown</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Report Generated</span>
+                        <span class="meta-val">04 July 2026, 17:55</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+                <!-- ═══ Executive Summary ═══ -->
+                <div class="exec-summary">
+                    <h2>Executive Summary</h2>
+                    <div class="risk-narrative">
+                        This security assessment evaluated <strong>Unknown</strong> and identified
+                        <strong style="color:var(--color-pass)">0 security vulnerabilities</strong>
+                        across 0 exposed services.
+                        The overall risk posture is rated <strong style="color:var(--color-pass)">LOW</strong>.
+                    </div>
+                    <div class="risk-narrative">
+                        The most critical concern is the <strong>public exposure of Git repository files</strong>, which
+                        could allow attackers to access your source code, configuration secrets, and development history.
+                        Additionally, 0 known CVEs were matched against your service versions,
+                        .
+                    </div>
+                    <div class="impact-grid">
+                        <div class="impact-item">
+            <div class="impact-icon">&#x1F512;</div>
+            <div class="impact-title">Source Code Protected</div>
+            <div class="impact-desc">No Git repository files were found exposed. Your source code and development secrets are not directly accessible to the public.</div>
+        </div><div class="impact-item">
+            <div class="impact-icon">&#x1F310;</div>
+            <div class="impact-title">Attack Surface</div>
+            <div class="impact-desc">0 Internet-facing service(s) are reachable. Each open port is a potential entry point. Reducing unnecessary services is the most effective risk reduction measure.</div>
+        </div><div class="impact-item">
+            <div class="impact-icon">&#x2705;</div>
+            <div class="impact-title">Vulnerability Status</div>
+            <div class="impact-desc">No known CVEs were matched against your service versions. While this is positive, regular scanning is recommended as new vulnerabilities are discovered daily.</div>
+        </div><div class="impact-item">
+            <div class="impact-icon">&#x1F4C8;</div>
+            <div class="impact-title">Business Impact</div>
+            <div class="impact-desc">Addressing these findings now prevents costly incident response later. The average data breach costs organisations £3.4M (IBM 2024). Proactive security is a business enabler, not a cost centre.</div>
+        </div>
+                    </div>
+                </div>
+
+                <!-- ═══ Dashboard Summary ═══ -->
+        <div class="dashboard-grid">
+            <div class="glass-card card-red">
+                <div class="card-title">Overall Risk Score</div>
+                <div class="health-score-container">
+                    <span class="score-num" style="color:var(--color-pass)">0%</span>
+                    <span class="score-label" style="color:var(--color-pass)">LOW</span>
+                </div>
+                <div class="stat-grid" style="margin-top:16px">
+                    <div class="stat-card" style="grid-column:1/-1;text-align:center;padding:8px 12px">
+                        <span class="stat-lbl" style="font-size:13px;color:var(--text-secondary);text-transform:none;letter-spacing:0">
+                            
+                        </span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-critical">0</span>
+                        <span class="stat-lbl">Unique CVEs</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-info">0</span>
+                        <span class="stat-lbl">Open Ports</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-warning">0</span>
+                        <span class="stat-lbl">.git Files Exposed</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-critical">0</span>
+                        <span class="stat-lbl">Vulnerabilities</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-pass">0</span>
+                        <span class="stat-lbl">Technologies</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-info">0</span>
+                        <span class="stat-lbl">Assets Discovered</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card card-blue">
+                <div class="card-title">Key Findings Summary</div>
+                None
+            </div>
+        </div>
+
+        <!-- ═══ Tab Navigation ═══ -->
+                <div class="tabs-nav">
+                    <button class="tab-btn active" onclick="switchTab('tab-os')">OS Detection</button>
+                    <button class="tab-btn" onclick="switchTab('tab-ports')">Open Ports</button>
+                    <button class="tab-btn" onclick="switchTab('tab-tech')">Tech Findings</button>
+                    <button class="tab-btn" onclick="switchTab('tab-ffuf')">Asset Discovery</button>
+                                        <button class="tab-btn" onclick="switchTab('tab-vulners')">CVE Database</button>
+                                        <button class="tab-btn" onclick="switchTab('tab-vulns')">Vulnerabilities</button>
+                </div>
+
+                
+
+        <!-- ═══ Tab: Open Ports & Services ═══ -->
+        <div class="tab-content" id="tab-ports">
+            <h2 class="section-title">Open Ports &amp; Services</h2>
+            <div class="glass-card"><p class="summary-text">No port scan data available.</p></div>
+        </div>
+
+        <!-- ═══ Tab: Technology Fingerprint ═══ -->
+        <div class="tab-content" id="tab-tech">
+            <h2 class="section-title">Technology Fingerprint</h2>
+            <div class="glass-card"><p class="summary-text">No technology fingerprint data available.</p></div>
+        </div>
+
+        <!-- ═══ Tab: Asset Discovery (FFUF) ═══ -->
+                <div class="tab-content" id="tab-ffuf">
+                    <h2 class="section-title">Asset &amp; Endpoint Discovery</h2>
+                    <div class="glass-card"><p class="summary-text">No FFUF directory brute-force data available.</p></div>
+                </div>
+
+        <!-- ═══ Tab: CVE Vulnerability Database ═══ -->
+                <div class="tab-content" id="tab-vulners">
+                    <h2 class="section-title">CVE Vulnerability Assessment</h2>
+                    <div class="glass-card"><p class="summary-text">No vulnerability assessment data available.</p></div>
+                </div>
+
+        <!-- ═══ Tab: OS Detection ═══ -->
+        <div class="tab-content active" id="tab-os">
+            <h2 class="section-title">Operating System Detection</h2>
+            <div class="glass-card"><p class="summary-text">No OS detection data available.</p></div>
+        </div>
+
+        <!-- ═══ Tab: Vulnerability Findings ═══ -->
+                <div class="tab-content" id="tab-vulns">
+                    <h2 class="section-title">Vulnerability Findings</h2>
+                    <div class="glass-card"><p class="summary-text">No vulnerability data available.</p></div>
+                </div>
+
+        <!-- ═══ Footer ═══ -->
+        <div class="footer">
+            <p>Cyber Samurai &mdash; Fingerprint &amp; Vulnerability Assessment Report</p>
+            <p style="font-size:11px;margin-top:4px">Generated on 04 July 2026, 17:55 | This report contains confidential security findings.</p>
+        </div>
+    </div>
+
+    <script>
+            function switchInnerTab(btn, contentId) {
+                var parent = btn.parentElement;
+                var container = parent.parentElement;
+                parent.querySelectorAll('.inner-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+                container.querySelectorAll('.inner-tab-content').forEach(function(c) { c.classList.remove('active'); });
+                var target = document.getElementById(contentId);
+                if (target) target.classList.add('active');
+            }
+            function switchTab(tabId) {
+                            document.querySelectorAll('.tab-btn').forEach(function(btn) { btn.classList.remove('active'); });
+                            document.querySelectorAll('.tab-content').forEach(function(tc) { tc.classList.remove('active'); });
+                            var target = document.getElementById(tabId);
+                            if (target) { target.classList.add('active'); }
+                            var allBtns = document.querySelectorAll('.tab-btn');
+                            for (var i = 0; i < allBtns.length; i++) {
+                                if (allBtns[i].getAttribute('onclick') && allBtns[i].getAttribute('onclick').indexOf(tabId) !== -1) {
+                                    allBtns[i].classList.add('active');
+                                }
+                            }
+                        }
+                        
+        </script>
+</body>
+</html>

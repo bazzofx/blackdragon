@@ -192,7 +192,7 @@ fi
 # rate-limiting responses (429) and server errors (500, 503) to reduce noise.
 echo ""
 echo "[*] Running FFUF against $domain ..."
-output_dir="/home/kali/Documents/pbtools/blackdragon_dev/test"
+output_dir="/home/kali/Documents/pbtools/blackdragon_dev/$output_dir"
 domain="cybersamurai.co.uk"
 
 ffuf -u "https://$domain/FUZZ" \
