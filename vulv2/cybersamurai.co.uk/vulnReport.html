@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Samurai — Fingerprint & Security Assessment Report</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../reference/global_report.css">
+    <style>
+        /* ---- Report-specific extensions ---- */
+        .finding-severity-critical { border-left: 3px solid var(--color-critical) !important; }
+        .finding-severity-high { border-left: 3px solid var(--color-warning) !important; }
+        .finding-severity-medium { border-left: 3px solid var(--color-info) !important; }
+        .finding-severity-low { border-left: 3px solid var(--color-pass) !important; }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            margin: 36px 0 16px 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 20px;
+            background: var(--accent-red);
+            border-radius: 2px;
+        }
+
+        .finding-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 14px 0 14px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            gap: 20px;
+        }
+        .finding-row:last-child { border-bottom: none; }
+        .finding-label {
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            min-width: 100px;
+        }
+        .finding-value {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            flex: 1;
+        }
+        .finding-text {
+            color: var(--text-primary);
+            font-size: 13.5px;
+            font-family: monospace;
+            word-break: break-all;
+            flex: 1;
+        }
+
+        .port-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--text-primary);
+            margin: 2px 4px;
+        }
+        .port-badge.ssl { border-color: var(--color-info); color: var(--color-info); }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .data-table th {
+            text-align: left;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            color: var(--text-secondary);
+            vertical-align: top;
+        }
+        .data-table tr:hover td {
+            background: rgba(255,255,255,0.01);
+        }
+        .data-table .mono {
+            font-family: monospace;
+            color: var(--text-primary);
+        }
+
+        .exposure-card {
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+        }
+        .exposure-card.exposed-file {
+            border-left: 3px solid var(--color-critical);
+        }
+        .exposure-card.dir-listing {
+            border-left: 3px solid var(--color-warning);
+        }
+        .exposure-card.forbidden {
+            border-left: 3px solid var(--color-info);
+        }
+
+        .highlight-box {
+            background: rgba(255,46,59,0.06);
+            border: 1px solid rgba(255,46,59,0.15);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 12px 0;
+            font-size: 13.5px;
+            line-height: 1.65;
+            color: var(--text-secondary);
+        }
+
+        .tech-tag {
+            display: inline-block;
+            background: rgba(59,130,246,0.1);
+            border: 1px solid rgba(59,130,246,0.25);
+            color: var(--color-info);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 3px 4px;
+        }
+
+        .summary-stat {
+            text-align: center;
+            padding: 20px 12px;
+        }
+        .summary-stat .stat-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .summary-stat .stat-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Print styles */
+                @media print {
+                    body { background: #fff; color: #000; }
+                    .glass-card { background: #f8f8f8; border: 1px solid #ddd; box-shadow: none; }
+                    .btn-print { display: none; }
+                    .tabs-nav { display: none; }
+                    .tab-content { display: block !important; opacity: 1 !important; }
+                }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- ═══ Header Bar ═══ -->
+        <div class="header-bar">
+            <div class="brand">
+                <span class="brand-logo">CYBER<span>SAMURAI</span></span>
+                <span class="brand-japanese">サイバー侍</span>
+            </div>
+            <button class="btn-print" onclick="window.print()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                Print Report
+            </button>
+        </div>
+
+        <!-- ═══ Hero Section ═══ -->
+        <div class="hero-section">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <div class="hero-tagline">Security Fingerprint Assessment</div>
+                <h1 class="hero-title">Fingerprint &amp;<br>Vulnerability Report</h1>
+                <div class="hero-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Target</span>
+                        <span class="meta-val">http://cybersamurai.co.uk</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">IP Address</span>
+                        <span class="meta-val">172.236.21.180</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Scan Date</span>
+                        <span class="meta-val">Sat Jul  4 08:58:26 2026</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Report Generated</span>
+                        <span class="meta-val">04 July 2026, 09:38</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ Dashboard Summary ═══ -->
+        <div class="dashboard-grid">
+            <div class="glass-card card-red">
+                <div class="card-title">Overall Risk Score</div>
+                <div class="health-score-container">
+                    <span class="score-num" style="color:var(--color-critical)">100%</span>
+                    <span class="score-label" style="color:var(--color-critical)">CRITICAL</span>
+                </div>
+                <div class="stat-grid" style="margin-top:16px">
+                    <div class="stat-card">
+                        <span class="stat-val stat-critical">86</span>
+                        <span class="stat-lbl">CVEs / Vulns</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-info">2</span>
+                        <span class="stat-lbl">Open Ports</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-warning">0</span>
+                        <span class="stat-lbl">.git Files Exposed</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-pass">4</span>
+                        <span class="stat-lbl">Technologies</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-info">7</span>
+                        <span class="stat-lbl">Assets Discovered</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card card-blue">
+                <div class="card-title">Key Findings Summary</div>
+                
+            <div class="finding-row finding-severity-critical">
+                <span class="finding-label">Git Exposed</span>
+                <span class="finding-value">
+                    <span class="badge badge-red">CRITICAL</span>
+                    <span class="finding-text">Nmap discovered .git repo &mdash; 3 files exposed (.git/description, .git/config, .git/info/exclude). Remote: https://github.com/bazzofx/cybersamurai.git</span>
+                </span>
+            </div>
+        
+
+            <div class="finding-row finding-severity-high">
+                <span class="finding-label">CVE Findings</span>
+                <span class="finding-value">
+                    <span class="badge badge-red">86 CVEs</span>
+                    <span class="finding-text">9 critical, 63 high &mdash; 74 with public exploits available.</span>
+                </span>
+            </div>
+        
+
+            <div class="finding-row finding-severity-high">
+                <span class="finding-label">FFUF Discovery</span>
+                <span class="finding-value">
+                    <span class="badge badge-yellow">HIGH</span>
+                    <span class="finding-text">3 .git files exposed via directory brute-force — repository structure and metadata leaked.</span>
+                </span>
+            </div>
+        
+
+            <div class="finding-row finding-severity-low">
+                <span class="finding-label">Asset Discovery</span>
+                <span class="finding-value">
+                    <span class="badge badge-green">INFO</span>
+                    <span class="finding-text">7 endpoints discovered via directory brute-force scan.</span>
+                </span>
+            </div>
+        
+
+                <div class="finding-row finding-severity-high">
+                    <span class="finding-label">Vulnerability</span>
+                    <span class="finding-value">
+                        <span class="badge badge-yellow">EXPLOIT AVAILABLE</span>
+                        <span class="finding-text">PACKETSTORM:179290 (CVSS 10.0) (PACKETSTORM:179290)</span>
+                    </span>
+                </div>
+            
+
+                <div class="finding-row finding-severity-high">
+                    <span class="finding-label">Vulnerability</span>
+                    <span class="finding-value">
+                        <span class="badge badge-yellow">EXPLOIT AVAILABLE</span>
+                        <span class="finding-text">1EEC8894-D2F7-547C-827C-915BE866875C (CVSS 10.0) (1EEC8894-D2F7-547C-827C-915BE866875C)</span>
+                    </span>
+                </div>
+            
+
+                <div class="finding-row finding-severity-high">
+                    <span class="finding-label">Vulnerability</span>
+                    <span class="finding-value">
+                        <span class="badge badge-yellow">EXPLOIT AVAILABLE</span>
+                        <span class="finding-text">09B905C6-CD97-54E6-AD97-B0DD1AC4771B (CVSS 10.0) (09B905C6-CD97-54E6-AD97-B0DD1AC4771B)</span>
+                    </span>
+                </div>
+            
+
+                <div class="finding-row finding-severity-high">
+                    <span class="finding-label">Vulnerability</span>
+                    <span class="finding-value">
+                        <span class="badge badge-yellow">EXPLOIT AVAILABLE</span>
+                        <span class="finding-text">33D623F7-98E0-5F75-80FA-81AA666D1340 (CVSS 9.8) (33D623F7-98E0-5F75-80FA-81AA666D1340)</span>
+                    </span>
+                </div>
+            
+
+                <div class="finding-row finding-severity-high">
+                    <span class="finding-label">Vulnerability</span>
+                    <span class="finding-value">
+                        <span class="badge badge-yellow">EXPLOIT AVAILABLE</span>
+                        <span class="finding-text">F8981437-1287-5B69-93F1-657DFB1DCE59 (CVSS 9.3) (F8981437-1287-5B69-93F1-657DFB1DCE59)</span>
+                    </span>
+                </div>
+            
+
+                <div class="finding-row finding-severity-high">
+                    <span class="finding-label">Vulnerability</span>
+                    <span class="finding-value">
+                        <span class="badge badge-red">VULNERABLE</span>
+                        <span class="finding-text">Apache byterange filter DoS (BID:49303)</span>
+                    </span>
+                </div>
+            
+
+                <div class="finding-row finding-severity-high">
+                    <span class="finding-label">Vulnerability</span>
+                    <span class="finding-value">
+                        <span class="badge badge-yellow">EXPOSED</span>
+                        <span class="finding-text">Publicly Accessible .git Repository</span>
+                    </span>
+                </div>
+            
+
+                <div class="finding-row finding-severity-low">
+                    <span class="finding-label">Tech Stack</span>
+                    <span class="finding-value">
+                        <span class="badge badge-green">DETECTED</span>
+                        <span class="finding-text">Country, Email, nginx, Script</span>
+                    </span>
+                </div>
+            
+            </div>
+        </div>
+
+        <!-- ═══ Tab Navigation ═══ -->
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('tab-ports')">Open Ports</button>
+            <button class="tab-btn" onclick="switchTab('tab-vulns')">Vulnerabilities</button>
+            <button class="tab-btn" onclick="switchTab('tab-dirsearch')">Directory Enum</button>
+            <button class="tab-btn" onclick="switchTab('tab-git')">.git Exposure</button>
+            <button class="tab-btn" onclick="switchTab('tab-tech')">Tech Fingerprint</button>
+            <button class="tab-btn" onclick="switchTab('tab-ffuf')">Asset Discovery</button>
+            <button class="tab-btn" onclick="switchTab('tab-vulners')">CVE Database</button>
+            <button class="tab-btn" onclick="switchTab('tab-os')">OS Detection</button>
+            <button class="tab-btn" onclick="switchTab('tab-headers')">Security Headers</button>
+        </div>
+
+        <!-- ═══ Tab: Open Ports & Services ═══ -->
+        <div class="tab-content active" id="tab-ports">
+            <h2 class="section-title">Open Ports &amp; Services</h2>
+            
+    <div class="glass-card">
+        <div class="card-title">Discovered Services (2 open ports)</div>
+        <p class="summary-text" style="margin-bottom:12px">
+            Nmap detected <strong>2 open ports</strong> on 172.236.21.180
+            with <strong>0 filtered ports</strong>.
+            The target is behind Cloudflare's network (AS13335).
+        </p>
+        <div style="overflow-x:auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Port</th>
+                        <th>Service</th>
+                        <th>Product</th>
+                        <th>Flags</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+            <tr>
+                <td class="mono"><strong>22/tcp</strong></td>
+                <td>ssh</td>
+                <td>OpenSSH</td>
+                <td>  <span class="badge badge-red" style="font-size:10px">5 FINDING(S)</span></td>
+            </tr>
+        
+            <tr>
+                <td class="mono"><strong>80/tcp</strong></td>
+                <td>http</td>
+                <td>nginx</td>
+                <td>  <span class="badge badge-red" style="font-size:10px">2 FINDING(S)</span></td>
+            </tr>
+        
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+        </div>
+
+        <!-- ═══ Tab: Vulnerability Findings ═══ -->
+        <div class="tab-content" id="tab-vulns">
+            <h2 class="section-title">Vulnerability Findings</h2>
+            
+        <div class="glass-card card-orange">
+            <div class="card-title">PACKETSTORM:179290 (CVSS 10.0)</div>
+            <div style="margin:8px 0">
+                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
+                <code style="margin-left:8px;color:var(--text-muted)">PACKETSTORM:179290</code>
+            </div>
+            <p class="summary-text">Vulnerability PACKETSTORM:179290 with CVSS score 10.0 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/packetstorm/PACKETSTORM:179290" target="_blank" style="color:var(--color-info)">https://vulners.com/packetstorm/PACKETSTORM:179290</a></div>
+        </div>
+        
+        <div class="glass-card card-orange">
+            <div class="card-title">1EEC8894-D2F7-547C-827C-915BE866875C (CVSS 10.0)</div>
+            <div style="margin:8px 0">
+                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
+                <code style="margin-left:8px;color:var(--text-muted)">1EEC8894-D2F7-547C-827C-915BE866875C</code>
+            </div>
+            <p class="summary-text">Vulnerability 1EEC8894-D2F7-547C-827C-915BE866875C with CVSS score 10.0 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/1EEC8894-D2F7-547C-827C-915BE866875C" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/1EEC8894-D2F7-547C-827C-915BE866875C</a></div>
+        </div>
+        
+        <div class="glass-card card-orange">
+            <div class="card-title">09B905C6-CD97-54E6-AD97-B0DD1AC4771B (CVSS 10.0)</div>
+            <div style="margin:8px 0">
+                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
+                <code style="margin-left:8px;color:var(--text-muted)">09B905C6-CD97-54E6-AD97-B0DD1AC4771B</code>
+            </div>
+            <p class="summary-text">Vulnerability 09B905C6-CD97-54E6-AD97-B0DD1AC4771B with CVSS score 10.0 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/09B905C6-CD97-54E6-AD97-B0DD1AC4771B" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/09B905C6-CD97-54E6-AD97-B0DD1AC4771B</a></div>
+        </div>
+        
+        <div class="glass-card card-orange">
+            <div class="card-title">33D623F7-98E0-5F75-80FA-81AA666D1340 (CVSS 9.8)</div>
+            <div style="margin:8px 0">
+                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
+                <code style="margin-left:8px;color:var(--text-muted)">33D623F7-98E0-5F75-80FA-81AA666D1340</code>
+            </div>
+            <p class="summary-text">Vulnerability 33D623F7-98E0-5F75-80FA-81AA666D1340 with CVSS score 9.8 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/33D623F7-98E0-5F75-80FA-81AA666D1340" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/33D623F7-98E0-5F75-80FA-81AA666D1340</a></div>
+        </div>
+        
+        <div class="glass-card card-orange">
+            <div class="card-title">F8981437-1287-5B69-93F1-657DFB1DCE59 (CVSS 9.3)</div>
+            <div style="margin:8px 0">
+                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
+                <code style="margin-left:8px;color:var(--text-muted)">F8981437-1287-5B69-93F1-657DFB1DCE59</code>
+            </div>
+            <p class="summary-text">Vulnerability F8981437-1287-5B69-93F1-657DFB1DCE59 with CVSS score 9.3 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/F8981437-1287-5B69-93F1-657DFB1DCE59" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/F8981437-1287-5B69-93F1-657DFB1DCE59</a></div>
+        </div>
+        
+        <div class="glass-card card-red">
+            <div class="card-title">Apache byterange filter DoS</div>
+            <div style="margin:8px 0">
+                <span class="badge badge-red">VULNERABLE</span>
+                <code style="margin-left:8px;color:var(--text-muted)">BID:49303</code>
+            </div>
+            <p class="summary-text">The Apache web server is vulnerable to a denial of service attack when numerous
+overlapping byte ranges are requested.</p>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://www.securityfocus.com/bid/49303" target="_blank" style="color:var(--color-info)">https://www.securityfocus.com/bid/49303</a><br><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192" target="_blank" style="color:var(--color-info)">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192</a><br><a href="https://seclists.org/fulldisclosure/2011/Aug/175" target="_blank" style="color:var(--color-info)">https://seclists.org/fulldisclosure/2011/Aug/175</a><br><a href="https://www.tenable.com/plugins/nessus/55976" target="_blank" style="color:var(--color-info)">https://www.tenable.com/plugins/nessus/55976</a></div>
+        </div>
+        
+        <div class="glass-card card-orange">
+            <div class="card-title">Publicly Accessible .git Repository</div>
+            <div style="margin:8px 0">
+                <span class="badge badge-red">EXPOSED</span>
+                
+            </div>
+            <p class="summary-text">Nmap discovered an accessible .git repository. 3 files exposed: .git/description, .git/config, .git/info/exclude. Remote origin: https://github.com/bazzofx/cybersamurai.git.</p>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://github.com/bazzofx/cybersamurai.git" target="_blank" style="color:var(--color-info)">https://github.com/bazzofx/cybersamurai.git</a></div>
+        </div>
+        
+        </div>
+
+        <!-- ═══ Tab: Directory Enumeration ═══ -->
+        <div class="tab-content" id="tab-dirsearch">
+            <h2 class="section-title">Directory &amp; File Enumeration</h2>
+            <div class="glass-card"><p class="summary-text">No directory scan data available.</p></div>
+        </div>
+
+        <!-- ═══ Tab: .git Exposure Details ═══ -->
+        <div class="tab-content" id="tab-git">
+            
+        </div>
+
+        <!-- ═══ Tab: Technology Fingerprint ═══ -->
+        <div class="tab-content" id="tab-tech">
+            <h2 class="section-title">Technology Fingerprint</h2>
+            
+    <div class="glass-card">
+        <div class="card-title">Web Technology Stack</div>
+        <p class="summary-text" style="margin-bottom:12px">
+            WhatWeb fingerprinting identified the following technologies and characteristics
+            on <code>http://cybersamurai.co.uk</code>.
+        </p>
+        <div style="margin-bottom:16px">
+            <span style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Detected Technologies: </span>
+            <span class="tech-tag">Country</span> <span class="tech-tag">Email</span> <span class="tech-tag">nginx</span> <span class="tech-tag">Script</span> 
+        </div>
+        <table class="cert-table">
+            
+            <tr>
+                <td><strong>Server</strong></td>
+                <td class="mono">nginx/1.24.0 (Ubuntu)</td>
+            </tr>
+        
+            <tr>
+                <td><strong>IP Address</strong></td>
+                <td class="mono">172.236.21.180</td>
+            </tr>
+        
+            <tr>
+                <td><strong>Page Title</strong></td>
+                <td>A Cyber Security Digest by Paulo Bazzo</td>
+            </tr>
+        
+            <tr>
+                <td><strong>X-UA-Compatible</strong></td>
+                <td class="mono">IE=edge</td>
+            </tr>
+        
+            <tr>
+                <td><strong>HTML5</strong></td>
+                <td><span class="badge badge-green">Yes</span></td>
+            </tr>
+        
+        </table>
+    </div>
+    
+        </div>
+
+        <!-- ═══ Tab: Asset Discovery (FFUF) ═══ -->
+        <div class="tab-content" id="tab-ffuf">
+            <h2 class="section-title">Asset &amp; Endpoint Discovery</h2>
+            
+    <div class="glass-card">
+        <div class="card-title">FFUF Directory Brute-Force Results</div>
+        <p class="summary-text" style="margin-bottom:12px">
+            FFUF scanned the target with a common wordlist, discovering
+            <strong style="color:var(--color-info)">7 endpoints</strong>.
+            <strong style="color:var(--color-critical)">3 critical</strong>,
+            <strong style="color:var(--color-warning)">0 high</strong>,
+            <strong style="color:var(--color-info)">0 medium</strong>, and
+            4 low-severity findings.
+        </p>
+        <div style="margin-bottom:12px">
+            <span style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Status Breakdown: </span>
+            <span class="badge badge-red">200: 7</span> 
+        </div>
+        <div style="margin-bottom:12px">
+            <span style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Content Types: </span>
+            <span class="tech-tag">application/octet-stream (3)</span> <span class="tech-tag">application/json (1)</span> <span class="tech-tag">text/html (1)</span> <span class="tech-tag">text/plain (1)</span> <span class="tech-tag">text/xml (1)</span> 
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:16px;word-break:break-all">
+            <strong>Command:</strong> <code>ffuf -u https://cybersamurai.co.uk/FUZZ -w /home/kali/wordlist/pblist/fuzzing/common.txt -fc 403,404,429,500,503 -t 30 -o /home/kali/Documents/pbtools/blackdragon_dev/test/ffuf_report.json -of json -c -v -r</code>
+        </div>
+    </div>
+
+    
+        <div class="glass-card card-red" style="margin-bottom:20px">
+            <div class="card-title">.git Repository Exposure via FFUF <span class="badge badge-red">HIGH</span></div>
+            <div class="highlight-box">
+                FFUF directory brute-force discovered 3 publicly accessible Git repository files on the target. These files expose internal repository structure, commit history, and metadata. This is a HIGH severity finding.
+            </div>
+            <h4 style="color:var(--text-secondary);font-size:14px;margin:16px 0 8px 0">
+                Exposed Git Files (3 files)
+            </h4>
+    
+            <div class="exposure-card exposed-file">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <strong style="font-family:monospace;font-size:12px;color:var(--color-critical)">/description</strong>
+                    <span class="badge badge-red">EXPOSED</span>
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">
+                    Size: 73 bytes | Type: application/octet-stream | Status: 200
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);word-break:break-all;margin-top:2px">
+                    https://cybersamurai.co.uk/.git/description
+                </div>
+            </div>
+        
+            <div class="exposure-card exposed-file">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <strong style="font-family:monospace;font-size:12px;color:var(--color-critical)">/info/exclude</strong>
+                    <span class="badge badge-red">EXPOSED</span>
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">
+                    Size: 240 bytes | Type: application/octet-stream | Status: 200
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);word-break:break-all;margin-top:2px">
+                    https://cybersamurai.co.uk/.git/info/exclude
+                </div>
+            </div>
+        
+            <div class="exposure-card exposed-file">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <strong style="font-family:monospace;font-size:12px;color:var(--color-critical)">/logs/HEAD</strong>
+                    <span class="badge badge-red">EXPOSED</span>
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">
+                    Size: 185 bytes | Type: application/octet-stream | Status: 200
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);word-break:break-all;margin-top:2px">
+                    https://cybersamurai.co.uk/.git/logs/HEAD
+                </div>
+            </div>
+        
+            <div class="highlight-box" style="margin-top:16px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15)">
+                <strong style="color:var(--color-pass)">Remediation:</strong> Block access to <code>/.git/</code> at the web server level.
+                Never deploy <code>.git</code> directories to production. Rotate any credentials potentially exposed in commit history.
+            </div>
+        </div>
+        
+    
+        <div style="margin-bottom:20px">
+            <h4 style="color:var(--color-critical);font-size:14px;margin:12px 0 6px 0">
+                <span class="badge badge-red">CRITICAL</span> — 3 finding(s)
+            </h4>
+            <div style="overflow-x:auto;max-height:400px;overflow-y:auto">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>URL</th>
+                            <th>Content Type</th>
+                            <th>Size (bytes)</th>
+                            <th>Response</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                <tr>
+                    <td><span class="badge badge-red" style="font-size:10px">200</span></td>
+                    <td class="mono" style="font-size:11px">https://cybersamurai.co.uk/.git/description</td>
+                    <td>application/octet-stream</td>
+                    <td>73</td>
+                    <td>12.6ms</td>
+                </tr>
+            
+                <tr>
+                    <td><span class="badge badge-red" style="font-size:10px">200</span></td>
+                    <td class="mono" style="font-size:11px">https://cybersamurai.co.uk/.git/info/exclude</td>
+                    <td>application/octet-stream</td>
+                    <td>240</td>
+                    <td>13.0ms</td>
+                </tr>
+            
+                <tr>
+                    <td><span class="badge badge-red" style="font-size:10px">200</span></td>
+                    <td class="mono" style="font-size:11px">https://cybersamurai.co.uk/.git/logs/HEAD</td>
+                    <td>application/octet-stream</td>
+                    <td>185</td>
+                    <td>13.3ms</td>
+                </tr>
+            </tbody>
+                </table>
+            </div>
+        </div>
+        
+    
+    
+    
+        <div style="margin-bottom:20px">
+            <h4 style="color:var(--color-pass);font-size:14px;margin:12px 0 6px 0">
+                <span class="badge badge-green">LOW</span> — 4 finding(s)
+            </h4>
+            <div style="overflow-x:auto;max-height:400px;overflow-y:auto">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>URL</th>
+                            <th>Content Type</th>
+                            <th>Size (bytes)</th>
+                            <th>Response</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                <tr>
+                    <td><span class="badge badge-red" style="font-size:10px">200</span></td>
+                    <td class="mono" style="font-size:11px">https://cybersamurai.co.uk/.well-known/http-opportunistic</td>
+                    <td>application/json</td>
+                    <td>29</td>
+                    <td>8.6ms</td>
+                </tr>
+            
+                <tr>
+                    <td><span class="badge badge-red" style="font-size:10px">200</span></td>
+                    <td class="mono" style="font-size:11px">https://cybersamurai.co.uk/index.html</td>
+                    <td>text/html</td>
+                    <td>62,440</td>
+                    <td>17.5ms</td>
+                </tr>
+            
+                <tr>
+                    <td><span class="badge badge-red" style="font-size:10px">200</span></td>
+                    <td class="mono" style="font-size:11px">https://cybersamurai.co.uk/robots.txt</td>
+                    <td>text/plain; charset=utf-8</td>
+                    <td>1,248</td>
+                    <td>18.4ms</td>
+                </tr>
+            
+                <tr>
+                    <td><span class="badge badge-red" style="font-size:10px">200</span></td>
+                    <td class="mono" style="font-size:11px">https://cybersamurai.co.uk/sitemap.xml</td>
+                    <td>text/xml</td>
+                    <td>5,098</td>
+                    <td>13.6ms</td>
+                </tr>
+            </tbody>
+                </table>
+            </div>
+        </div>
+        
+    
+        </div>
+
+        <!-- ═══ Tab: CVE Vulnerability Database ═══ -->
+        <div class="tab-content" id="tab-vulners">
+            <h2 class="section-title">CVE Vulnerability Assessment</h2>
+            
+    <div class="glass-card">
+        <div class="card-title">Vulnerability Assessment — Vulners CVE Database</div>
+        <p class="summary-text" style="margin-bottom:12px">
+            The Vulners NSE script matched detected service versions against the CVE database.
+            <strong style="color:var(--color-critical)">86 known vulnerabilities</strong>
+            identified across 1 service(s):
+            <strong style="color:var(--color-critical)">9 Critical</strong>,
+            <strong style="color:var(--color-warning)">63 High</strong>,
+            <strong style="color:var(--color-info)">9 Medium</strong>,
+            <strong style="color:var(--color-pass)">5 Low</strong>.
+            <strong style="color:var(--color-critical)">74 have public exploits available.</strong>
+        </p>
+        <p class="summary-text" style="margin-bottom:16px;font-size:12px">
+            Affected services: <strong>ssh 9.6p1 Ubuntu 3ubuntu13.16</strong>
+        </p>
+        <div style="overflow-x:auto;max-height:600px;overflow-y:auto">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Severity</th><th>Vulnerability ID</th><th>CVSS</th><th>Service</th><th>Flags</th></tr>
+                </thead>
+                <tbody>
+            <tr>
+                <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
+                <td class="mono" style="font-size:11px"><strong>PACKETSTORM:179290</strong></td>
+                <td>10.0</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
+                <td class="mono" style="font-size:11px"><strong>1EEC8894-D2F7-547C-827C-915BE866875C</strong></td>
+                <td>10.0</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
+                <td class="mono" style="font-size:11px"><strong>09B905C6-CD97-54E6-AD97-B0DD1AC4771B</strong></td>
+                <td>10.0</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
+                <td class="mono" style="font-size:11px"><strong>33D623F7-98E0-5F75-80FA-81AA666D1340</strong></td>
+                <td>9.8</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
+                <td class="mono" style="font-size:11px"><strong>F8981437-1287-5B69-93F1-657DFB1DCE59</strong></td>
+                <td>9.3</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
+                <td class="mono" style="font-size:11px"><strong>CB2926E1-2355-5C82-A42A-D4F72F114F9B</strong></td>
+                <td>9.3</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
+                <td class="mono" style="font-size:11px"><strong>B6C4923E-8565-5D3E-8E68-8D182C3DAD5C</strong></td>
+                <td>9.3</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
+                <td class="mono" style="font-size:11px"><strong>8DEE261C-33D4-5057-BA46-E4293B705BAE</strong></td>
+                <td>9.3</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
+                <td class="mono" style="font-size:11px"><strong>6FD8F914-B663-533D-8866-23313FD37804</strong></td>
+                <td>9.3</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>PACKETSTORM:190587</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>FB2E9ED1-43D7-585C-A197-0D6628B20134</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>FA3992CE-9C4C-5350-8134-177126E0BD3F</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>EFD615F0-8F17-5471-AA83-0F491FD497AF</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>EC20B9C2-6857-5848-848A-A9F430D13EEB</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>EB13CBD6-BC93-5F14-A210-AC0B5A1D8572</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>E543E274-C20A-582A-8F8E-F8E3F381C345</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>E34FCCEC-226E-5A46-9B1C-BCD6EF7D3257</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>E24EEC0A-40F7-5BBC-9E4D-7B13522FF915</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>DC1BB99A-8B57-5EE5-9AC4-3D9D59BFC346</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>DA18D761-BB81-54B6-85CB-CFD73CE33621</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>D52370EF-02EE-507D-9212-2D8EA86CBA94</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>CVE-2026-35414</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td> <span class="badge badge-blue" style="font-size:9px">CVE</span></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>CVE-2026-35386</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td> <span class="badge badge-blue" style="font-size:9px">CVE</span></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>CVE-2026-35385</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td> <span class="badge badge-blue" style="font-size:9px">CVE</span></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>CVE-2024-6387</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td> <span class="badge badge-blue" style="font-size:9px">CVE</span></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>CFEBF7AF-651A-5302-80B8-F8146D5B33A6</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>C6FB6D50-F71D-5870-B671-D6A09A95627F</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>C623D558-C162-5D17-88A5-4799A2BEC001</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>C5B2D4A1-8C3B-5FF7-B620-EDE207B027A0</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>C185263E-3E67-5550-B9C0-AB9C15351960</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>BDA609DA-6936-50DC-A325-19FE2CC68562</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>BA3887BD-F579-53B1-A4A4-FF49E953E1C0</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>B1F444E0-F217-5FC0-B266-EBD48589940F</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>92254168-3B26-54C9-B9BE-B4B7563586B5</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>91752937-D1C1-5913-A96F-72F8B8AB4280</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>90104C60-A887-5437-8521-545277685F55</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>89F96BAB-1624-51B5-B09E-E771D918D1E6</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>81F0C05A-8650-5DE8-97E9-0D89F1807E5D</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>7E218A18-4BBA-5B7D-A537-D5DC12AC1D6C</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>7C7167AF-E780-5506-BEFA-02E5362E8E48</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>79FE1ED7-EB3D-5978-A12E-AAB1FFECCCAC</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>795762E3-BAB4-54C6-B677-83B0ACC2B163</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>774022BB-71DA-57C4-9B8F-E21D667DE4BC</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>743E5025-3BB8-5EC4-AC44-2AA679730661</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>73A19EF9-346D-5B2B-9792-05D9FE3414E2</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>6E81EAE5-2156-5ACB-9046-D792C7FAF698</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>6B78D204-22B0-5D11-8A0C-6313958B473F</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>65650BAD-813A-565D-953D-2E7932B26094</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>649197A2-0224-5B5C-9C4E-B5791D42A9FB</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:11px"><strong>61DDEEE4-2146-5E84-9804-B780AA73E33C</strong></td>
+                <td>8.1</td>
+                <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><span class="badge badge-red" style="font-size:9px">EXPLOIT</span> </td>
+            </tr>
+        <tr><td colspan="5" style="color:var(--text-muted);text-align:center">... and 36 more vulnerabilities</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+    
+        </div>
+
+        <!-- ═══ Tab: OS Detection ═══ -->
+        <div class="tab-content" id="tab-os">
+            <h2 class="section-title">Operating System Detection</h2>
+            
+    <div class="glass-card card-blue">
+        <div class="card-title">Operating System Detection</div>
+        <p class="summary-text" style="margin-bottom:12px">
+            Nmap OS fingerprinting identified the following likely operating systems
+            on <code>172.236.21.180</code>.
+        </p>
+        <table class="data-table">
+            <thead><tr><th>OS Match</th><th>Accuracy</th><th>Classification</th></tr></thead>
+            <tbody>
+            <tr>
+                <td><strong>Linux 5.0 - 5.14</strong></td>
+                <td><span style="color:var(--color-warning);font-weight:700">87%</span></td>
+                <td><span class="tech-tag">Linux Linux 5.X</span> </td>
+            </tr>
+        
+            <tr>
+                <td><strong>Linux 4.15 - 5.19</strong></td>
+                <td><span style="color:var(--color-warning);font-weight:700">87%</span></td>
+                <td><span class="tech-tag">Linux Linux 4.X</span> <span class="tech-tag">Linux Linux 5.X</span> </td>
+            </tr>
+        
+            <tr>
+                <td><strong>MikroTik RouterOS 7.2 - 7.5 (Linux 5.6.3)</strong></td>
+                <td><span style="color:var(--color-warning);font-weight:700">86%</span></td>
+                <td><span class="tech-tag">MikroTik RouterOS 7.X</span> <span class="tech-tag">Linux Linux 5.X</span> </td>
+            </tr>
+        </tbody>
+        </table>
+    </div>
+    
+        </div>
+
+        <!-- ═══ Tab: Nmap Git Exposure ═══ -->
+        <div class="tab-content" id="tab-git-nmap">
+            <h2 class="section-title">.git Exposure — Nmap Discovery</h2>
+            
+    <div class="glass-card card-red">
+        <div class="card-title">.git Repository Exposed via Nmap <span class="badge badge-red">CRITICAL</span></div>
+        <div class="highlight-box">
+            Nmap's <code>http-git</code> script discovered a publicly accessible Git repository.
+            3 repository files are directly downloadable.
+            Remote origin: https://github.com/bazzofx/cybersamurai.git.
+        </div>
+        <h4 style="color:var(--text-secondary);font-size:14px;margin:16px 0 8px 0">
+            Exposed Files (3 files)
+        </h4>
+        
+        <div class="exposure-card exposed-file">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <strong style="font-family:monospace;font-size:12px;color:var(--color-critical)">.git/description</strong>
+                <span class="badge badge-red">EXPOSED</span>
+            </div>
+        </div>
+        
+        <div class="exposure-card exposed-file">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <strong style="font-family:monospace;font-size:12px;color:var(--color-critical)">.git/config</strong>
+                <span class="badge badge-red">EXPOSED</span>
+            </div>
+        </div>
+        
+        <div class="exposure-card exposed-file">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <strong style="font-family:monospace;font-size:12px;color:var(--color-critical)">.git/info/exclude</strong>
+                <span class="badge badge-red">EXPOSED</span>
+            </div>
+        </div>
+        
+        <h4 style="color:var(--text-secondary);font-size:14px;margin:16px 0 8px 0">Remote Origins</h4><ul style="color:var(--text-secondary);font-size:13px"><li><code>https://github.com/bazzofx/cybersamurai.git</code></li></ul>
+        <div class="highlight-box" style="margin-top:16px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15)">
+            <strong style="color:var(--color-pass)">Remediation:</strong> Block <code>/.git/</code> at the web server level.
+            Never deploy <code>.git</code> directories to production.
+        </div>
+    </div>
+    
+        </div>
+
+        <!-- ═══ Tab: Security Header Analysis ═══ -->
+        <div class="tab-content" id="tab-headers">
+            <h2 class="section-title">Security Header Analysis</h2>
+            
+        <div class="glass-card card-blue">
+            <div class="card-title">Security Headers</div>
+            <p class="summary-text">No security headers were detected on any open port.</p>
+        </div>
+        
+        </div>
+
+        <!-- ═══ Footer ═══ -->
+        <div class="footer">
+            <p>Cyber Samurai &mdash; Fingerprint &amp; Vulnerability Assessment Report</p>
+            <p style="font-size:11px;margin-top:4px">Generated on 04 July 2026, 09:38 | This report contains confidential security findings.</p>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(function(btn) { btn.classList.remove('active'); });
+            document.querySelectorAll('.tab-content').forEach(function(tc) { tc.classList.remove('active'); });
+            var target = document.getElementById(tabId);
+            if (target) { target.classList.add('active'); }
+            var allBtns = document.querySelectorAll('.tab-btn');
+            for (var i = 0; i < allBtns.length; i++) {
+                if (allBtns[i].getAttribute('onclick') && allBtns[i].getAttribute('onclick').indexOf(tabId) !== -1) {
+                    allBtns[i].classList.add('active');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
