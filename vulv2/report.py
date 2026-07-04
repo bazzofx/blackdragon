@@ -2256,10 +2256,10 @@ def _build_vulners_section(nmap_data):
 
     vulners_sorted = sorted(vulners, key=lambda x: -x.get("cvss", 0))
     real_cves = [v for v in vulners_sorted if v.get("type") == "cve"]
-    crit = sum(1 for v in real_cves if v.get("cvss", 0) >= 9.0)
-    high = sum(1 for v in real_cves if 7.0 <= v.get("cvss", 0) < 9.0)
-    med  = sum(1 for v in real_cves if 4.0 <= v.get("cvss", 0) < 7.0)
-    low  = sum(1 for v in real_cves if v.get("cvss", 0) < 4.0)
+    crit = sum(1 for v in vulners_sorted if v.get("cvss", 0) >= 9.0)
+    high = sum(1 for v in vulners_sorted if 7.0 <= v.get("cvss", 0) < 9.0)
+    med  = sum(1 for v in vulners_sorted if 4.0 <= v.get("cvss", 0) < 7.0)
+    low  = sum(1 for v in vulners_sorted if v.get("cvss", 0) < 4.0)
     total_exploits = sum(v.get("exploit_count", 0) for v in vulners_sorted)
     services = sorted(set(v.get("service", "Unknown") for v in vulners_sorted))
 
