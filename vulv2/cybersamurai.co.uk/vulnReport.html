@@ -213,7 +213,7 @@
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">Report Generated</span>
-                        <span class="meta-val">04 July 2026, 10:01</span>
+                        <span class="meta-val">04 July 2026, 11:04</span>
                     </div>
                 </div>
             </div>
@@ -366,19 +366,16 @@
 
         <!-- ═══ Tab Navigation ═══ -->
         <div class="tabs-nav">
-            <button class="tab-btn active" onclick="switchTab('tab-ports')">Open Ports</button>
-            <button class="tab-btn" onclick="switchTab('tab-vulns')">Vulnerabilities</button>
-            <button class="tab-btn" onclick="switchTab('tab-dirsearch')">Directory Enum</button>
-            <button class="tab-btn" onclick="switchTab('tab-git')">.git Exposure</button>
-            <button class="tab-btn" onclick="switchTab('tab-tech')">Tech Fingerprint</button>
+            <button class="tab-btn active" onclick="switchTab('tab-os')">OS Detection</button>
+            <button class="tab-btn" onclick="switchTab('tab-ports')">Open Ports</button>
+            <button class="tab-btn" onclick="switchTab('tab-tech')">Tech Findings</button>
             <button class="tab-btn" onclick="switchTab('tab-ffuf')">Asset Discovery</button>
             <button class="tab-btn" onclick="switchTab('tab-vulners')">CVE Database</button>
-            <button class="tab-btn" onclick="switchTab('tab-os')">OS Detection</button>
-            <button class="tab-btn" onclick="switchTab('tab-headers')">Security Headers</button>
+            <button class="tab-btn" onclick="switchTab('tab-vulns')">Vulnerabilities</button>
         </div>
 
         <!-- ═══ Tab: Open Ports & Services ═══ -->
-        <div class="tab-content active" id="tab-ports">
+        <div class="tab-content" id="tab-ports">
             <h2 class="section-title">Open Ports &amp; Services</h2>
             
     <div class="glass-card">
@@ -419,94 +416,6 @@
         </div>
     </div>
     
-        </div>
-
-        <!-- ═══ Tab: Vulnerability Findings ═══ -->
-        <div class="tab-content" id="tab-vulns">
-            <h2 class="section-title">Vulnerability Findings</h2>
-            
-        <div class="glass-card card-orange">
-            <div class="card-title">PACKETSTORM:179290 (CVSS 10.0)</div>
-            <div style="margin:8px 0">
-                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
-                <code style="margin-left:8px;color:var(--text-muted)">PACKETSTORM:179290</code>
-            </div>
-            <p class="summary-text">Vulnerability PACKETSTORM:179290 with CVSS score 10.0 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
-            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/packetstorm/PACKETSTORM:179290" target="_blank" style="color:var(--color-info)">https://vulners.com/packetstorm/PACKETSTORM:179290</a></div>
-        </div>
-        
-        <div class="glass-card card-orange">
-            <div class="card-title">1EEC8894-D2F7-547C-827C-915BE866875C (CVSS 10.0)</div>
-            <div style="margin:8px 0">
-                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
-                <code style="margin-left:8px;color:var(--text-muted)">1EEC8894-D2F7-547C-827C-915BE866875C</code>
-            </div>
-            <p class="summary-text">Vulnerability 1EEC8894-D2F7-547C-827C-915BE866875C with CVSS score 10.0 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
-            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/1EEC8894-D2F7-547C-827C-915BE866875C" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/1EEC8894-D2F7-547C-827C-915BE866875C</a></div>
-        </div>
-        
-        <div class="glass-card card-orange">
-            <div class="card-title">09B905C6-CD97-54E6-AD97-B0DD1AC4771B (CVSS 10.0)</div>
-            <div style="margin:8px 0">
-                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
-                <code style="margin-left:8px;color:var(--text-muted)">09B905C6-CD97-54E6-AD97-B0DD1AC4771B</code>
-            </div>
-            <p class="summary-text">Vulnerability 09B905C6-CD97-54E6-AD97-B0DD1AC4771B with CVSS score 10.0 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
-            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/09B905C6-CD97-54E6-AD97-B0DD1AC4771B" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/09B905C6-CD97-54E6-AD97-B0DD1AC4771B</a></div>
-        </div>
-        
-        <div class="glass-card card-orange">
-            <div class="card-title">33D623F7-98E0-5F75-80FA-81AA666D1340 (CVSS 9.8)</div>
-            <div style="margin:8px 0">
-                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
-                <code style="margin-left:8px;color:var(--text-muted)">33D623F7-98E0-5F75-80FA-81AA666D1340</code>
-            </div>
-            <p class="summary-text">Vulnerability 33D623F7-98E0-5F75-80FA-81AA666D1340 with CVSS score 9.8 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
-            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/33D623F7-98E0-5F75-80FA-81AA666D1340" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/33D623F7-98E0-5F75-80FA-81AA666D1340</a></div>
-        </div>
-        
-        <div class="glass-card card-orange">
-            <div class="card-title">F8981437-1287-5B69-93F1-657DFB1DCE59 (CVSS 9.3)</div>
-            <div style="margin:8px 0">
-                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
-                <code style="margin-left:8px;color:var(--text-muted)">F8981437-1287-5B69-93F1-657DFB1DCE59</code>
-            </div>
-            <p class="summary-text">Vulnerability F8981437-1287-5B69-93F1-657DFB1DCE59 with CVSS score 9.3 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
-            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/F8981437-1287-5B69-93F1-657DFB1DCE59" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/F8981437-1287-5B69-93F1-657DFB1DCE59</a></div>
-        </div>
-        
-        <div class="glass-card card-red">
-            <div class="card-title">Apache byterange filter DoS</div>
-            <div style="margin:8px 0">
-                <span class="badge badge-red">VULNERABLE</span>
-                <code style="margin-left:8px;color:var(--text-muted)">BID:49303</code>
-            </div>
-            <p class="summary-text">The Apache web server is vulnerable to a denial of service attack when numerous
-overlapping byte ranges are requested.</p>
-            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://www.securityfocus.com/bid/49303" target="_blank" style="color:var(--color-info)">https://www.securityfocus.com/bid/49303</a><br><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192" target="_blank" style="color:var(--color-info)">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192</a><br><a href="https://seclists.org/fulldisclosure/2011/Aug/175" target="_blank" style="color:var(--color-info)">https://seclists.org/fulldisclosure/2011/Aug/175</a><br><a href="https://www.tenable.com/plugins/nessus/55976" target="_blank" style="color:var(--color-info)">https://www.tenable.com/plugins/nessus/55976</a></div>
-        </div>
-        
-        <div class="glass-card card-orange">
-            <div class="card-title">Publicly Accessible .git Repository</div>
-            <div style="margin:8px 0">
-                <span class="badge badge-red">EXPOSED</span>
-                
-            </div>
-            <p class="summary-text">Nmap discovered an accessible .git repository. 3 files exposed: .git/description, .git/config, .git/info/exclude. Remote origin: https://github.com/bazzofx/cybersamurai.git.</p>
-            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://github.com/bazzofx/cybersamurai.git" target="_blank" style="color:var(--color-info)">https://github.com/bazzofx/cybersamurai.git</a></div>
-        </div>
-        
-        </div>
-
-        <!-- ═══ Tab: Directory Enumeration ═══ -->
-        <div class="tab-content" id="tab-dirsearch">
-            <h2 class="section-title">Directory &amp; File Enumeration</h2>
-            <div class="glass-card"><p class="summary-text">No directory scan data available.</p></div>
-        </div>
-
-        <!-- ═══ Tab: .git Exposure Details ═══ -->
-        <div class="tab-content" id="tab-git">
-            
         </div>
 
         <!-- ═══ Tab: Technology Fingerprint ═══ -->
@@ -893,7 +802,7 @@ overlapping byte ranges are requested.</p>
         </div>
 
         <!-- ═══ Tab: OS Detection ═══ -->
-        <div class="tab-content" id="tab-os">
+        <div class="tab-content active" id="tab-os">
             <h2 class="section-title">Operating System Detection</h2>
             
     <div class="glass-card card-blue">
@@ -928,58 +837,79 @@ overlapping byte ranges are requested.</p>
     
         </div>
 
-        <!-- ═══ Tab: Nmap Git Exposure ═══ -->
-        <div class="tab-content" id="tab-git-nmap">
-            <h2 class="section-title">.git Exposure — Nmap Discovery</h2>
+        <!-- ═══ Tab: Vulnerability Findings ═══ -->
+        <div class="tab-content" id="tab-vulns">
+            <h2 class="section-title">Vulnerability Findings</h2>
             
-    <div class="glass-card card-red">
-        <div class="card-title">.git Repository Exposed via Nmap <span class="badge badge-red">CRITICAL</span></div>
-        <div class="highlight-box">
-            Nmap's <code>http-git</code> script discovered a publicly accessible Git repository.
-            3 repository files are directly downloadable.
-            Remote origin: https://github.com/bazzofx/cybersamurai.git.
-        </div>
-        <h4 style="color:var(--text-secondary);font-size:14px;margin:16px 0 8px 0">
-            Exposed Files (3 files)
-        </h4>
-        
-        <div class="exposure-card exposed-file">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-                <strong style="font-family:monospace;font-size:12px;color:var(--color-critical)">.git/description</strong>
-                <span class="badge badge-red">EXPOSED</span>
+        <div class="glass-card card-orange">
+            <div class="card-title">PACKETSTORM:179290 (CVSS 10.0)</div>
+            <div style="margin:8px 0">
+                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
+                <code style="margin-left:8px;color:var(--text-muted)">PACKETSTORM:179290</code>
             </div>
+            <p class="summary-text">Vulnerability PACKETSTORM:179290 with CVSS score 10.0 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/packetstorm/PACKETSTORM:179290" target="_blank" style="color:var(--color-info)">https://vulners.com/packetstorm/PACKETSTORM:179290</a></div>
         </div>
         
-        <div class="exposure-card exposed-file">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-                <strong style="font-family:monospace;font-size:12px;color:var(--color-critical)">.git/config</strong>
-                <span class="badge badge-red">EXPOSED</span>
+        <div class="glass-card card-orange">
+            <div class="card-title">1EEC8894-D2F7-547C-827C-915BE866875C (CVSS 10.0)</div>
+            <div style="margin:8px 0">
+                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
+                <code style="margin-left:8px;color:var(--text-muted)">1EEC8894-D2F7-547C-827C-915BE866875C</code>
             </div>
+            <p class="summary-text">Vulnerability 1EEC8894-D2F7-547C-827C-915BE866875C with CVSS score 10.0 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/1EEC8894-D2F7-547C-827C-915BE866875C" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/1EEC8894-D2F7-547C-827C-915BE866875C</a></div>
         </div>
         
-        <div class="exposure-card exposed-file">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-                <strong style="font-family:monospace;font-size:12px;color:var(--color-critical)">.git/info/exclude</strong>
-                <span class="badge badge-red">EXPOSED</span>
+        <div class="glass-card card-orange">
+            <div class="card-title">09B905C6-CD97-54E6-AD97-B0DD1AC4771B (CVSS 10.0)</div>
+            <div style="margin:8px 0">
+                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
+                <code style="margin-left:8px;color:var(--text-muted)">09B905C6-CD97-54E6-AD97-B0DD1AC4771B</code>
             </div>
+            <p class="summary-text">Vulnerability 09B905C6-CD97-54E6-AD97-B0DD1AC4771B with CVSS score 10.0 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/09B905C6-CD97-54E6-AD97-B0DD1AC4771B" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/09B905C6-CD97-54E6-AD97-B0DD1AC4771B</a></div>
         </div>
         
-        <h4 style="color:var(--text-secondary);font-size:14px;margin:16px 0 8px 0">Remote Origins</h4><ul style="color:var(--text-secondary);font-size:13px"><li><code>https://github.com/bazzofx/cybersamurai.git</code></li></ul>
-        <div class="highlight-box" style="margin-top:16px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15)">
-            <strong style="color:var(--color-pass)">Remediation:</strong> Block <code>/.git/</code> at the web server level.
-            Never deploy <code>.git</code> directories to production.
+        <div class="glass-card card-orange">
+            <div class="card-title">33D623F7-98E0-5F75-80FA-81AA666D1340 (CVSS 9.8)</div>
+            <div style="margin:8px 0">
+                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
+                <code style="margin-left:8px;color:var(--text-muted)">33D623F7-98E0-5F75-80FA-81AA666D1340</code>
+            </div>
+            <p class="summary-text">Vulnerability 33D623F7-98E0-5F75-80FA-81AA666D1340 with CVSS score 9.8 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/33D623F7-98E0-5F75-80FA-81AA666D1340" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/33D623F7-98E0-5F75-80FA-81AA666D1340</a></div>
         </div>
-    </div>
-    
+        
+        <div class="glass-card card-orange">
+            <div class="card-title">F8981437-1287-5B69-93F1-657DFB1DCE59 (CVSS 9.3)</div>
+            <div style="margin:8px 0">
+                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
+                <code style="margin-left:8px;color:var(--text-muted)">F8981437-1287-5B69-93F1-657DFB1DCE59</code>
+            </div>
+            <p class="summary-text">Vulnerability F8981437-1287-5B69-93F1-657DFB1DCE59 with CVSS score 9.3 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/F8981437-1287-5B69-93F1-657DFB1DCE59" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/F8981437-1287-5B69-93F1-657DFB1DCE59</a></div>
         </div>
-
-        <!-- ═══ Tab: Security Header Analysis ═══ -->
-        <div class="tab-content" id="tab-headers">
-            <h2 class="section-title">Security Header Analysis</h2>
-            
-        <div class="glass-card card-blue">
-            <div class="card-title">Security Headers</div>
-            <p class="summary-text">No security headers were detected on any open port.</p>
+        
+        <div class="glass-card card-red">
+            <div class="card-title">Apache byterange filter DoS</div>
+            <div style="margin:8px 0">
+                <span class="badge badge-red">VULNERABLE</span>
+                <code style="margin-left:8px;color:var(--text-muted)">BID:49303</code>
+            </div>
+            <p class="summary-text">The Apache web server is vulnerable to a denial of service attack when numerous
+overlapping byte ranges are requested.</p>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://www.securityfocus.com/bid/49303" target="_blank" style="color:var(--color-info)">https://www.securityfocus.com/bid/49303</a><br><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192" target="_blank" style="color:var(--color-info)">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192</a><br><a href="https://seclists.org/fulldisclosure/2011/Aug/175" target="_blank" style="color:var(--color-info)">https://seclists.org/fulldisclosure/2011/Aug/175</a><br><a href="https://www.tenable.com/plugins/nessus/55976" target="_blank" style="color:var(--color-info)">https://www.tenable.com/plugins/nessus/55976</a></div>
+        </div>
+        
+        <div class="glass-card card-orange">
+            <div class="card-title">Publicly Accessible .git Repository</div>
+            <div style="margin:8px 0">
+                <span class="badge badge-red">EXPOSED</span>
+                
+            </div>
+            <p class="summary-text">Nmap discovered an accessible .git repository. 3 files exposed: .git/description, .git/config, .git/info/exclude. Remote origin: https://github.com/bazzofx/cybersamurai.git.</p>
+            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://github.com/bazzofx/cybersamurai.git" target="_blank" style="color:var(--color-info)">https://github.com/bazzofx/cybersamurai.git</a></div>
         </div>
         
         </div>
@@ -987,7 +917,7 @@ overlapping byte ranges are requested.</p>
         <!-- ═══ Footer ═══ -->
         <div class="footer">
             <p>Cyber Samurai &mdash; Fingerprint &amp; Vulnerability Assessment Report</p>
-            <p style="font-size:11px;margin-top:4px">Generated on 04 July 2026, 10:01 | This report contains confidential security findings.</p>
+            <p style="font-size:11px;margin-top:4px">Generated on 04 July 2026, 11:04 | This report contains confidential security findings.</p>
         </div>
     </div>
 

@@ -1351,38 +1351,18 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
 
         <!-- ═══ Tab Navigation ═══ -->
         <div class="tabs-nav">
-            <button class="tab-btn active" onclick="switchTab('tab-ports')">Open Ports</button>
-            <button class="tab-btn" onclick="switchTab('tab-vulns')">Vulnerabilities</button>
-            <button class="tab-btn" onclick="switchTab('tab-dirsearch')">Directory Enum</button>
-            <button class="tab-btn" onclick="switchTab('tab-git')">.git Exposure</button>
-            <button class="tab-btn" onclick="switchTab('tab-tech')">Tech Fingerprint</button>
+            <button class="tab-btn active" onclick="switchTab('tab-os')">OS Detection</button>
+            <button class="tab-btn" onclick="switchTab('tab-ports')">Open Ports</button>
+            <button class="tab-btn" onclick="switchTab('tab-tech')">Tech Findings</button>
             <button class="tab-btn" onclick="switchTab('tab-ffuf')">Asset Discovery</button>
             <button class="tab-btn" onclick="switchTab('tab-vulners')">CVE Database</button>
-            <button class="tab-btn" onclick="switchTab('tab-os')">OS Detection</button>
-            <button class="tab-btn" onclick="switchTab('tab-headers')">Security Headers</button>
+            <button class="tab-btn" onclick="switchTab('tab-vulns')">Vulnerabilities</button>
         </div>
 
         <!-- ═══ Tab: Open Ports & Services ═══ -->
-        <div class="tab-content active" id="tab-ports">
+        <div class="tab-content" id="tab-ports">
             <h2 class="section-title">Open Ports &amp; Services</h2>
             {_build_ports_section(nmap_data)}
-        </div>
-
-        <!-- ═══ Tab: Vulnerability Findings ═══ -->
-        <div class="tab-content" id="tab-vulns">
-            <h2 class="section-title">Vulnerability Findings</h2>
-            {_build_vulnerabilities_section(nmap_data)}
-        </div>
-
-        <!-- ═══ Tab: Directory Enumeration ═══ -->
-        <div class="tab-content" id="tab-dirsearch">
-            <h2 class="section-title">Directory &amp; File Enumeration</h2>
-            {_build_dirsearch_section(dirsearch_data)}
-        </div>
-
-        <!-- ═══ Tab: .git Exposure Details ═══ -->
-        <div class="tab-content" id="tab-git">
-            {_build_git_exposure_section(dirsearch_data)}
         </div>
 
         <!-- ═══ Tab: Technology Fingerprint ═══ -->
@@ -1404,21 +1384,15 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
         </div>
 
         <!-- ═══ Tab: OS Detection ═══ -->
-        <div class="tab-content" id="tab-os">
+        <div class="tab-content active" id="tab-os">
             <h2 class="section-title">Operating System Detection</h2>
             {_build_os_section(nmap_data)}
         </div>
 
-        <!-- ═══ Tab: Nmap Git Exposure ═══ -->
-        <div class="tab-content" id="tab-git-nmap">
-            <h2 class="section-title">.git Exposure — Nmap Discovery</h2>
-            {_build_nmap_git_section(nmap_data)}
-        </div>
-
-        <!-- ═══ Tab: Security Header Analysis ═══ -->
-        <div class="tab-content" id="tab-headers">
-            <h2 class="section-title">Security Header Analysis</h2>
-            {_build_security_headers_section(nmap_data)}
+        <!-- ═══ Tab: Vulnerability Findings ═══ -->
+        <div class="tab-content" id="tab-vulns">
+            <h2 class="section-title">Vulnerability Findings</h2>
+            {_build_vulnerabilities_section(nmap_data)}
         </div>
 
         <!-- ═══ Footer ═══ -->
