@@ -504,7 +504,7 @@ def parse_nmap_scan(file_path):
                 if unusual_flag:
                     host_data["unusual_ports"].append(port_id)
 
-                # Store vulners per port
+                # Store vulners per port (raw)
                 if vulners_for_port:
                     host_data["vulners_entries"].extend(vulners_for_port)
 
@@ -520,6 +520,12 @@ def parse_nmap_scan(file_path):
                     if key not in seen:
                         seen.add(key)
                         host_data["vulnerabilities"].append(vuln)
+
+            # ── Deduplicate vulners: group exploits under their CVEs ──
+            if host_data["vulners_entries"]:
+                host_data["vulners_deduped"] = _dedup_vulners(
+                    host_data["vulners_entries"]
+                )
 
             # Security notes
             for port_info in host_data["open_ports"]:
@@ -568,6 +574,82 @@ def parse_nmap_scan(file_path):
         "scan_info": scan_info,
         "host": host_data,
     }
+
+
+
+def _dedup_vulners(vulners_entries):
+    """Group vulners entries by (service, cvss) — merge exploits under CVEs."""
+    from collections import defaultdict
+
+    # Group by (service, cvss)
+    groups = defaultdict(lambda: {"cves": [], "exploits": [], "max_cvss": 0})
+    for v in vulners_entries:
+        key = (v.get("service", ""), v.get("cvss", 0))
+        g = groups[key]
+        g["max_cvss"] = max(g["max_cvss"], v.get("cvss", 0))
+        if v.get("type") == "cve":
+            g["cves"].append(v)
+        else:
+            g["exploits"].append(v)
+
+    deduped = []
+    seen_cve_ids = set()
+
+    for (svc, cvss), g in sorted(groups.items(), key=lambda x: -x[1]["max_cvss"]):
+        exploit_count = len(g["exploits"])
+
+        # If we have real CVEs, show them with exploit count
+        for cve in g["cves"]:
+            cid = cve["id"]
+            if cid in seen_cve_ids:
+                continue
+            seen_cve_ids.add(cid)
+
+            # Severity label
+            if cvss >= 9.0:
+                severity = "CRITICAL"
+            elif cvss >= 7.0:
+                severity = "HIGH"
+            elif cvss >= 4.0:
+                severity = "MEDIUM"
+            else:
+                severity = "LOW"
+
+            deduped.append({
+                "id": cid,
+                "cvss": cvss,
+                "severity": severity,
+                "is_exploit": exploit_count > 0,
+                "type": "cve",
+                "port": cve.get("port", ""),
+                "service": svc,
+                "exploit_count": exploit_count,
+            })
+
+        # If only exploits (no CVE), show the first exploit as representative
+        if not g["cves"] and g["exploits"]:
+            rep = g["exploits"][0]
+            if cvss >= 9.0:
+                severity = "CRITICAL"
+            elif cvss >= 7.0:
+                severity = "HIGH"
+            elif cvss >= 4.0:
+                severity = "MEDIUM"
+            else:
+                severity = "LOW"
+
+            deduped.append({
+                "id": f"{len(g['exploits'])} exploits for {svc}",
+                "cvss": cvss,
+                "severity": severity,
+                "is_exploit": True,
+                "type": "exploit_group",
+                "port": rep.get("port", ""),
+                "service": svc,
+                "exploit_count": exploit_count,
+            })
+
+    return deduped
 
 
 # ─── Dirsearch Parsing ───────────────────────────────────────────────────────
@@ -2168,21 +2250,21 @@ def _build_vulners_section(nmap_data):
     if not nmap_data or not nmap_data.get("host"):
         return '<div class="glass-card"><p class="summary-text">No vulnerability assessment data available.</p></div>'
 
-    vulners = nmap_data["host"].get("vulners_entries", [])
+    vulners = nmap_data["host"].get("vulners_deduped") or nmap_data["host"].get("vulners_entries", [])
     if not vulners:
         return '<div class="glass-card card-green"><div class="card-title">No CVEs Detected</div><p class="summary-text">Vulners NSE script found no known CVEs matching the detected service versions.</p></div>'
 
     vulners_sorted = sorted(vulners, key=lambda x: -x.get("cvss", 0))
-    crit = sum(1 for v in vulners_sorted if v.get("cvss", 0) >= 9.0)
-    high = sum(1 for v in vulners_sorted if 7.0 <= v.get("cvss", 0) < 9.0)
-    med  = sum(1 for v in vulners_sorted if 4.0 <= v.get("cvss", 0) < 7.0)
-    low  = sum(1 for v in vulners_sorted if v.get("cvss", 0) < 4.0)
-    exploits = sum(1 for v in vulners_sorted if v.get("is_exploit"))
+    real_cves = [v for v in vulners_sorted if v.get("type") == "cve"]
+    crit = sum(1 for v in real_cves if v.get("cvss", 0) >= 9.0)
+    high = sum(1 for v in real_cves if 7.0 <= v.get("cvss", 0) < 9.0)
+    med  = sum(1 for v in real_cves if 4.0 <= v.get("cvss", 0) < 7.0)
+    low  = sum(1 for v in real_cves if v.get("cvss", 0) < 4.0)
+    total_exploits = sum(v.get("exploit_count", 0) for v in vulners_sorted)
     services = sorted(set(v.get("service", "Unknown") for v in vulners_sorted))
 
     rows = ""
-    max_display = 50
-    for v in vulners_sorted[:max_display]:
+    for v in vulners_sorted:
         cvss = v.get("cvss", 0)
         if cvss >= 9.0:
             sev_badge = "badge-red"
@@ -2192,48 +2274,56 @@ def _build_vulners_section(nmap_data):
             sev_badge = "badge-blue"
         else:
             sev_badge = "badge-green"
-        exploit_badge = '<span class="badge badge-red" style="font-size:9px">EXPLOIT</span>' if v.get("is_exploit") else ""
+
+        exploit_count = v.get("exploit_count", 0)
+        if exploit_count > 0:
+            exploit_badge = f'<span class="badge badge-red" style="font-size:9px">{exploit_count} EXPLOIT{"S" if exploit_count > 1 else ""}</span>'
+        else:
+            exploit_badge = ""
+
         cve_marker = '<span class="badge badge-blue" style="font-size:9px">CVE</span>' if v.get("type") == "cve" else ""
+        vid = v['id']
+        vuln_url = f'https://vulners.com/search?query={vid}'
 
         rows += f"""
             <tr>
                 <td><span class="badge {sev_badge}" style="font-size:10px">{v['severity']}</span></td>
-                <td class="mono" style="font-size:11px"><strong>{html_escape(v['id'])}</strong></td>
+                <td class="mono" style="font-size:11px"><a href="{vuln_url}" target="_blank" style="color:var(--color-info)"><strong>{html_escape(vid)}</strong></a></td>
                 <td>{cvss}</td>
                 <td>{html_escape(v.get('service', 'N/A'))}</td>
                 <td>{exploit_badge} {cve_marker}</td>
             </tr>
         """
 
-    if len(vulners_sorted) > max_display:
-        rows += f'<tr><td colspan="5" style="color:var(--text-muted);text-align:center">... and {len(vulners_sorted) - max_display} more vulnerabilities</td></tr>'
-
     return f"""
     <div class="glass-card">
         <div class="card-title">Vulnerability Assessment — Vulners CVE Database</div>
         <p class="summary-text" style="margin-bottom:12px">
             The Vulners NSE script matched detected service versions against the CVE database.
-            <strong style="color:var(--color-critical)">{len(vulners_sorted)} known vulnerabilities</strong>
+            <strong style="color:var(--color-info)">{len(real_cves)} unique CVEs</strong>
             identified across {len(services)} service(s):
             <strong style="color:var(--color-critical)">{crit} Critical</strong>,
             <strong style="color:var(--color-warning)">{high} High</strong>,
             <strong style="color:var(--color-info)">{med} Medium</strong>,
             <strong style="color:var(--color-pass)">{low} Low</strong>.
-            <strong style="color:var(--color-critical)">{exploits} have public exploits available.</strong>
+            <strong style="color:var(--color-critical)">{total_exploits} public exploits available</strong> across all CVEs.
         </p>
         <p class="summary-text" style="margin-bottom:16px;font-size:12px">
-            Affected services: <strong>{', '.join(services)}</strong>
+            Affected services: <strong>{', '.join(services)}</strong><br>
+            <span style="color:var(--text-muted)">IDs link to vulners.com search. Exploit counts show known public exploits per CVE.</span>
         </p>
         <div style="overflow-x:auto;max-height:600px;overflow-y:auto">
             <table class="data-table">
                 <thead>
-                    <tr><th>Severity</th><th>Vulnerability ID</th><th>CVSS</th><th>Service</th><th>Flags</th></tr>
+                    <tr><th>Severity</th><th>Vulnerability ID</th><th>CVSS</th><th>Service</th><th>Exploits</th></tr>
                 </thead>
                 <tbody>{rows}</tbody>
             </table>
         </div>
     </div>
     """
+
+
 
 
 def _build_os_section(nmap_data):
