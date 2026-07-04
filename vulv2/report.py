@@ -2,16 +2,19 @@
 """
 fingerprint_report.py - Cyber Samurai Fingerprint & Vulnerability Report Generator
 =============================================================================
-Parses nmap scan data, dirsearch results, and whatweb results from a
-domain-specific subfolder, then compiles a professional HTML report
+Parses nmap scan data, dirsearch results, and whatweb results to
+extract actionable security findings, then compiles a professional HTML report
 styled with the Cyber Samurai global_report.css theme.
 
 Usage:
     python fingerprint_report.py <domain>
-    (reads from vuln_report_function/<domain>/ folder, outputs fingerprintReport.html)
+    (reads from vuln_report_function/<domain>/ folder)
+
+    python fingerprint_report.py </absolute/path>
+    (reads from the given path directly — used by fetchVuln.sh)
 
     python fingerprint_report.py
-    (reads from vuln_report_function/ folder directly — legacy fallback)
+    (reads from vuln_report_function/ folder — legacy fallback)
 """
 
 import os
@@ -39,6 +42,7 @@ else:
 NMAP_FILE = os.path.join(DATA_DIR, "nmap_rawReport.xml")
 DIRSEARCH_FILE = os.path.join(DATA_DIR, "dirsearch_rawReport.json")
 WHATWEB_FILE = os.path.join(DATA_DIR, "whatweb_rawReport.json")
+FFUF_FILE = os.path.join(DATA_DIR, "ffuf_rawReport.json")
 OUTPUT_FILE = os.path.join(DATA_DIR, "vulnReport.html")
 CSS_PATH = os.path.join(BASE_DIR, "..", "reference", "global_report.css")
 REPORT_TITLE = "Cyber Samurai — Fingerprint & Security Assessment Report"
@@ -49,7 +53,7 @@ SCAN_DATE = datetime.now().strftime("%d %B %Y, %H:%M")
 
 def parse_nmap_scan(file_path):
     """
-    Parse nmap_rawReport.xml and extract:
+    Parse nmap_scan.xml and extract:
       - Scan metadata (target, args, start/end time)
       - Open ports with service details
       - Discovered vulnerabilities (Slowloris, missing HSTS)
@@ -475,13 +479,22 @@ def parse_whatweb_results(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
         raw = f.read().strip()
 
-    # WhatWeb --log-json outputs newline-delimited JSON (NDJSON), not a
-    # single JSON array.  Try to parse as a proper array first; if that
-    # fails, treat each non-empty line as a standalone JSON object.
-    if raw.startswith("["):
-        try:
-            data = json.loads(raw)
-        except json.JSONDecodeError:
+        # WhatWeb --log-json outputs newline-delimited JSON (NDJSON), not a
+        # single JSON array.  Try to parse as a proper array first; if that
+        # fails, treat each non-empty line as a standalone JSON object.
+        if raw.startswith("["):
+            try:
+                data = json.loads(raw)
+            except json.JSONDecodeError:
+                data = []
+                for line in raw.splitlines():
+                    line = line.strip()
+                    if line:
+                        try:
+                            data.append(json.loads(line))
+                        except json.JSONDecodeError as e:
+                            print(f"    [!] Skipping unparseable whatweb line: {e}")
+        else:
             data = []
             for line in raw.splitlines():
                 line = line.strip()
@@ -490,78 +503,235 @@ def parse_whatweb_results(file_path):
                         data.append(json.loads(line))
                     except json.JSONDecodeError as e:
                         print(f"    [!] Skipping unparseable whatweb line: {e}")
-    else:
-        data = []
-        for line in raw.splitlines():
-            line = line.strip()
-            if line:
-                try:
-                    data.append(json.loads(line))
-                except json.JSONDecodeError as e:
-                    print(f"    [!] Skipping unparseable whatweb line: {e}")
 
-    findings = []
+        findings = []
 
-    for entry in data:
-        target = entry.get("target", "Unknown")
-        http_status = entry.get("http_status", 0)
-        plugins = entry.get("plugins", {})
+        for entry in data:
+            target = entry.get("target", "Unknown")
+            http_status = entry.get("http_status", 0)
+            plugins = entry.get("plugins", {})
 
-        # Flatten plugins into readable findings
-        tech_stack = []
-        server_info = {}
-        page_metadata = {}
+            # Flatten plugins into readable findings
+            tech_stack = []
+            server_info = {}
+            page_metadata = {}
 
-        for plugin_name, plugin_data in plugins.items():
-            finding = {
-                "plugin": plugin_name,
-                "strings": plugin_data.get("string", []),
-                "module": plugin_data.get("module", []),
+            for plugin_name, plugin_data in plugins.items():
+                finding = {
+                    "plugin": plugin_name,
+                    "strings": plugin_data.get("string", []),
+                    "module": plugin_data.get("module", []),
+                }
+
+                # Categorize
+                if plugin_name in ("HTTPServer", "IP", "CloudFlare"):
+                    if plugin_name == "HTTPServer":
+                        server_info["server"] = (
+                            plugin_data.get("string", ["Unknown"])[0]
+                        )
+                    elif plugin_name == "IP":
+                        server_info["ip"] = (
+                            plugin_data.get("string", ["Unknown"])[0]
+                        )
+                    elif plugin_name == "CloudFlare":
+                        server_info["cdn"] = "Cloudflare"
+                elif plugin_name in ("Title", "X-UA-Compatible", "HTML5"):
+                    if plugin_name == "Title":
+                        page_metadata["title"] = (
+                            plugin_data.get("string", ["Untitled"])[0]
+                        )
+                    elif plugin_name == "X-UA-Compatible":
+                        page_metadata["x_ua_compatible"] = (
+                            plugin_data.get("string", ["N/A"])[0]
+                        )
+                    elif plugin_name == "HTML5":
+                        page_metadata["html5"] = True
+                else:
+                    tech_stack.append(finding)
+
+                findings.append(finding)
+
+            return {
+                "target": target,
+                "http_status": http_status,
+                "server_info": server_info,
+                "page_metadata": page_metadata,
+                "technology_stack": tech_stack,
+                "all_plugins": plugins,
             }
 
-            # Categorize
-            if plugin_name in ("HTTPServer", "IP", "CloudFlare"):
-                if plugin_name == "HTTPServer":
-                    server_info["server"] = (
-                        plugin_data.get("string", ["Unknown"])[0]
-                    )
-                elif plugin_name == "IP":
-                    server_info["ip"] = (
-                        plugin_data.get("string", ["Unknown"])[0]
-                    )
-                elif plugin_name == "CloudFlare":
-                    server_info["cdn"] = "Cloudflare"
-            elif plugin_name in ("Title", "X-UA-Compatible", "HTML5"):
-                if plugin_name == "Title":
-                    page_metadata["title"] = (
-                        plugin_data.get("string", ["Untitled"])[0]
-                    )
-                elif plugin_name == "X-UA-Compatible":
-                    page_metadata["x_ua_compatible"] = (
-                        plugin_data.get("string", ["N/A"])[0]
-                    )
-                elif plugin_name == "HTML5":
-                    page_metadata["html5"] = True
-            else:
-                tech_stack.append(finding)
+        return None
 
-            findings.append(finding)
 
-        return {
-            "target": target,
-            "http_status": http_status,
-            "server_info": server_info,
-            "page_metadata": page_metadata,
-            "technology_stack": tech_stack,
-            "all_plugins": plugins,
+# ─── FFUF Parsing ─────────────────────────────────────────────────────────
+
+def parse_ffuf_results(file_path):
+    """
+    Parse ffuf_rawReport.json and extract:
+      - Scan metadata (command, timestamp)
+      - Discovered endpoints with categorised risk levels
+      - Sensitive file exposure (.git, .env, backups, configs)
+      - Statistics by content type and status
+
+    Returns a structured dictionary.
+    """
+    if not os.path.exists(file_path):
+        print(f"[-] FFUF JSON not found: {file_path}")
+        return None
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    commandline = data.get("commandline", "N/A")
+    scan_time = data.get("time", "Unknown")
+    all_results = data.get("results", [])
+
+    # ── Categorise findings by risk ──
+    critical = []    # .git exposure, .env, config leaks
+    high = []        # Backup files, database dumps, credentials
+    medium = []      # Admin panels, debug endpoints, info disclosure
+    low = []         # Standard pages (index, robots, sitemap, etc.)
+
+    # Known sensitive patterns
+    critical_patterns = [
+        ".git/", ".svn/", ".hg/", ".env", "id_rsa", "id_ed25519",
+        "wp-config.php", "config.php", "credentials", "password",
+    ]
+    high_patterns = [
+        ".bak", ".backup", ".sql", ".dump", ".tar.gz", ".zip",
+        "phpinfo", "wp-admin", "administrator", "admin.php",
+        "debug", "test.php", ".log",
+    ]
+    medium_patterns = [
+        "login", "signin", "dashboard", "panel", "console",
+        ".htaccess", ".htpasswd", "crossdomain.xml", "clientaccesspolicy.xml",
+    ]
+
+    content_type_counts = {}
+    status_counts = {}
+
+    for entry in all_results:
+        inp = entry.get("input", {})
+        # Extract the actual fuzzed value (exclude FFUFHASH)
+        fuzz_values = {k: v for k, v in inp.items() if k != "FFUFHASH"}
+        fuzz_word = list(fuzz_values.values())[0] if fuzz_values else "?"
+
+        status = entry.get("status", 0)
+        length = entry.get("length", 0)
+        words = entry.get("words", 0)
+        lines = entry.get("lines", 0)
+        content_type = entry.get("content-type", "")
+        redirect = entry.get("redirectlocation", "")
+        url = entry.get("url", "")
+        host = entry.get("host", "")
+        duration_ns = entry.get("duration", 0)
+
+        # Count by status and content type
+        status_counts[status] = status_counts.get(status, 0) + 1
+        ct_key = content_type.split(";")[0].strip() if content_type else "unknown"
+        content_type_counts[ct_key] = content_type_counts.get(ct_key, 0) + 1
+
+        finding = {
+            "fuzz_word": fuzz_word,
+            "url": url,
+            "host": host,
+            "status": status,
+            "length": length,
+            "words": words,
+            "lines": lines,
+            "content_type": content_type,
+            "redirect": redirect if redirect else None,
+            "duration_ms": round(duration_ns / 1e6, 1) if duration_ns else 0,
         }
 
-    return None
+        # Classify risk level
+        fuzz_lower = fuzz_word.lower()
+        url_lower = url.lower()
+
+        is_critical = any(p in url_lower for p in critical_patterns)
+        is_high = any(p in fuzz_lower for p in high_patterns)
+        is_medium = any(p in fuzz_lower for p in medium_patterns)
+
+        if is_critical:
+            critical.append(finding)
+        elif is_high:
+            high.append(finding)
+        elif is_medium:
+            medium.append(finding)
+        else:
+            low.append(finding)
+
+    # ── Build .git exposure summary (cross-check with FFUF) ──
+    git_findings = [f for f in critical if ".git" in f.get("url", "")]
+    git_summary = _summarize_ffuf_git_exposure(git_findings)
+
+    # ── Build overall risk summary ──
+    total_findings = len(all_results)
+    sensitive_count = len(critical) + len(high)
+
+    return {
+        "scan_info": {
+            "command": commandline,
+            "time": scan_time,
+        },
+        "total_findings": total_findings,
+        "sensitive_count": sensitive_count,
+        "critical": critical,
+        "high": high,
+        "medium": medium,
+        "low": low,
+        "git_findings": git_findings,
+        "git_summary": git_summary,
+        "status_counts": status_counts,
+        "content_type_counts": content_type_counts,
+        "all_results": all_results,
+    }
+
+
+def _summarize_ffuf_git_exposure(git_findings):
+    """Produce a human-readable summary of .git exposure from FFUF results."""
+    if not git_findings:
+        return None
+
+    exposed_files = []
+    for f in git_findings:
+        path = f["url"].split(".git")[-1] if ".git" in f["url"] else f["url"]
+        exposed_files.append({
+            "url": f["url"],
+            "path": path,
+            "size_bytes": f["length"],
+            "content_type": f["content_type"],
+            "status": f["status"],
+        })
+
+    # Determine risk level
+    risk_level = "HIGH"
+    has_head = any("HEAD" in f["path"] for f in exposed_files)
+    has_config = any("config" in f["path"] for f in exposed_files)
+    has_description = any("description" in f["path"] for f in exposed_files)
+
+    if has_head and has_config:
+        risk_level = "CRITICAL"
+    elif has_head or (has_config and has_description):
+        risk_level = "HIGH"
+
+    return {
+        "risk_level": risk_level,
+        "exposed_file_count": len(exposed_files),
+        "exposed_files": exposed_files,
+        "total_git_hits": len(git_findings),
+        "summary_text": (
+            f"FFUF directory brute-force discovered {len(exposed_files)} publicly "
+            f"accessible Git repository files on the target. These files expose "
+            f"internal repository structure, commit history, and metadata. "
+            f"This is a {risk_level} severity finding."
+        ),
+    }
 
 
 # ─── HTML Report Builder ─────────────────────────────────────────────────────
 
-def build_html_report(nmap_data, dirsearch_data, whatweb_data, output_path):
+def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output_path):
     """
     Compile all parsed findings into a professional HTML report
     styled with the Cyber Samurai global_report.css theme.
@@ -576,7 +746,7 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, output_path):
     """
     # Derive overall risk score
     risk_score, risk_label = _calculate_risk_score(
-        nmap_data, dirsearch_data, whatweb_data
+        nmap_data, dirsearch_data, whatweb_data, ffuf_data
     )
 
     # ── Determine scan target ──
@@ -846,12 +1016,16 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, output_path):
                         <span class="stat-val stat-pass">{_tech_count(whatweb_data)}</span>
                         <span class="stat-lbl">Technologies</span>
                     </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-info">{_ffuf_endpoint_count(ffuf_data)}</span>
+                        <span class="stat-lbl">Assets Discovered</span>
+                    </div>
                 </div>
             </div>
 
             <div class="glass-card card-blue">
                 <div class="card-title">Key Findings Summary</div>
-                {_build_key_findings(nmap_data, dirsearch_data, whatweb_data)}
+                {_build_key_findings(nmap_data, dirsearch_data, whatweb_data, ffuf_data)}
             </div>
         </div>
 
@@ -862,6 +1036,7 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, output_path):
             <button class="tab-btn" onclick="switchTab('tab-dirsearch')">Directory Enum</button>
             <button class="tab-btn" onclick="switchTab('tab-git')">.git Exposure</button>
             <button class="tab-btn" onclick="switchTab('tab-tech')">Tech Fingerprint</button>
+            <button class="tab-btn" onclick="switchTab('tab-ffuf')">Asset Discovery</button>
             <button class="tab-btn" onclick="switchTab('tab-headers')">Security Headers</button>
         </div>
 
@@ -892,6 +1067,12 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, output_path):
         <div class="tab-content" id="tab-tech">
             <h2 class="section-title">Technology Fingerprint</h2>
             {_build_tech_fingerprint_section(whatweb_data)}
+        </div>
+
+        <!-- ═══ Tab: Asset Discovery (FFUF) ═══ -->
+        <div class="tab-content" id="tab-ffuf">
+            <h2 class="section-title">Asset &amp; Endpoint Discovery</h2>
+            {_build_ffuf_section(ffuf_data)}
         </div>
 
         <!-- ═══ Tab: Security Header Analysis ═══ -->
@@ -944,7 +1125,7 @@ def _risk_color(score):
     return "var(--color-pass)"
 
 
-def _calculate_risk_score(nmap_data, dirsearch_data, whatweb_data):
+def _calculate_risk_score(nmap_data, dirsearch_data, whatweb_data, ffuf_data=None):
     """Compute a weighted risk score 0-100 from findings."""
     score = 0
 
@@ -967,7 +1148,7 @@ def _calculate_risk_score(nmap_data, dirsearch_data, whatweb_data):
         non_standard = [p for p in open_ports if p["port"] not in standard]
         score += len(non_standard) * 3
 
-    # .git exposure
+    # .git exposure (dirsearch)
     if dirsearch_data and dirsearch_data.get("git_exposure"):
         score += len(dirsearch_data["git_exposure"]) * 2
         if dirsearch_data.get("git_summary"):
@@ -975,6 +1156,19 @@ def _calculate_risk_score(nmap_data, dirsearch_data, whatweb_data):
                 score += 25
             elif dirsearch_data["git_summary"]["risk_level"] == "HIGH":
                 score += 15
+
+    # FFUF findings — critical exposures (.git, .env, etc.)
+    if ffuf_data:
+        critical_count = len(ffuf_data.get("critical", []))
+        high_count = len(ffuf_data.get("high", []))
+        score += critical_count * 6
+        score += high_count * 3
+        # FFUF .git exposure
+        if ffuf_data.get("git_summary"):
+            if ffuf_data["git_summary"]["risk_level"] == "CRITICAL":
+                score += 20
+            elif ffuf_data["git_summary"]["risk_level"] == "HIGH":
+                score += 12
 
     score = min(score, 100)
 
@@ -1008,6 +1202,13 @@ def _git_exposed_count(dirsearch_data):
     return 0
 
 
+def _git_exposed_from_ffuf_count(ffuf_data):
+    """Count .git exposures from FFUF findings only."""
+    if ffuf_data and ffuf_data.get("git_findings"):
+        return len(ffuf_data["git_findings"])
+    return 0
+
+
 def _tech_count(whatweb_data):
     if whatweb_data and whatweb_data.get("technology_stack"):
         return len(whatweb_data["technology_stack"])
@@ -1016,14 +1217,44 @@ def _tech_count(whatweb_data):
 
 # ─── HTML Section Builders ───────────────────────────────────────────────────
 
-def _build_key_findings(nmap_data, dirsearch_data, whatweb_data):
+def _ffuf_endpoint_count(ffuf_data):
+    """Count total FFUF-discovered endpoints."""
+    if ffuf_data:
+        return ffuf_data.get("total_findings", 0)
+    return 0
+
+
+def _ffuf_git_exposed_count(ffuf_data):
+    """Count .git exposures from FFUF findings."""
+    if ffuf_data and ffuf_data.get("git_findings"):
+        return len(ffuf_data["git_findings"])
+    return 0
+
+
+def _build_key_findings(nmap_data, dirsearch_data, whatweb_data, ffuf_data=None):
     """Build the key findings summary for the dashboard."""
     items = []
 
-    # .git exposure
+    # .git exposure (dirsearch)
     if dirsearch_data and dirsearch_data.get("git_summary"):
         summary = dirsearch_data["git_summary"]
         items.append(f"""\n            <div class="finding-row finding-severity-critical">\n                <span class="finding-label">Git Exposure</span>\n                <span class="finding-value">\n                    <span class="badge badge-red">{summary['risk_level']}</span>\n                    <span class="finding-text">{summary['exposed_file_count']} Git files publicly accessible &mdash; source code and config leakage risk.</span>\n                </span>\n            </div>\n        """)
+
+    # .git / sensitive file exposure from FFUF
+    if ffuf_data:
+        git_summary = ffuf_data.get("git_summary")
+        if git_summary:
+            risk_badge = "badge-red" if git_summary["risk_level"] == "CRITICAL" else "badge-yellow"
+            items.append(f"""\n            <div class="finding-row finding-severity-high">\n                <span class="finding-label">FFUF Discovery</span>\n                <span class="finding-value">\n                    <span class="badge {risk_badge}">{git_summary['risk_level']}</span>\n                    <span class="finding-text">{git_summary['exposed_file_count']} .git files exposed via directory brute-force — repository structure and metadata leaked.</span>\n                </span>\n            </div>\n        """)
+        # Other critical/sensitive FFUF findings (non-git)
+        critical = ffuf_data.get("critical", [])
+        non_git_critical = [c for c in critical if ".git" not in c.get("url", "")]
+        if non_git_critical:
+            items.append(f"""\n            <div class="finding-row finding-severity-high">\n                <span class="finding-label">Sensitive Endpoints</span>\n                <span class="finding-value">\n                    <span class="badge badge-red">CRITICAL</span>\n                    <span class="finding-text">{len(non_git_critical)} sensitive endpoints discovered: {', '.join(c['fuzz_word'] for c in non_git_critical[:5])}</span>\n                </span>\n            </div>\n        """)
+        # Endpoint count
+        total = ffuf_data.get("total_findings", 0)
+        if total > 0:
+            items.append(f"""\n            <div class="finding-row finding-severity-low">\n                <span class="finding-label">Asset Discovery</span>\n                <span class="finding-value">\n                    <span class="badge badge-green">INFO</span>\n                    <span class="finding-text">{total} endpoints discovered via directory brute-force scan.</span>\n                </span>\n            </div>\n        """)
 
     # Vulnerabilities from nmap
     if nmap_data and nmap_data.get("host"):
@@ -1481,6 +1712,151 @@ def _build_security_headers_section(nmap_data):
     return cards
 
 
+def _build_ffuf_section(ffuf_data):
+    """Build the Asset Discovery section from FFUF results."""
+    if not ffuf_data:
+        return '<div class="glass-card"><p class="summary-text">No FFUF directory brute-force data available.</p></div>'
+
+    total = ffuf_data.get("total_findings", 0)
+    critical = ffuf_data.get("critical", [])
+    high = ffuf_data.get("high", [])
+    medium = ffuf_data.get("medium", [])
+    low = ffuf_data.get("low", [])
+    git_summary = ffuf_data.get("git_summary")
+    scan_info = ffuf_data.get("scan_info", {})
+
+    # ── .git exposure banner (if applicable) ──
+    git_html = ""
+    if git_summary:
+        git_html = f"""
+        <div class="glass-card card-red" style="margin-bottom:20px">
+            <div class="card-title">.git Repository Exposure via FFUF <span class="badge badge-red">{git_summary['risk_level']}</span></div>
+            <div class="highlight-box">
+                {html_escape(git_summary['summary_text'])}
+            </div>
+            <h4 style="color:var(--text-secondary);font-size:14px;margin:16px 0 8px 0">
+                Exposed Git Files ({git_summary['exposed_file_count']} files)
+            </h4>
+    """
+
+        for f in git_summary.get("exposed_files", []):
+            git_html += f"""
+            <div class="exposure-card exposed-file">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <strong style="font-family:monospace;font-size:12px;color:var(--color-critical)">{html_escape(f['path'])}</strong>
+                    <span class="badge badge-red">EXPOSED</span>
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">
+                    Size: {f['size_bytes']:,} bytes | Type: {html_escape(f['content_type'])} | Status: {f['status']}
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);word-break:break-all;margin-top:2px">
+                    {html_escape(f['url'])}
+                </div>
+            </div>
+        """
+
+        git_html += """
+            <div class="highlight-box" style="margin-top:16px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15)">
+                <strong style="color:var(--color-pass)">Remediation:</strong> Block access to <code>/.git/</code> at the web server level.
+                Never deploy <code>.git</code> directories to production. Rotate any credentials potentially exposed in commit history.
+            </div>
+        </div>
+        """
+
+    # ── Build categorized results table ──
+    def _build_finding_rows(findings, severity_label, badge_class):
+        if not findings:
+            return ""
+        rows = ""
+        for entry in findings:
+            sc = entry["status"]
+            sc_badge = "badge-red" if sc == 200 else "badge-yellow"
+            rows += f"""
+                <tr>
+                    <td><span class="badge {sc_badge}" style="font-size:10px">{sc}</span></td>
+                    <td class="mono" style="font-size:11px">{html_escape(entry['url'])}</td>
+                    <td>{html_escape(entry.get('content_type', ''))}</td>
+                    <td>{entry['length']:,}</td>
+                    <td>{entry.get('duration_ms', 0)}ms</td>
+                </tr>
+            """
+        header_color = {
+            "CRITICAL": "var(--color-critical)",
+            "HIGH": "var(--color-warning)",
+            "MEDIUM": "var(--color-info)",
+            "LOW": "var(--color-pass)",
+        }.get(severity_label, "var(--text-secondary)")
+
+        return f"""
+        <div style="margin-bottom:20px">
+            <h4 style="color:{header_color};font-size:14px;margin:12px 0 6px 0">
+                <span class="badge {badge_class}">{severity_label}</span> — {len(findings)} finding(s)
+            </h4>
+            <div style="overflow-x:auto;max-height:400px;overflow-y:auto">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>URL</th>
+                            <th>Content Type</th>
+                            <th>Size (bytes)</th>
+                            <th>Response</th>
+                        </tr>
+                    </thead>
+                    <tbody>{rows}</tbody>
+                </table>
+            </div>
+        </div>
+        """
+
+    critical_rows = _build_finding_rows(critical, "CRITICAL", "badge-red")
+    high_rows = _build_finding_rows(high, "HIGH", "badge-yellow")
+    medium_rows = _build_finding_rows(medium, "MEDIUM", "badge-blue")
+    low_rows = _build_finding_rows(low, "LOW", "badge-green")
+
+    # Status breakdown
+    status_html = ""
+    for status, count in sorted(ffuf_data.get("status_counts", {}).items()):
+        badge_class = "badge-red" if status == 200 else "badge-yellow"
+        status_html += f'<span class="badge {badge_class}">{status}: {count}</span> '
+
+    # Content type breakdown
+    ct_html = ""
+    for ct, count in sorted(ffuf_data.get("content_type_counts", {}).items(), key=lambda x: -x[1]):
+        ct_html += f'<span class="tech-tag">{html_escape(ct)} ({count})</span> '
+
+    return f"""
+    <div class="glass-card">
+        <div class="card-title">FFUF Directory Brute-Force Results</div>
+        <p class="summary-text" style="margin-bottom:12px">
+            FFUF scanned the target with a common wordlist, discovering
+            <strong style="color:var(--color-info)">{total} endpoints</strong>.
+            <strong style="color:var(--color-critical)">{len(critical)} critical</strong>,
+            <strong style="color:var(--color-warning)">{len(high)} high</strong>,
+            <strong style="color:var(--color-info)">{len(medium)} medium</strong>, and
+            {len(low)} low-severity findings.
+        </p>
+        <div style="margin-bottom:12px">
+            <span style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Status Breakdown: </span>
+            {status_html}
+        </div>
+        <div style="margin-bottom:12px">
+            <span style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Content Types: </span>
+            {ct_html}
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:16px;word-break:break-all">
+            <strong>Command:</strong> <code>{html_escape(scan_info.get('command', 'N/A'))}</code>
+        </div>
+    </div>
+
+    {git_html}
+    {critical_rows}
+    {high_rows}
+    {medium_rows}
+    {low_rows}
+    """
+
+
 # ─── Main ────────────────────────────────────────────────────────────────────
 
 def main():
@@ -1501,17 +1877,8 @@ def main():
     else:
         print("    ⚠ No Nmap data loaded")
 
-    # ── Step 2: Parse Dirsearch JSON ──
-    print("[*] Parsing Dirsearch results...")
-    dirsearch_data = parse_dirsearch_results(DIRSEARCH_FILE)
-    if dirsearch_data:
-        tp = dirsearch_data.get("true_positives_count", 0)
-        git = len(dirsearch_data.get("git_exposure", []))
-        print(f"    → Found {tp} true positives, {git} .git exposure hits")
-    else:
-        print("    ⚠ No Dirsearch data loaded")
 
-    # ── Step 3: Parse WhatWeb JSON ──
+    # ── Step 2: Parse WhatWeb JSON ──
     print("[*] Parsing WhatWeb results...")
     whatweb_data = parse_whatweb_results(WHATWEB_FILE)
     if whatweb_data:
@@ -1520,9 +1887,20 @@ def main():
     else:
         print("    ⚠ No WhatWeb data loaded")
 
+    # ── Step 3: Parse FFUF JSON ──
+    print("[*] Parsing FFUF directory brute-force results...")
+    ffuf_data = parse_ffuf_results(FFUF_FILE)
+    if ffuf_data:
+        total = ffuf_data.get("total_findings", 0)
+        critical = len(ffuf_data.get("critical", []))
+        git = len(ffuf_data.get("git_findings", []))
+        print(f"    → Discovered {total} endpoints, {critical} critical, {git} .git exposures")
+    else:
+        print("    ⚠ No FFUF data loaded")
+
     # ── Step 4: Build HTML Report ──
     print(f"[*] Compiling HTML report → {OUTPUT_FILE}")
-    build_html_report(nmap_data, dirsearch_data, whatweb_data, OUTPUT_FILE)
+    build_html_report(nmap_data, whatweb_data, ffuf_data, OUTPUT_FILE)
 
     # ── Summary ──
     print()

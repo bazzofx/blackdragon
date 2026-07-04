@@ -163,7 +163,7 @@ nmap -sS -sV -O -p "$OPEN_PORTS" \
     -T4 -A \
     --script default,vuln,vulners \
     $PROXY_CMD \
-    -oX "${output_dir}/nmap_scan.xml" \
+    -oX "${output_dir}/nmap_rawReport.xml" \
     "$ip"
 
 # ==========================================
@@ -171,7 +171,7 @@ nmap -sS -sV -O -p "$OPEN_PORTS" \
 # ==========================================
 if [ $? -eq 0 ]; then
     echo "[+] Scan completed successfully!"
-    echo "[+] XML report: ${output_dir}/nmap_scan.xml"
+    echo "[+] XML report: ${output_dir}/nmap_rawReport.xml"
 
     # Extract summary from XML
     echo -e "\n[*] Scan Summary:"
@@ -199,7 +199,7 @@ ffuf -u "https://$domain/FUZZ" \
     -w /home/kali/wordlist/pblist/fuzzing/common.txt \
     -fc 403,404,429,500,503 \
     -t 30 \
-    -o "${output_dir}/ffuf_report.json" \
+    -o "${output_dir}/ffuf_rawReport.json" \
     -of json \
     -c \
     -v \
@@ -245,7 +245,7 @@ echo "[+] All scans complete. Results saved in: ${output_dir}/"
 echo "[*] Summary:"
 echo "      whatweb   -> ${output_dir}/whatweb_rawReport.json"
 echo "      nmap      -> ${output_dir}/nmap_rawReport.xml"
-echo "      dirsearch -> ${output_dir}/dirsearch_rawReport.json"
+echo "      ffuf      -> ${output_dir}/ffuf_rawReport.json"
 #echo "      nikto     -> ${output_dir}/nikto_report.html"
 #echo "      nuclei    -> ${output_dir}/nuclei_rawReport.*"
 
@@ -254,5 +254,5 @@ if [[ -n "$proxy" ]]; then
 fi
 
 
-python3 fingerprint_report.py "$output_dir"
+python3 report.py "$output_dir"
 echo "END"
