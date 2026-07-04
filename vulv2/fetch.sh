@@ -212,9 +212,9 @@ ffuf -u "https://$domain/FUZZ" \
 # dangerous files/CGIs, misconfigurations, and over 6,700 potentially harmful
 # files/programs. Uses SSL/TLS detection (-ssl), all tuning test types
 # (1-6, 9a-b-c), verbose HTML output (-Display V), with a 60-minute timeout limit.
-echo ""
-echo "[*] Running nikto against $domain ..."
-nikto -h "$domain" -ssl -Tuning 123456789abc $proxy_nikto -o "${output_dir}/nikto_report.html" -Format htm -Display V -timeout 15 -maxtime 3600
+#echo ""
+#echo "[*] Running nikto against $domain ..."
+#nikto -h "$domain" -ssl -Tuning 123456789abc $proxy_nikto -o "${output_dir}/nikto_report.html" -Format htm -Display V -timeout 15 -maxtime 3600
 
 ###############################
 #           NUCLEI
@@ -223,9 +223,9 @@ nikto -h "$domain" -ssl -Tuning 123456789abc $proxy_nikto -o "${output_dir}/nikt
 # Fast vulnerability scanning using YAML-based templates, targeting known CVEs.
 # Scans for critical-severity vulnerabilities using CVE-focused templates (-t cves/).
 # Outputs raw results in text format (-o) and JSON format (-je) for further analysis.
-echo ""
-echo "[*] Running nuclei against $domain ..."
-nuclei -u "http://$domain" -t cves/ -severity critical $proxy_nuclei -o "${output_dir}/nuclei_rawReport.txt" -je "${output_dir}/nuclei_rawReport.json"
+#echo ""
+#echo "[*] Running nuclei against $domain ..."
+#nuclei -u "http://$domain" -t cves/ -severity critical $proxy_nuclei -o "${output_dir}/nuclei_rawReport.txt" -je "${output_dir}/nuclei_rawReport.json"
 
 #--- If the server is identified as WordPress, run WPScan ---
 ###############################
