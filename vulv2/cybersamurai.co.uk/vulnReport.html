@@ -167,6 +167,66 @@
             letter-spacing: 0.5px;
         }
 
+        .key-findings-subsection {
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin: 16px 0 6px 0;
+            padding-bottom: 4px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .pie-chart-container {
+            margin-bottom: 18px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .pie-chart-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .inner-tabs-nav {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 0;
+        }
+        .inner-tab-btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.15s;
+        }
+        .inner-tab-btn.active {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border-bottom-color: transparent;
+            font-weight: 600;
+        }
+        .inner-tab-btn:hover {
+            color: var(--text-primary);
+        }
+        .inner-tab-content {
+            display: none;
+        }
+        .inner-tab-content.active {
+            display: block;
+        }
+
         /* Print styles */
                 @media print {
                     body { background: #fff; color: #000; }
@@ -213,7 +273,7 @@
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">Report Generated</span>
-                        <span class="meta-val">04 July 2026, 11:04</span>
+                        <span class="meta-val">04 July 2026, 14:26</span>
                     </div>
                 </div>
             </div>
@@ -228,9 +288,14 @@
                     <span class="score-label" style="color:var(--color-critical)">CRITICAL</span>
                 </div>
                 <div class="stat-grid" style="margin-top:16px">
+                    <div class="stat-card" style="grid-column:1/-1;text-align:center;padding:8px 12px">
+                        <span class="stat-lbl" style="font-size:13px;color:var(--text-secondary);text-transform:none;letter-spacing:0">
+                            12 unique CVEs across 1 service: 3 Critical, 5 High, 4 Medium, 3 Low
+                        </span>
+                    </div>
                     <div class="stat-card">
-                        <span class="stat-val stat-critical">86</span>
-                        <span class="stat-lbl">CVEs / Vulns</span>
+                        <span class="stat-val stat-critical">12</span>
+                        <span class="stat-lbl">Unique CVEs</span>
                     </div>
                     <div class="stat-card">
                         <span class="stat-val stat-info">2</span>
@@ -253,114 +318,17 @@
 
             <div class="glass-card card-blue">
                 <div class="card-title">Key Findings Summary</div>
-                
-            <div class="finding-row finding-severity-critical">
-                <span class="finding-label">Git Exposed</span>
-                <span class="finding-value">
-                    <span class="badge badge-red">CRITICAL</span>
-                    <span class="finding-text">Nmap discovered .git repo &mdash; 3 files exposed (.git/description, .git/config, .git/info/exclude). Remote: https://github.com/bazzofx/cybersamurai.git</span>
-                </span>
-            </div>
-        
+                <h4 class="key-findings-subsection">Vulnerabilities &amp; Exposures</h4>
+<div class="finding-row finding-severity-high"><span class="finding-label">CVE Database</span><span class="finding-value"><span class="badge badge-red">8 HIGH+</span><span class="finding-text">12 unique CVEs across services — 3 critical, 5 high, 4 medium, 3 low. 250 public exploits catalogued.</span></span></div>
+<div class="finding-row finding-severity-high"><span class="finding-label">CVE / Vulners</span><span class="finding-value"><span class="badge badge-red">EXPLOIT AVAILABLE</span><span class="finding-text">PACKETSTORM:179290 (CVSS 10.0)</span></span></div>
+<div class="finding-row finding-severity-high"><span class="finding-label">CVE / Vulners</span><span class="finding-value"><span class="badge badge-red">EXPLOIT AVAILABLE</span><span class="finding-text">1EEC8894-D2F7-547C-827C-915BE866875C (CVSS 10.0)</span></span></div>
+<div class="finding-row finding-severity-high"><span class="finding-label">CVE / Vulners</span><span class="finding-value"><span class="badge badge-red">EXPLOIT AVAILABLE</span><span class="finding-text">09B905C6-CD97-54E6-AD97-B0DD1AC4771B (CVSS 10.0)</span></span></div>
+<div class="finding-row finding-severity-high"><span class="finding-label">CVE / Vulners</span><span class="finding-value"><span class="badge badge-red">EXPLOIT AVAILABLE</span><span class="finding-text">33D623F7-98E0-5F75-80FA-81AA666D1340 (CVSS 9.8)</span></span></div>
+<div class="finding-row finding-severity-high"><span class="finding-label">CVE / Vulners</span><span class="finding-value"><span class="badge badge-red">EXPLOIT AVAILABLE</span><span class="finding-text">F8981437-1287-5B69-93F1-657DFB1DCE59 (CVSS 9.3)</span></span></div>
+<div class="finding-row finding-severity-high"><span class="finding-label">Vulnerability</span><span class="finding-value"><span class="badge badge-yellow">VULNERABLE</span><span class="finding-text">Apache byterange filter DoS</span></span></div>
+<div class="finding-row finding-severity-high"><span class="finding-label">Git Exposure</span><span class="finding-value"><span class="badge badge-red">EXPOSED</span><span class="finding-text">Publicly Accessible .git Repository</span></span></div>
+<div class="finding-row finding-severity-critical"><span class="finding-label">Git Exposed</span><span class="finding-value"><span class="badge badge-red">CRITICAL</span><span class="finding-text">Nmap http-git: 3 files exposed (.git/description, .git/config, .git/info/exclude)</span></span></div>
 
-            <div class="finding-row finding-severity-high">
-                <span class="finding-label">CVE Findings</span>
-                <span class="finding-value">
-                    <span class="badge badge-red">86 CVEs</span>
-                    <span class="finding-text">9 critical, 63 high &mdash; 74 with public exploits available.</span>
-                </span>
-            </div>
-        
-
-            <div class="finding-row finding-severity-high">
-                <span class="finding-label">FFUF Discovery</span>
-                <span class="finding-value">
-                    <span class="badge badge-yellow">HIGH</span>
-                    <span class="finding-text">3 .git files exposed via directory brute-force — repository structure and metadata leaked.</span>
-                </span>
-            </div>
-        
-
-            <div class="finding-row finding-severity-low">
-                <span class="finding-label">Asset Discovery</span>
-                <span class="finding-value">
-                    <span class="badge badge-green">INFO</span>
-                    <span class="finding-text">7 endpoints discovered via directory brute-force scan.</span>
-                </span>
-            </div>
-        
-
-                <div class="finding-row finding-severity-high">
-                    <span class="finding-label">Vulnerability</span>
-                    <span class="finding-value">
-                        <span class="badge badge-yellow">EXPLOIT AVAILABLE</span>
-                        <span class="finding-text">PACKETSTORM:179290 (CVSS 10.0) (PACKETSTORM:179290)</span>
-                    </span>
-                </div>
-            
-
-                <div class="finding-row finding-severity-high">
-                    <span class="finding-label">Vulnerability</span>
-                    <span class="finding-value">
-                        <span class="badge badge-yellow">EXPLOIT AVAILABLE</span>
-                        <span class="finding-text">1EEC8894-D2F7-547C-827C-915BE866875C (CVSS 10.0) (1EEC8894-D2F7-547C-827C-915BE866875C)</span>
-                    </span>
-                </div>
-            
-
-                <div class="finding-row finding-severity-high">
-                    <span class="finding-label">Vulnerability</span>
-                    <span class="finding-value">
-                        <span class="badge badge-yellow">EXPLOIT AVAILABLE</span>
-                        <span class="finding-text">09B905C6-CD97-54E6-AD97-B0DD1AC4771B (CVSS 10.0) (09B905C6-CD97-54E6-AD97-B0DD1AC4771B)</span>
-                    </span>
-                </div>
-            
-
-                <div class="finding-row finding-severity-high">
-                    <span class="finding-label">Vulnerability</span>
-                    <span class="finding-value">
-                        <span class="badge badge-yellow">EXPLOIT AVAILABLE</span>
-                        <span class="finding-text">33D623F7-98E0-5F75-80FA-81AA666D1340 (CVSS 9.8) (33D623F7-98E0-5F75-80FA-81AA666D1340)</span>
-                    </span>
-                </div>
-            
-
-                <div class="finding-row finding-severity-high">
-                    <span class="finding-label">Vulnerability</span>
-                    <span class="finding-value">
-                        <span class="badge badge-yellow">EXPLOIT AVAILABLE</span>
-                        <span class="finding-text">F8981437-1287-5B69-93F1-657DFB1DCE59 (CVSS 9.3) (F8981437-1287-5B69-93F1-657DFB1DCE59)</span>
-                    </span>
-                </div>
-            
-
-                <div class="finding-row finding-severity-high">
-                    <span class="finding-label">Vulnerability</span>
-                    <span class="finding-value">
-                        <span class="badge badge-red">VULNERABLE</span>
-                        <span class="finding-text">Apache byterange filter DoS (BID:49303)</span>
-                    </span>
-                </div>
-            
-
-                <div class="finding-row finding-severity-high">
-                    <span class="finding-label">Vulnerability</span>
-                    <span class="finding-value">
-                        <span class="badge badge-yellow">EXPOSED</span>
-                        <span class="finding-text">Publicly Accessible .git Repository</span>
-                    </span>
-                </div>
-            
-
-                <div class="finding-row finding-severity-low">
-                    <span class="finding-label">Tech Stack</span>
-                    <span class="finding-value">
-                        <span class="badge badge-green">DETECTED</span>
-                        <span class="finding-text">Country, Email, nginx, Script</span>
-                    </span>
-                </div>
-            
             </div>
         </div>
 
@@ -469,9 +437,9 @@
             <h2 class="section-title">Asset &amp; Endpoint Discovery</h2>
             
     <div class="glass-card">
-        <div class="card-title">FFUF Directory Brute-Force Results</div>
+        <div class="card-title">Web Discovery</div>
         <p class="summary-text" style="margin-bottom:12px">
-            FFUF scanned the target with a common wordlist, discovering
+            During the scan the following was identified:
             <strong style="color:var(--color-info)">7 endpoints</strong>.
             <strong style="color:var(--color-critical)">3 critical</strong>,
             <strong style="color:var(--color-warning)">0 high</strong>,
@@ -479,23 +447,16 @@
             4 low-severity findings.
         </p>
         <div style="margin-bottom:12px">
-            <span style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Status Breakdown: </span>
-            <span class="badge badge-red">200: 7</span> 
-        </div>
-        <div style="margin-bottom:12px">
             <span style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Content Types: </span>
             <span class="tech-tag">application/octet-stream (3)</span> <span class="tech-tag">application/json (1)</span> <span class="tech-tag">text/html (1)</span> <span class="tech-tag">text/plain (1)</span> <span class="tech-tag">text/xml (1)</span> 
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:16px;word-break:break-all">
-            <strong>Command:</strong> <code>ffuf -u https://cybersamurai.co.uk/FUZZ -w /home/kali/wordlist/pblist/fuzzing/common.txt -fc 403,404,429,500,503 -t 30 -o /home/kali/Documents/pbtools/blackdragon_dev/test/ffuf_report.json -of json -c -v -r</code>
         </div>
     </div>
 
     
         <div class="glass-card card-red" style="margin-bottom:20px">
-            <div class="card-title">.git Repository Exposure via FFUF <span class="badge badge-red">HIGH</span></div>
+            <div class="card-title">.git Repository <span class="badge badge-red">HIGH</span></div>
             <div class="highlight-box">
-                FFUF directory brute-force discovered 3 publicly accessible Git repository files on the target. These files expose internal repository structure, commit history, and metadata. This is a HIGH severity finding.
+                The Security Assessment revealed there are  3 publicly accessible Git repository files on the target. These files expose internal repository structure, commit history, and metadata. This is a HIGH severity finding.
             </div>
             <h4 style="color:var(--text-secondary);font-size:14px;margin:16px 0 8px 0">
                 Exposed Git Files (3 files)
@@ -798,6 +759,810 @@
             </table>
         </div>
     </div>
+
+    <!-- ═══ Inner Tab: All Vulners Raw Entries ═══ -->
+    <div class="inner-tabs-nav" style="margin-top:16px">
+        <button class="inner-tab-btn active" onclick="switchInnerTab(this, 'inner-vulners-all')">All Vulners Entries</button>
+    </div>
+    
+    <div class="inner-tab-content active" id="inner-vulners-all" style="margin-top:0">
+        <div class="glass-card">
+            <div class="card-title">All Vulners Entries (86 raw)</div>
+            <p class="summary-text" style="margin-bottom:12px;font-size:12px">
+                Complete list of all vulnerability database entries matched against detected service versions.
+                Each ID links to its vulners.com page for full details including exploit code and remediation guidance.
+            </p>
+            <div style="overflow-x:auto;max-height:500px;overflow-y:auto">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Severity</th>
+                            <th>Vulners ID</th>
+                            <th>CVSS</th>
+                            <th>Type</th>
+                            <th>Service</th>
+                            <th>Link</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            <tr>
+                <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=PACKETSTORM:179290" target="_blank" style="color:var(--color-info)">PACKETSTORM:179290</a></td>
+                <td>10.0</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">packetstorm</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=PACKETSTORM:179290" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=1EEC8894-D2F7-547C-827C-915BE866875C" target="_blank" style="color:var(--color-info)">1EEC8894-D2F7-547C-827C-915BE866875C</a></td>
+                <td>10.0</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=1EEC8894-D2F7-547C-827C-915BE866875C" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=09B905C6-CD97-54E6-AD97-B0DD1AC4771B" target="_blank" style="color:var(--color-info)">09B905C6-CD97-54E6-AD97-B0DD1AC4771B</a></td>
+                <td>10.0</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=09B905C6-CD97-54E6-AD97-B0DD1AC4771B" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=33D623F7-98E0-5F75-80FA-81AA666D1340" target="_blank" style="color:var(--color-info)">33D623F7-98E0-5F75-80FA-81AA666D1340</a></td>
+                <td>9.8</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=33D623F7-98E0-5F75-80FA-81AA666D1340" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=F8981437-1287-5B69-93F1-657DFB1DCE59" target="_blank" style="color:var(--color-info)">F8981437-1287-5B69-93F1-657DFB1DCE59</a></td>
+                <td>9.3</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=F8981437-1287-5B69-93F1-657DFB1DCE59" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=CB2926E1-2355-5C82-A42A-D4F72F114F9B" target="_blank" style="color:var(--color-info)">CB2926E1-2355-5C82-A42A-D4F72F114F9B</a></td>
+                <td>9.3</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=CB2926E1-2355-5C82-A42A-D4F72F114F9B" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=B6C4923E-8565-5D3E-8E68-8D182C3DAD5C" target="_blank" style="color:var(--color-info)">B6C4923E-8565-5D3E-8E68-8D182C3DAD5C</a></td>
+                <td>9.3</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=B6C4923E-8565-5D3E-8E68-8D182C3DAD5C" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=8DEE261C-33D4-5057-BA46-E4293B705BAE" target="_blank" style="color:var(--color-info)">8DEE261C-33D4-5057-BA46-E4293B705BAE</a></td>
+                <td>9.3</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=8DEE261C-33D4-5057-BA46-E4293B705BAE" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=6FD8F914-B663-533D-8866-23313FD37804" target="_blank" style="color:var(--color-info)">6FD8F914-B663-533D-8866-23313FD37804</a></td>
+                <td>9.3</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=6FD8F914-B663-533D-8866-23313FD37804" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=PACKETSTORM:190587" target="_blank" style="color:var(--color-info)">PACKETSTORM:190587</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">packetstorm</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=PACKETSTORM:190587" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=FB2E9ED1-43D7-585C-A197-0D6628B20134" target="_blank" style="color:var(--color-info)">FB2E9ED1-43D7-585C-A197-0D6628B20134</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=FB2E9ED1-43D7-585C-A197-0D6628B20134" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=FA3992CE-9C4C-5350-8134-177126E0BD3F" target="_blank" style="color:var(--color-info)">FA3992CE-9C4C-5350-8134-177126E0BD3F</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=FA3992CE-9C4C-5350-8134-177126E0BD3F" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=EFD615F0-8F17-5471-AA83-0F491FD497AF" target="_blank" style="color:var(--color-info)">EFD615F0-8F17-5471-AA83-0F491FD497AF</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=EFD615F0-8F17-5471-AA83-0F491FD497AF" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=EC20B9C2-6857-5848-848A-A9F430D13EEB" target="_blank" style="color:var(--color-info)">EC20B9C2-6857-5848-848A-A9F430D13EEB</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=EC20B9C2-6857-5848-848A-A9F430D13EEB" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=EB13CBD6-BC93-5F14-A210-AC0B5A1D8572" target="_blank" style="color:var(--color-info)">EB13CBD6-BC93-5F14-A210-AC0B5A1D8572</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=EB13CBD6-BC93-5F14-A210-AC0B5A1D8572" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=E543E274-C20A-582A-8F8E-F8E3F381C345" target="_blank" style="color:var(--color-info)">E543E274-C20A-582A-8F8E-F8E3F381C345</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=E543E274-C20A-582A-8F8E-F8E3F381C345" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=E34FCCEC-226E-5A46-9B1C-BCD6EF7D3257" target="_blank" style="color:var(--color-info)">E34FCCEC-226E-5A46-9B1C-BCD6EF7D3257</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=E34FCCEC-226E-5A46-9B1C-BCD6EF7D3257" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=E24EEC0A-40F7-5BBC-9E4D-7B13522FF915" target="_blank" style="color:var(--color-info)">E24EEC0A-40F7-5BBC-9E4D-7B13522FF915</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=E24EEC0A-40F7-5BBC-9E4D-7B13522FF915" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=DC1BB99A-8B57-5EE5-9AC4-3D9D59BFC346" target="_blank" style="color:var(--color-info)">DC1BB99A-8B57-5EE5-9AC4-3D9D59BFC346</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=DC1BB99A-8B57-5EE5-9AC4-3D9D59BFC346" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=DA18D761-BB81-54B6-85CB-CFD73CE33621" target="_blank" style="color:var(--color-info)">DA18D761-BB81-54B6-85CB-CFD73CE33621</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=DA18D761-BB81-54B6-85CB-CFD73CE33621" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=D52370EF-02EE-507D-9212-2D8EA86CBA94" target="_blank" style="color:var(--color-info)">D52370EF-02EE-507D-9212-2D8EA86CBA94</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=D52370EF-02EE-507D-9212-2D8EA86CBA94" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=CVE-2026-35414" target="_blank" style="color:var(--color-info)">CVE-2026-35414</a></td>
+                <td>8.1</td>
+                <td><span class="badge badge-blue" style="font-size:9px">CVE</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=CVE-2026-35414" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=CVE-2026-35386" target="_blank" style="color:var(--color-info)">CVE-2026-35386</a></td>
+                <td>8.1</td>
+                <td><span class="badge badge-blue" style="font-size:9px">CVE</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=CVE-2026-35386" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=CVE-2026-35385" target="_blank" style="color:var(--color-info)">CVE-2026-35385</a></td>
+                <td>8.1</td>
+                <td><span class="badge badge-blue" style="font-size:9px">CVE</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=CVE-2026-35385" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=CVE-2024-6387" target="_blank" style="color:var(--color-info)">CVE-2024-6387</a></td>
+                <td>8.1</td>
+                <td><span class="badge badge-blue" style="font-size:9px">CVE</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=CVE-2024-6387" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=CFEBF7AF-651A-5302-80B8-F8146D5B33A6" target="_blank" style="color:var(--color-info)">CFEBF7AF-651A-5302-80B8-F8146D5B33A6</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=CFEBF7AF-651A-5302-80B8-F8146D5B33A6" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=C6FB6D50-F71D-5870-B671-D6A09A95627F" target="_blank" style="color:var(--color-info)">C6FB6D50-F71D-5870-B671-D6A09A95627F</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=C6FB6D50-F71D-5870-B671-D6A09A95627F" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=C623D558-C162-5D17-88A5-4799A2BEC001" target="_blank" style="color:var(--color-info)">C623D558-C162-5D17-88A5-4799A2BEC001</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=C623D558-C162-5D17-88A5-4799A2BEC001" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=C5B2D4A1-8C3B-5FF7-B620-EDE207B027A0" target="_blank" style="color:var(--color-info)">C5B2D4A1-8C3B-5FF7-B620-EDE207B027A0</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=C5B2D4A1-8C3B-5FF7-B620-EDE207B027A0" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=C185263E-3E67-5550-B9C0-AB9C15351960" target="_blank" style="color:var(--color-info)">C185263E-3E67-5550-B9C0-AB9C15351960</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=C185263E-3E67-5550-B9C0-AB9C15351960" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=BDA609DA-6936-50DC-A325-19FE2CC68562" target="_blank" style="color:var(--color-info)">BDA609DA-6936-50DC-A325-19FE2CC68562</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=BDA609DA-6936-50DC-A325-19FE2CC68562" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=BA3887BD-F579-53B1-A4A4-FF49E953E1C0" target="_blank" style="color:var(--color-info)">BA3887BD-F579-53B1-A4A4-FF49E953E1C0</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=BA3887BD-F579-53B1-A4A4-FF49E953E1C0" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=B1F444E0-F217-5FC0-B266-EBD48589940F" target="_blank" style="color:var(--color-info)">B1F444E0-F217-5FC0-B266-EBD48589940F</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=B1F444E0-F217-5FC0-B266-EBD48589940F" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=92254168-3B26-54C9-B9BE-B4B7563586B5" target="_blank" style="color:var(--color-info)">92254168-3B26-54C9-B9BE-B4B7563586B5</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=92254168-3B26-54C9-B9BE-B4B7563586B5" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=91752937-D1C1-5913-A96F-72F8B8AB4280" target="_blank" style="color:var(--color-info)">91752937-D1C1-5913-A96F-72F8B8AB4280</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=91752937-D1C1-5913-A96F-72F8B8AB4280" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=90104C60-A887-5437-8521-545277685F55" target="_blank" style="color:var(--color-info)">90104C60-A887-5437-8521-545277685F55</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=90104C60-A887-5437-8521-545277685F55" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=89F96BAB-1624-51B5-B09E-E771D918D1E6" target="_blank" style="color:var(--color-info)">89F96BAB-1624-51B5-B09E-E771D918D1E6</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=89F96BAB-1624-51B5-B09E-E771D918D1E6" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=81F0C05A-8650-5DE8-97E9-0D89F1807E5D" target="_blank" style="color:var(--color-info)">81F0C05A-8650-5DE8-97E9-0D89F1807E5D</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=81F0C05A-8650-5DE8-97E9-0D89F1807E5D" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=7E218A18-4BBA-5B7D-A537-D5DC12AC1D6C" target="_blank" style="color:var(--color-info)">7E218A18-4BBA-5B7D-A537-D5DC12AC1D6C</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=7E218A18-4BBA-5B7D-A537-D5DC12AC1D6C" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=7C7167AF-E780-5506-BEFA-02E5362E8E48" target="_blank" style="color:var(--color-info)">7C7167AF-E780-5506-BEFA-02E5362E8E48</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=7C7167AF-E780-5506-BEFA-02E5362E8E48" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=79FE1ED7-EB3D-5978-A12E-AAB1FFECCCAC" target="_blank" style="color:var(--color-info)">79FE1ED7-EB3D-5978-A12E-AAB1FFECCCAC</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=79FE1ED7-EB3D-5978-A12E-AAB1FFECCCAC" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=795762E3-BAB4-54C6-B677-83B0ACC2B163" target="_blank" style="color:var(--color-info)">795762E3-BAB4-54C6-B677-83B0ACC2B163</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=795762E3-BAB4-54C6-B677-83B0ACC2B163" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=774022BB-71DA-57C4-9B8F-E21D667DE4BC" target="_blank" style="color:var(--color-info)">774022BB-71DA-57C4-9B8F-E21D667DE4BC</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=774022BB-71DA-57C4-9B8F-E21D667DE4BC" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=743E5025-3BB8-5EC4-AC44-2AA679730661" target="_blank" style="color:var(--color-info)">743E5025-3BB8-5EC4-AC44-2AA679730661</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=743E5025-3BB8-5EC4-AC44-2AA679730661" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=73A19EF9-346D-5B2B-9792-05D9FE3414E2" target="_blank" style="color:var(--color-info)">73A19EF9-346D-5B2B-9792-05D9FE3414E2</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=73A19EF9-346D-5B2B-9792-05D9FE3414E2" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=6E81EAE5-2156-5ACB-9046-D792C7FAF698" target="_blank" style="color:var(--color-info)">6E81EAE5-2156-5ACB-9046-D792C7FAF698</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=6E81EAE5-2156-5ACB-9046-D792C7FAF698" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=6B78D204-22B0-5D11-8A0C-6313958B473F" target="_blank" style="color:var(--color-info)">6B78D204-22B0-5D11-8A0C-6313958B473F</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=6B78D204-22B0-5D11-8A0C-6313958B473F" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=65650BAD-813A-565D-953D-2E7932B26094" target="_blank" style="color:var(--color-info)">65650BAD-813A-565D-953D-2E7932B26094</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=65650BAD-813A-565D-953D-2E7932B26094" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=649197A2-0224-5B5C-9C4E-B5791D42A9FB" target="_blank" style="color:var(--color-info)">649197A2-0224-5B5C-9C4E-B5791D42A9FB</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=649197A2-0224-5B5C-9C4E-B5791D42A9FB" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=61DDEEE4-2146-5E84-9804-B780AA73E33C" target="_blank" style="color:var(--color-info)">61DDEEE4-2146-5E84-9804-B780AA73E33C</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=61DDEEE4-2146-5E84-9804-B780AA73E33C" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=608FA50C-AEA1-5A83-8297-A15FC7D32A7C" target="_blank" style="color:var(--color-info)">608FA50C-AEA1-5A83-8297-A15FC7D32A7C</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=608FA50C-AEA1-5A83-8297-A15FC7D32A7C" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=5D2CB1F8-DC04-5545-8BC7-29EE3DA8890E" target="_blank" style="color:var(--color-info)">5D2CB1F8-DC04-5545-8BC7-29EE3DA8890E</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=5D2CB1F8-DC04-5545-8BC7-29EE3DA8890E" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=5C81C5C1-22D4-55B3-B843-5A9A60AAB6FD" target="_blank" style="color:var(--color-info)">5C81C5C1-22D4-55B3-B843-5A9A60AAB6FD</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=5C81C5C1-22D4-55B3-B843-5A9A60AAB6FD" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=53BCD84F-BD22-5C9D-95B6-4B83627AB37F" target="_blank" style="color:var(--color-info)">53BCD84F-BD22-5C9D-95B6-4B83627AB37F</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=53BCD84F-BD22-5C9D-95B6-4B83627AB37F" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=4FB01B00-F993-5CAF-BD57-D7E290D10C1F" target="_blank" style="color:var(--color-info)">4FB01B00-F993-5CAF-BD57-D7E290D10C1F</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=4FB01B00-F993-5CAF-BD57-D7E290D10C1F" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=48603E8F-B170-57EE-85B9-67A7D9504891" target="_blank" style="color:var(--color-info)">48603E8F-B170-57EE-85B9-67A7D9504891</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=48603E8F-B170-57EE-85B9-67A7D9504891" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=4748B283-C2F6-5924-8241-342F98EEC2EE" target="_blank" style="color:var(--color-info)">4748B283-C2F6-5924-8241-342F98EEC2EE</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=4748B283-C2F6-5924-8241-342F98EEC2EE" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=452ADB71-199C-561E-B949-FCDE6288B925" target="_blank" style="color:var(--color-info)">452ADB71-199C-561E-B949-FCDE6288B925</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=452ADB71-199C-561E-B949-FCDE6288B925" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=331B2B7F-FB25-55DB-B7A4-602E42448DB7" target="_blank" style="color:var(--color-info)">331B2B7F-FB25-55DB-B7A4-602E42448DB7</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=331B2B7F-FB25-55DB-B7A4-602E42448DB7" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=1FFDA397-F480-5C74-90F3-060E1FE11B2E" target="_blank" style="color:var(--color-info)">1FFDA397-F480-5C74-90F3-060E1FE11B2E</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=1FFDA397-F480-5C74-90F3-060E1FE11B2E" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=1FA2B3DD-FC8F-5602-A1C9-2CF3F9536563" target="_blank" style="color:var(--color-info)">1FA2B3DD-FC8F-5602-A1C9-2CF3F9536563</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=1FA2B3DD-FC8F-5602-A1C9-2CF3F9536563" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=1F7A6000-9E6D-511C-B0F6-7CADB7200761" target="_blank" style="color:var(--color-info)">1F7A6000-9E6D-511C-B0F6-7CADB7200761</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=1F7A6000-9E6D-511C-B0F6-7CADB7200761" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=1CF00BB8-B891-5347-A2DC-2C6A6BFF7C99" target="_blank" style="color:var(--color-info)">1CF00BB8-B891-5347-A2DC-2C6A6BFF7C99</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=1CF00BB8-B891-5347-A2DC-2C6A6BFF7C99" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=1AB9F1F4-9798-59A0-9213-1D907E81E7F6" target="_blank" style="color:var(--color-info)">1AB9F1F4-9798-59A0-9213-1D907E81E7F6</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=1AB9F1F4-9798-59A0-9213-1D907E81E7F6" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=179F72B6-5619-52B5-A040-72F1ECE6CDD8" target="_blank" style="color:var(--color-info)">179F72B6-5619-52B5-A040-72F1ECE6CDD8</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=179F72B6-5619-52B5-A040-72F1ECE6CDD8" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=15C36683-070A-5CC1-B21F-5F0BF974D9D3" target="_blank" style="color:var(--color-info)">15C36683-070A-5CC1-B21F-5F0BF974D9D3</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=15C36683-070A-5CC1-B21F-5F0BF974D9D3" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=1337DAY-ID-39674" target="_blank" style="color:var(--color-info)">1337DAY-ID-39674</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">zdt</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=1337DAY-ID-39674" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=11F020AC-F907-5606-8805-0516E06160EE" target="_blank" style="color:var(--color-info)">11F020AC-F907-5606-8805-0516E06160EE</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=11F020AC-F907-5606-8805-0516E06160EE" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=0FC4BE81-312B-51F4-9D9B-66D8B5C093CD" target="_blank" style="color:var(--color-info)">0FC4BE81-312B-51F4-9D9B-66D8B5C093CD</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=0FC4BE81-312B-51F4-9D9B-66D8B5C093CD" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=0B165049-2374-5E2A-A27C-008BEA3D13F7" target="_blank" style="color:var(--color-info)">0B165049-2374-5E2A-A27C-008BEA3D13F7</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=0B165049-2374-5E2A-A27C-008BEA3D13F7" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=08144020-2B5F-5EB9-9286-1ABD5477278E" target="_blank" style="color:var(--color-info)">08144020-2B5F-5EB9-9286-1ABD5477278E</a></td>
+                <td>8.1</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=08144020-2B5F-5EB9-9286-1ABD5477278E" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-yellow" style="font-size:10px">HIGH</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=CVE-2024-39894" target="_blank" style="color:var(--color-info)">CVE-2024-39894</a></td>
+                <td>7.5</td>
+                <td><span class="badge badge-blue" style="font-size:9px">CVE</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=CVE-2024-39894" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-blue" style="font-size:10px">MEDIUM</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=PACKETSTORM:189283" target="_blank" style="color:var(--color-info)">PACKETSTORM:189283</a></td>
+                <td>6.8</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">packetstorm</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=PACKETSTORM:189283" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-blue" style="font-size:10px">MEDIUM</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=CVE-2025-26465" target="_blank" style="color:var(--color-info)">CVE-2025-26465</a></td>
+                <td>6.8</td>
+                <td><span class="badge badge-blue" style="font-size:9px">CVE</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=CVE-2025-26465" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-blue" style="font-size:10px">MEDIUM</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=9D8432B9-49EC-5F45-BB96-329B1F2B2254" target="_blank" style="color:var(--color-info)">9D8432B9-49EC-5F45-BB96-329B1F2B2254</a></td>
+                <td>6.8</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=9D8432B9-49EC-5F45-BB96-329B1F2B2254" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-blue" style="font-size:10px">MEDIUM</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=85FCDCC6-9A03-597E-AB4F-FA4DAC04F8D0" target="_blank" style="color:var(--color-info)">85FCDCC6-9A03-597E-AB4F-FA4DAC04F8D0</a></td>
+                <td>6.8</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=85FCDCC6-9A03-597E-AB4F-FA4DAC04F8D0" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-blue" style="font-size:10px">MEDIUM</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=1337DAY-ID-39918" target="_blank" style="color:var(--color-info)">1337DAY-ID-39918</a></td>
+                <td>6.8</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">zdt</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=1337DAY-ID-39918" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-blue" style="font-size:10px">MEDIUM</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=CVE-2026-35387" target="_blank" style="color:var(--color-info)">CVE-2026-35387</a></td>
+                <td>6.5</td>
+                <td><span class="badge badge-blue" style="font-size:9px">CVE</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=CVE-2026-35387" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-blue" style="font-size:10px">MEDIUM</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=CVE-2025-26466" target="_blank" style="color:var(--color-info)">CVE-2025-26466</a></td>
+                <td>5.9</td>
+                <td><span class="badge badge-blue" style="font-size:9px">CVE</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=CVE-2025-26466" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-blue" style="font-size:10px">MEDIUM</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=B96EAFCA-CE3F-51B0-86CF-4EB92B1C4FEF" target="_blank" style="color:var(--color-info)">B96EAFCA-CE3F-51B0-86CF-4EB92B1C4FEF</a></td>
+                <td>5.9</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=B96EAFCA-CE3F-51B0-86CF-4EB92B1C4FEF" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-blue" style="font-size:10px">MEDIUM</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=CVE-2025-32728" target="_blank" style="color:var(--color-info)">CVE-2025-32728</a></td>
+                <td>4.3</td>
+                <td><span class="badge badge-blue" style="font-size:9px">CVE</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=CVE-2025-32728" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-green" style="font-size:10px">LOW</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=CVE-2025-61985" target="_blank" style="color:var(--color-info)">CVE-2025-61985</a></td>
+                <td>3.6</td>
+                <td><span class="badge badge-blue" style="font-size:9px">CVE</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=CVE-2025-61985" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-green" style="font-size:10px">LOW</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=CVE-2025-61984" target="_blank" style="color:var(--color-info)">CVE-2025-61984</a></td>
+                <td>3.6</td>
+                <td><span class="badge badge-blue" style="font-size:9px">CVE</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=CVE-2025-61984" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-green" style="font-size:10px">LOW</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=B7EACB4F-A5CF-5C5A-809F-E03CCE2AB150" target="_blank" style="color:var(--color-info)">B7EACB4F-A5CF-5C5A-809F-E03CCE2AB150</a></td>
+                <td>3.6</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=B7EACB4F-A5CF-5C5A-809F-E03CCE2AB150" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-green" style="font-size:10px">LOW</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=4C6E2182-0E99-5626-83F6-1646DD648C57" target="_blank" style="color:var(--color-info)">4C6E2182-0E99-5626-83F6-1646DD648C57</a></td>
+                <td>3.6</td>
+                <td><span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">githubexploit</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=4C6E2182-0E99-5626-83F6-1646DD648C57" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        
+            <tr>
+                <td><span class="badge badge-green" style="font-size:10px">LOW</span></td>
+                <td class="mono" style="font-size:10px"><a href="https://vulners.com/search?query=CVE-2026-35388" target="_blank" style="color:var(--color-info)">CVE-2026-35388</a></td>
+                <td>2.5</td>
+                <td><span class="badge badge-blue" style="font-size:9px">CVE</span></td>
+                <td style="font-size:11px">ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
+                <td><a href="https://vulners.com/search?query=CVE-2026-35388" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     
         </div>
 
@@ -834,6 +1599,46 @@
         </tbody>
         </table>
     </div>
+    
+        <div class="glass-card" style="margin-top:16px">
+            <div class="card-title">Running Services (2 open ports)</div>
+            <table class="data-table">
+                <thead><tr><th>Port</th><th>Service</th><th>Version</th></tr></thead>
+                <tbody>
+                <tr>
+                    <td class="mono"><strong>22/tcp</strong></td>
+                    <td>ssh</td>
+                    <td>OpenSSH 9.6p1 Ubuntu 3ubuntu13.16 (Ubuntu Linux; protocol 2.0)</td>
+                </tr>
+            
+                <tr>
+                    <td class="mono"><strong>80/tcp</strong></td>
+                    <td>http</td>
+                    <td>nginx 1.24.0 (Ubuntu)</td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
+    
+            <div class="glass-card" style="margin-top:16px">
+                <div class="card-title">SSH Host Keys (Port 22)</div>
+                <table class="data-table">
+                    <thead><tr><th>Algorithm</th><th>Bits</th><th>Fingerprint</th></tr></thead>
+                    <tbody>
+                    <tr>
+                        <td class="mono" style="font-size:11px">ecdsa-sha2-nistp256</td>
+                        <td class="mono" style="font-size:11px">256 bits</td>
+                        <td class="mono" style="font-size:11px;word-break:break-all">830fb2cfa194fd0633eb0462fb2f417e</td>
+                    </tr>
+                
+                    <tr>
+                        <td class="mono" style="font-size:11px">ssh-ed25519</td>
+                        <td class="mono" style="font-size:11px">256 bits</td>
+                        <td class="mono" style="font-size:11px;word-break:break-all">34f2a35c4777c3a52fbcdf2c4037b0df</td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>
     
         </div>
 
@@ -917,11 +1722,20 @@ overlapping byte ranges are requested.</p>
         <!-- ═══ Footer ═══ -->
         <div class="footer">
             <p>Cyber Samurai &mdash; Fingerprint &amp; Vulnerability Assessment Report</p>
-            <p style="font-size:11px;margin-top:4px">Generated on 04 July 2026, 11:04 | This report contains confidential security findings.</p>
+            <p style="font-size:11px;margin-top:4px">Generated on 04 July 2026, 14:26 | This report contains confidential security findings.</p>
         </div>
     </div>
 
     <script>
+        function switchInnerTab(btn, contentId) {
+            var parent = btn.parentElement;
+            var container = parent.parentElement;
+            parent.querySelectorAll('.inner-tab-btn').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            container.querySelectorAll('.inner-tab-content').forEach(function(c) { c.classList.remove('active'); });
+            var target = document.getElementById(contentId);
+            if (target) target.classList.add('active');
+        }
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(function(btn) { btn.classList.remove('active'); });
             document.querySelectorAll('.tab-content').forEach(function(tc) { tc.classList.remove('active'); });
