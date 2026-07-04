@@ -43,13 +43,11 @@ else:
 NMAP_FILE = os.path.join(DATA_DIR, "nmap_rawReport.xml")
 DIRSEARCH_FILE = os.path.join(DATA_DIR, "dirsearch_rawReport.json")
 WHATWEB_FILE = os.path.join(DATA_DIR, "whatweb_rawReport.json")
-FFUF_FILE = os.path.join(DATA_DIR, "ffuf_rawReport.json")
+FFUF_FILE = os.path.join(DATA_DIR, "ffuf_report.json")
 OUTPUT_FILE = os.path.join(DATA_DIR, "vulnReport.html")
 CSS_PATH = os.path.join(BASE_DIR, "..", "reference", "global_report.css")
 REPORT_TITLE = "Cyber Samurai — Fingerprint & Security Assessment Report"
 SCAN_DATE = datetime.now().strftime("%d %B %Y, %H:%M")
-PAYWALL_PASSWORD = "cybersamurai2024"  # Change this to set the unlock password for gated content
-FREE_PREVIEW_COUNT = 2  # Number of items shown free before paywall in each locked section
 
 
 # ─── Nmap Parsing ────────────────────────────────────────────────────────────
@@ -1322,197 +1320,8 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
             display: block;
         }}
 
-        /* ---- Executive Summary ---- */
-                .exec-summary {{
-                    background: var(--card-bg);
-                    border: 1px solid var(--border-color);
-                    border-radius: 12px;
-                    padding: 28px 32px;
-                    margin-bottom: 28px;
-                }}
-                .exec-summary h2 {{
-                    font-family: 'Outfit', sans-serif;
-                    font-size: 20px;
-                    font-weight: 700;
-                    margin: 0 0 16px 0;
-                    color: var(--text-primary);
-                }}
-                .exec-summary .risk-narrative {{
-                    font-size: 14px;
-                    line-height: 1.75;
-                    color: var(--text-secondary);
-                    margin-bottom: 20px;
-                }}
-                .exec-summary .risk-narrative strong {{
-                    color: var(--text-primary);
-                }}
-                .exec-summary .impact-grid {{
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-                    gap: 14px;
-                    margin-top: 16px;
-                }}
-                .impact-item {{
-                    background: rgba(255,255,255,0.03);
-                    border: 1px solid rgba(255,255,255,0.06);
-                    border-radius: 8px;
-                    padding: 16px 18px;
-                }}
-                .impact-item .impact-icon {{
-                    font-size: 18px;
-                    margin-bottom: 6px;
-                }}
-                .impact-item .impact-title {{
-                    font-family: 'Outfit', sans-serif;
-                    font-size: 13px;
-                    font-weight: 600;
-                    color: var(--text-primary);
-                    margin-bottom: 4px;
-                }}
-                .impact-item .impact-desc {{
-                    font-size: 12px;
-                    color: var(--text-muted);
-                    line-height: 1.5;
-                }}
-
-                /* ---- Remediation / Business Impact ---- */
-                .vuln-business-impact {{
-                    background: rgba(255,193,7,0.06);
-                    border: 1px solid rgba(255,193,7,0.12);
-                    border-radius: 6px;
-                    padding: 12px 14px;
-                    margin: 12px 0 8px 0;
-                    font-size: 13px;
-                    color: var(--text-secondary);
-                    line-height: 1.55;
-                }}
-                .vuln-business-impact strong {{
-                    color: var(--color-warning);
-                }}
-                .vuln-remediation {{
-                    background: rgba(16,185,129,0.06);
-                    border: 1px solid rgba(16,185,129,0.12);
-                    border-radius: 6px;
-                    padding: 12px 14px;
-                    margin: 8px 0;
-                    font-size: 13px;
-                    color: var(--text-secondary);
-                    line-height: 1.55;
-                }}
-                .vuln-remediation strong {{
-                    color: var(--color-pass);
-                }}
-
-                /* ---- Paywall / Gated Content (partial blur) ---- */
-                        .paywall-gated {{
-                            position: relative;
-                            margin-top: 12px;
-                        }}
-                        .paywall-gated .gated-content {{
-                            filter: blur(6px);
-                            pointer-events: none;
-                            user-select: none;
-                            opacity: 0.4;
-                            transition: filter 0.3s, opacity 0.3s;
-                        }}
-                        .paywall-gated.unlocked .gated-content {{
-                            filter: none;
-                            pointer-events: auto;
-                            user-select: auto;
-                            opacity: 1;
-                        }}
-                        .paywall-gated .gated-overlay {{
-                            position: absolute;
-                            inset: 0;
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            justify-content: center;
-                            background: rgba(10,12,18,0.6);
-                            border-radius: 8px;
-                            z-index: 5;
-                            gap: 10px;
-                            border: 1px dashed rgba(255,46,59,0.25);
-                        }}
-                        .paywall-gated.unlocked .gated-overlay {{
-                            display: none;
-                        }}
-                        .paywall-gated .gated-overlay .lock-text {{
-                            font-family: 'Outfit', sans-serif;
-                            font-size: 15px;
-                            color: var(--text-primary);
-                        }}
-                        .paywall-gated .gated-overlay .lock-sub {{
-                            font-size: 12px;
-                            color: var(--text-muted);
-                        }}
-                        .paywall-gated .gated-overlay .btn-unlock {{
-                            background: var(--accent-red);
-                            color: #fff;
-                            border: none;
-                            border-radius: 6px;
-                            padding: 8px 20px;
-                            font-size: 13px;
-                            font-weight: 600;
-                            cursor: pointer;
-                        }}
-                        .paywall-gated .gated-overlay .btn-unlock:hover {{
-                            background: #e02b35;
-                        }}
-                        .paywall-gated .gated-overlay .pw-input {{
-                            background: rgba(255,255,255,0.08);
-                            border: 1px solid var(--border-color);
-                            border-radius: 4px;
-                            padding: 6px 12px;
-                            color: var(--text-primary);
-                            font-size: 13px;
-                            font-family: monospace;
-                            width: 200px;
-                            text-align: center;
-                        }}
-                        .paywall-gated .gated-overlay .pw-error {{
-                            color: var(--color-critical);
-                            font-size: 11px;
-                            display: none;
-                        }}
-
-                /* ---- Severity Risk Matrix ---- */
-                .risk-matrix {{
-                    display: grid;
-                    grid-template-columns: 80px repeat(4, 1fr);
-                    gap: 1px;
-                    background: var(--border-color);
-                    border: 1px solid var(--border-color);
-                    border-radius: 8px;
-                    overflow: hidden;
-                    margin: 12px 0;
-                }}
-                .risk-matrix .rm-cell {{
-                    background: var(--bg-primary);
-                    padding: 8px 10px;
-                    text-align: center;
-                    font-size: 11px;
-                }}
-                .risk-matrix .rm-header {{
-                    background: rgba(255,255,255,0.04);
-                    font-weight: 700;
-                    color: var(--text-secondary);
-                    font-size: 10px;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                }}
-                .risk-matrix .rm-filled {{
-                    font-weight: 700;
-                    font-size: 14px;
-                    font-family: 'Outfit', sans-serif;
-                }}
-                .rm-sev-critical {{ background: rgba(255,46,59,0.25) !important; color: var(--color-critical); }}
-                .rm-sev-high     {{ background: rgba(255,140,0,0.20) !important; color: var(--color-warning); }}
-                .rm-sev-medium   {{ background: rgba(59,130,246,0.15) !important; color: var(--color-info); }}
-                .rm-sev-low      {{ background: rgba(16,185,129,0.10) !important; color: var(--color-pass); }}
-
-                /* Print styles */
-                        @media print {{
+        /* Print styles */
+                @media print {{
                     body {{ background: #fff; color: #000; }}
                     .glass-card {{ background: #f8f8f8; border: 1px solid #ddd; box-shadow: none; }}
                     .btn-print {{ display: none; }}
@@ -1563,27 +1372,7 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
             </div>
         </div>
 
-                <!-- ═══ Executive Summary ═══ -->
-                <div class="exec-summary">
-                    <h2>Executive Summary</h2>
-                    <div class="risk-narrative">
-                        This security assessment evaluated <strong>{html_escape(target_hostname)}</strong> and identified
-                        <strong style="color:{_risk_color(risk_score)}">{_vuln_count(nmap_data)} security vulnerabilities</strong>
-                        across {_open_port_count(nmap_data)} exposed services.
-                        The overall risk posture is rated <strong style="color:{_risk_color(risk_score)}">{risk_label}</strong>.
-                    </div>
-                    <div class="risk-narrative">
-                        The most critical concern is the <strong>public exposure of Git repository files</strong>, which
-                        could allow attackers to access your source code, configuration secrets, and development history.
-                        Additionally, {_cve_unique_count(nmap_data)} known CVEs were matched against your service versions,
-                        {_cve_critical_breakout(nmap_data)}.
-                    </div>
-                    <div class="impact-grid">
-                        {_build_impact_grid(nmap_data, dirsearch_data, whatweb_data, ffuf_data)}
-                    </div>
-                </div>
-
-                <!-- ═══ Dashboard Summary ═══ -->
+        <!-- ═══ Dashboard Summary ═══ -->
         <div class="dashboard-grid">
             <div class="glass-card card-red">
                 <div class="card-title">Overall Risk Score</div>
@@ -1631,20 +1420,14 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
         </div>
 
         <!-- ═══ Tab Navigation ═══ -->
-                <div class="tabs-nav">
-                    <button class="tab-btn active" onclick="switchTab('tab-os')">OS Detection</button>
-                    <button class="tab-btn" onclick="switchTab('tab-ports')">Open Ports</button>
-                    <button class="tab-btn" onclick="switchTab('tab-tech')">Tech Findings</button>
-                    <button class="tab-btn locked-tab" onclick="switchTab('tab-ffuf')">Asset Discovery &#x1F512;</button>
-                    <button class="tab-btn locked-tab" onclick="switchTab('tab-vulners')">CVE Database &#x1F512;</button>
-                    <button class="tab-btn locked-tab" onclick="switchTab('tab-vulns')">Vulnerabilities &#x1F512;</button>
-                </div>
-
-                <!-- Paywall promotion banner -->
-                        <div class="highlight-box paywall-banner" style="background:rgba(255,46,59,0.08);border:1px solid rgba(255,46,59,0.2);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-                            <span style="font-size:13px">&#x1F512; <strong style="color:var(--color-critical)">Premium Content Locked</strong> — The first {FREE_PREVIEW_COUNT} findings in each section are free. Enter the password to reveal all results.</span>
-                            <span style="font-size:11px;color:var(--text-muted)">Contact Cyber Samurai to obtain your unlock code.</span>
-                        </div>
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('tab-os')">OS Detection</button>
+            <button class="tab-btn" onclick="switchTab('tab-ports')">Open Ports</button>
+            <button class="tab-btn" onclick="switchTab('tab-tech')">Tech Findings</button>
+            <button class="tab-btn" onclick="switchTab('tab-ffuf')">Asset Discovery</button>
+            <button class="tab-btn" onclick="switchTab('tab-vulners')">CVE Database</button>
+            <button class="tab-btn" onclick="switchTab('tab-vulns')">Vulnerabilities</button>
+        </div>
 
         <!-- ═══ Tab: Open Ports & Services ═══ -->
         <div class="tab-content" id="tab-ports">
@@ -1659,16 +1442,16 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
         </div>
 
         <!-- ═══ Tab: Asset Discovery (FFUF) ═══ -->
-                <div class="tab-content" id="tab-ffuf">
-                    <h2 class="section-title">Asset &amp; Endpoint Discovery</h2>
-                    {_build_ffuf_section(ffuf_data)}
-                </div>
+        <div class="tab-content" id="tab-ffuf">
+            <h2 class="section-title">Asset &amp; Endpoint Discovery</h2>
+            {_build_ffuf_section(ffuf_data)}
+        </div>
 
         <!-- ═══ Tab: CVE Vulnerability Database ═══ -->
-                <div class="tab-content" id="tab-vulners">
-                    <h2 class="section-title">CVE Vulnerability Assessment</h2>
-                    {_build_vulners_section(nmap_data)}
-                </div>
+        <div class="tab-content" id="tab-vulners">
+            <h2 class="section-title">CVE Vulnerability Assessment</h2>
+            {_build_vulners_section(nmap_data)}
+        </div>
 
         <!-- ═══ Tab: OS Detection ═══ -->
         <div class="tab-content active" id="tab-os">
@@ -1677,10 +1460,10 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
         </div>
 
         <!-- ═══ Tab: Vulnerability Findings ═══ -->
-                <div class="tab-content" id="tab-vulns">
-                    <h2 class="section-title">Vulnerability Findings</h2>
-                    {_build_vulnerabilities_section(nmap_data)}
-                </div>
+        <div class="tab-content" id="tab-vulns">
+            <h2 class="section-title">Vulnerability Findings</h2>
+            {_build_vulnerabilities_section(nmap_data)}
+        </div>
 
         <!-- ═══ Footer ═══ -->
         <div class="footer">
@@ -1690,43 +1473,28 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
     </div>
 
     <script>
-            function switchInnerTab(btn, contentId) {{
-                var parent = btn.parentElement;
-                var container = parent.parentElement;
-                parent.querySelectorAll('.inner-tab-btn').forEach(function(b) {{ b.classList.remove('active'); }});
-                btn.classList.add('active');
-                container.querySelectorAll('.inner-tab-content').forEach(function(c) {{ c.classList.remove('active'); }});
-                var target = document.getElementById(contentId);
-                if (target) target.classList.add('active');
+        function switchInnerTab(btn, contentId) {{
+            var parent = btn.parentElement;
+            var container = parent.parentElement;
+            parent.querySelectorAll('.inner-tab-btn').forEach(function(b) {{ b.classList.remove('active'); }});
+            btn.classList.add('active');
+            container.querySelectorAll('.inner-tab-content').forEach(function(c) {{ c.classList.remove('active'); }});
+            var target = document.getElementById(contentId);
+            if (target) target.classList.add('active');
+        }}
+        function switchTab(tabId) {{
+            document.querySelectorAll('.tab-btn').forEach(function(btn) {{ btn.classList.remove('active'); }});
+            document.querySelectorAll('.tab-content').forEach(function(tc) {{ tc.classList.remove('active'); }});
+            var target = document.getElementById(tabId);
+            if (target) {{ target.classList.add('active'); }}
+            var allBtns = document.querySelectorAll('.tab-btn');
+            for (var i = 0; i < allBtns.length; i++) {{
+                if (allBtns[i].getAttribute('onclick') && allBtns[i].getAttribute('onclick').indexOf(tabId) !== -1) {{
+                    allBtns[i].classList.add('active');
+                }}
             }}
-            function switchTab(tabId) {{
-                            document.querySelectorAll('.tab-btn').forEach(function(btn) {{ btn.classList.remove('active'); }});
-                            document.querySelectorAll('.tab-content').forEach(function(tc) {{ tc.classList.remove('active'); }});
-                            var target = document.getElementById(tabId);
-                            if (target) {{ target.classList.add('active'); }}
-                            var allBtns = document.querySelectorAll('.tab-btn');
-                            for (var i = 0; i < allBtns.length; i++) {{
-                                if (allBtns[i].getAttribute('onclick') && allBtns[i].getAttribute('onclick').indexOf(tabId) !== -1) {{
-                                    allBtns[i].classList.add('active');
-                                }}
-                            }}
-                        }}
-                        function unlockGate(containerId) {{
-                            var container = document.getElementById(containerId);
-                            if (!container) return;
-                            var overlay = container.querySelector('.gated-overlay');
-                            var input = overlay.querySelector('.pw-input');
-                            var error = overlay.querySelector('.pw-error');
-                            var pw = input.value.trim();
-                            if (pw === '{PAYWALL_PASSWORD}') {{
-                                container.classList.add('unlocked');
-                            }} else {{
-                                error.style.display = 'block';
-                                input.value = '';
-                                input.focus();
-                            }}
-                        }}
-        </script>
+        }}
+    </script>
 </body>
 </html>
 """
@@ -1932,129 +1700,6 @@ def _ffuf_git_exposed_count(ffuf_data):
     return 0
 
 
-def _cve_critical_breakout(nmap_data):
-    """Return a short text like 'including 3 critical and 5 high severity'."""
-    if not nmap_data or not nmap_data.get("host"):
-        return ""
-    dd = nmap_data["host"].get("vulners_deduped", [])
-    if not dd:
-        return ""
-    crit = sum(1 for v in dd if v.get("cvss", 0) >= 9.0)
-    high = sum(1 for v in dd if 7.0 <= v.get("cvss", 0) < 9.0)
-    parts = []
-    if crit:
-        parts.append(f"{crit} critical")
-    if high:
-        parts.append(f"{high} high")
-    if parts:
-        return f"including {' and '.join(parts)} severity"
-    return ""
-
-
-def _build_impact_grid(nmap_data, dirsearch_data, whatweb_data, ffuf_data):
-    """Build the business impact summary grid for the Executive Summary."""
-    items = []
-
-    # Reputation risk (if git exposed)
-    git_count = _git_exposed_count(dirsearch_data, ffuf_data)
-    if git_count > 0:
-        items.append({
-            "icon": "&#x1F6AB;", "title": "Source Code Exposure",
-            "desc": f"{git_count} Git repository file(s) are publicly accessible. This exposes your source code, API keys, and development secrets — a direct threat to intellectual property and brand trust."
-        })
-    else:
-        items.append({
-            "icon": "&#x1F512;", "title": "Source Code Protected",
-            "desc": "No Git repository files were found exposed. Your source code and development secrets are not directly accessible to the public."
-        })
-
-    # Operational risk
-    ports = _open_port_count(nmap_data)
-    items.append({
-        "icon": "&#x1F310;", "title": "Attack Surface",
-        "desc": f"{ports} Internet-facing service(s) are reachable. Each open port is a potential entry point. Reducing unnecessary services is the most effective risk reduction measure."
-    })
-
-    # Compliance / data risk
-    cves = _cve_unique_count(nmap_data)
-    if cves > 0:
-        crit = sum(1 for v in (nmap_data or {}).get("host", {}).get("vulners_deduped", []) if v.get("cvss", 0) >= 9.0)
-        items.append({
-            "icon": "&#x26A0;&#xFE0F;", "title": "Known Vulnerabilities",
-            "desc": f"{cves} CVE(s) matched against your services, with {crit} at critical severity. Unpatched vulnerabilities are the leading cause of data breaches."
-        })
-    else:
-        items.append({
-            "icon": "&#x2705;", "title": "Vulnerability Status",
-            "desc": "No known CVEs were matched against your service versions. While this is positive, regular scanning is recommended as new vulnerabilities are discovered daily."
-        })
-
-    # Business continuity
-    items.append({
-        "icon": "&#x1F4C8;", "title": "Business Impact",
-        "desc": "Addressing these findings now prevents costly incident response later. The average data breach costs organisations £3.4M (IBM 2024). Proactive security is a business enabler, not a cost centre."
-    })
-
-    html = ""
-    for it in items:
-        html += f"""<div class="impact-item">
-            <div class="impact-icon">{it['icon']}</div>
-            <div class="impact-title">{html_escape(it['title'])}</div>
-            <div class="impact-desc">{it['desc']}</div>
-        </div>"""
-    return html
-
-
-def _build_risk_matrix(nmap_data, ffuf_data):
-    """Build a severity risk matrix showing findings across categories."""
-    # Count by severity
-    severities = {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0}
-
-    if nmap_data and nmap_data.get("host"):
-        for v in nmap_data["host"].get("vulnerabilities", []):
-            sev = v.get("severity", "MEDIUM")
-            severities[sev] = severities.get(sev, 0) + 1
-        # Add vulners deduped
-        for v in nmap_data["host"].get("vulners_deduped", []):
-            sev = v.get("severity", "MEDIUM")
-            severities[sev] = severities.get(sev, 0) + 1
-
-    if ffuf_data:
-        severities["CRITICAL"] += len(ffuf_data.get("critical", []))
-        severities["HIGH"] += len(ffuf_data.get("high", []))
-        severities["MEDIUM"] += len(ffuf_data.get("medium", []))
-
-    total = sum(severities.values())
-    if total == 0:
-        return ""
-
-    def cell(sev, count):
-        if count == 0:
-            return f'<div class="rm-cell">—</div>'
-        cls = {"CRITICAL": "rm-sev-critical", "HIGH": "rm-sev-high",
-               "MEDIUM": "rm-sev-medium", "LOW": "rm-sev-low"}.get(sev, "")
-        return f'<div class="rm-cell rm-filled {cls}">{count}</div>'
-
-    return f"""
-    <h4 class="key-findings-subsection">Risk Exposure Matrix</h4>
-    <div class="risk-matrix">
-        <div class="rm-cell"></div>
-        <div class="rm-cell rm-header">Critical</div>
-        <div class="rm-cell rm-header">High</div>
-        <div class="rm-cell rm-header">Medium</div>
-        <div class="rm-cell rm-header">Low</div>
-        <div class="rm-cell rm-header" style="text-align:left;padding-left:12px">Findings</div>
-        {cell("CRITICAL", severities["CRITICAL"])}
-        {cell("HIGH", severities["HIGH"])}
-        {cell("MEDIUM", severities["MEDIUM"])}
-        {cell("LOW", severities["LOW"])}
-    </div>
-    <p class="summary-text" style="font-size:11px;margin-top:6px;color:var(--text-muted)">
-        {total} total findings across all severity levels. Higher counts in Critical/High columns indicate urgent attention needed.
-    </p>
-    """
-
-
 def _build_key_findings(nmap_data, dirsearch_data, whatweb_data, ffuf_data=None):
     """Build the key findings summary with subsections and severity pie chart."""
     sections = []  # List of (section_title, items_list)
@@ -2152,18 +1797,15 @@ def _build_key_findings(nmap_data, dirsearch_data, whatweb_data, ffuf_data=None)
 
 
     # ── Build HTML ──
-        subsections_html = ""
-        for title, items in sections:
-            subsections_html += f'<h4 class="key-findings-subsection">{title}</h4>' + "\n"
-            subsections_html += "\n".join(items) + "\n"
+    subsections_html = ""
+    for title, items in sections:
+        subsections_html += f'<h4 class="key-findings-subsection">{title}</h4>' + "\n"
+        subsections_html += "\n".join(items) + "\n"
 
-        if not sections:
-            subsections_html = '<p class="summary-text">No significant findings detected.</p>'
+    if not sections:
+        subsections_html = '<p class="summary-text">No significant findings detected.</p>'
 
-        # ── Severity Risk Matrix ──
-        matrix = _build_risk_matrix(nmap_data, ffuf_data)
-
-        return subsections_html + matrix
+    return subsections_html
 
 
 
@@ -2222,85 +1864,8 @@ def _build_ports_section(nmap_data):
     """
 
 
-def _gated_section(container_id, items, label, free_count=2):
-    """Wrap items in a paywall gate: show first `free_count` free, blur the rest behind a password."""
-    if len(items) <= free_count:
-        return "".join(items)
-
-    free_html = "".join(items[:free_count])
-    gated_html = "".join(items[free_count:])
-
-    return free_html + f"""
-    <div class="paywall-gated" id="{container_id}">
-        <div class="gated-content">
-            {gated_html}
-        </div>
-        <div class="gated-overlay">
-            <span class="lock-text">&#x1F512; {len(items) - free_count} More {label} Locked</span>
-            <span class="lock-sub">Enter password to reveal all {len(items)} {label.lower()}</span>
-            <input type="password" class="pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')unlockGate('{container_id}')">
-            <span class="pw-error">Incorrect password</span>
-            <button class="btn-unlock" onclick="unlockGate('{container_id}')">Unlock</button>
-        </div>
-    </div>"""
-
-
-def _vuln_business_context(vuln):
-    """Return (business_impact, remediation) strings for a vulnerability based on its type."""
-    vtype = vuln.get("type", "")
-    title = vuln.get("title", "").lower()
-
-    # Git Exposure
-    if vtype == "Git Exposure" or "git" in title:
-        return (
-            "Your source code, API keys, database passwords, and proprietary business logic may be exposed to anyone on the Internet. Competitors or attackers could extract intellectual property, find hardcoded credentials, and map your infrastructure — leading to full system compromise.",
-            "Immediately restrict access to /.git/ in your web server or CDN configuration. Rotate ALL credentials and secrets that were ever committed to the repository. Use git-secrets or truffleHog to scan history for sensitive data."
-        )
-    # HSTS / security headers
-    if "hsts" in title:
-        return (
-            "Without HSTS, your customers' connections can be silently downgraded from HTTPS to HTTP by attackers on public Wi-Fi or compromised networks. This enables credential theft, session hijacking, and injection of malicious content into your website.",
-            "Enable the Strict-Transport-Security HTTP header on your web server with a max-age of at least 1 year and includeSubDomains. This tells browsers to always use HTTPS, even if the user types http://."
-        )
-    # Slowloris / DoS
-    if "slowloris" in title or "denial" in title.lower():
-        return (
-            "An attacker can take your website offline using minimal resources — as little as a single laptop. Every minute of downtime costs your business revenue, damages customer trust, and may trigger SLA penalties with your own clients.",
-            "Configure your web server (nginx/Apache) with rate limiting, lower timeout values for incomplete requests, and consider deploying a Web Application Firewall (WAF) or CDN that provides DDoS protection."
-        )
-    # CVE / Vulners
-    if vtype == "CVE / Vulners" or "cve" in title.lower():
-        cvss = vuln.get("cvss", 0)
-        if cvss >= 9.0:
-            return (
-                "This is a critical-severity known vulnerability. Public exploits likely exist. If exploited, attackers could gain full control of your server, steal customer data, or use your infrastructure to attack others — causing regulatory fines and irreversible reputational damage.",
-                "Patch the affected service to the latest version immediately. If patching is not possible, implement compensating controls: network segmentation, WAF rules, or disabling the vulnerable feature until a patch can be applied."
-            )
-        return (
-            "Known vulnerabilities in your software stack are the most common entry point for ransomware and data breaches. Attackers actively scan the Internet for unpatched systems — your website is visible in these scans.",
-            "Apply the latest security updates for the affected service. Subscribe to vendor security advisories. Establish a regular patch management cycle to stay ahead of threats."
-        )
-    # http-vuln / generic
-    if vtype == "Vulnerability" or "vuln" in title.lower():
-        return (
-            "An exploitable condition was detected on your server. This could allow attackers to access restricted data, modify your website content, or use your server as a launchpad for further attacks.",
-            "Follow the specific remediation steps in the references below. In general: update affected software, restrict access with firewall rules, and validate that the fix resolves the vulnerability by re-scanning."
-        )
-    # Missing Header
-    if vtype == "Missing Header":
-        return (
-            "Missing security headers leave your visitors exposed to common web attacks like clickjacking, cross-site scripting, and MIME-type confusion. While not directly exploitable, these gaps weaken your overall security posture.",
-            "Configure your web server to send modern security headers: Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy."
-        )
-    # Default fallback
-    return (
-        "This finding represents a weakness in your security posture that could be exploited under certain conditions. Every unresolved vulnerability increases the cumulative risk to your organisation.",
-        "Review the finding details and apply the appropriate fix. Re-scan after remediation to confirm the vulnerability is resolved. If you need assistance, Cyber Samurai provides managed remediation services."
-    )
-
-
 def _build_vulnerabilities_section(nmap_data):
-    """Build the vulnerabilities findings section with business impact & remediation."""
+    """Build the vulnerabilities findings section."""
     if not nmap_data or not nmap_data.get("host"):
         return '<div class="glass-card"><p class="summary-text">No vulnerability data available.</p></div>'
 
@@ -2323,9 +1888,9 @@ def _build_vulnerabilities_section(nmap_data):
             seen.add(key)
             unique_vulns.append(v)
 
-    card_items = []
+    cards = ""
     for v in unique_vulns:
-        sev_class = "card-red" if v.get("severity", "") in ("CRITICAL", "HIGH") else "card-orange"
+        sev_class = "card-red" if "VULNERABLE" in v.get("state", "") else "card-orange"
         refs_html = ""
         if v.get("references"):
             refs_html = "<br>".join(
@@ -2333,10 +1898,7 @@ def _build_vulnerabilities_section(nmap_data):
                 for r in v["references"]
             )
 
-        # Business impact & remediation
-        impact, remediation = _vuln_business_context(v)
-
-        card_items.append(f"""
+        cards += f"""
         <div class="glass-card {sev_class}">
             <div class="card-title">{html_escape(v.get('title', 'Unknown Finding'))}</div>
             <div style="margin:8px 0">
@@ -2344,11 +1906,9 @@ def _build_vulnerabilities_section(nmap_data):
                 {f'<code style="margin-left:8px;color:var(--text-muted)">{html_escape(v.get("cve_id", ""))}</code>' if v.get('cve_id') and v['cve_id'] != 'N/A' else ''}
             </div>
             <p class="summary-text">{html_escape(v.get('description', 'No description available.'))}</p>
-            <div class="vuln-business-impact"><strong>Business Impact:</strong> {impact}</div>
-            <div class="vuln-remediation"><strong>Remediation:</strong> {remediation}</div>
             {f'<div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br>{refs_html}</div>' if refs_html else ''}
         </div>
-        """)
+        """
 
     # Also add HSTS findings summary
     hsts_missing_ports = []
@@ -2359,7 +1919,7 @@ def _build_vulnerabilities_section(nmap_data):
                     hsts_missing_ports.append(str(port_info["port"]))
 
     if hsts_missing_ports:
-        card_items.append(f"""
+        cards += f"""
         <div class="glass-card card-orange">
             <div class="card-title">HSTS Missing on HTTPS Ports</div>
             <p class="summary-text">
@@ -2374,9 +1934,9 @@ def _build_vulnerabilities_section(nmap_data):
                 header to all HTTPS responses.
             </p>
         </div>
-        """)
+        """
 
-    return _gated_section("gate-vulns", card_items, "Vulnerabilities", FREE_PREVIEW_COUNT)
+    return cards
 
 
 def _build_dirsearch_section(dirsearch_data):
@@ -2768,6 +2328,11 @@ def _build_ffuf_section(ffuf_data):
         </div>
         """
 
+    critical_rows = _build_finding_rows(critical, "CRITICAL", "badge-red")
+    high_rows = _build_finding_rows(high, "HIGH", "badge-yellow")
+    medium_rows = _build_finding_rows(medium, "MEDIUM", "badge-blue")
+    low_rows = _build_finding_rows(low, "LOW", "badge-green")
+
     # Status breakdown
     status_html = ""
     for status, count in sorted(ffuf_data.get("status_counts", {}).items()):
@@ -2778,50 +2343,6 @@ def _build_ffuf_section(ffuf_data):
     ct_html = ""
     for ct, count in sorted(ffuf_data.get("content_type_counts", {}).items(), key=lambda x: -x[1]):
         ct_html += f'<span class="tech-tag">{html_escape(ct)} ({count})</span> '
-
-    # Gate detailed findings — collect individual endpoint rows, gate beyond preview count
-    all_finding_rows = []
-    for entry in critical + high + medium + low:
-        sc = entry["status"]
-        sc_badge = "badge-red" if sc == 200 else "badge-yellow"
-        all_finding_rows.append(f"""
-                <tr>
-                    <td><span class="badge {sc_badge}" style="font-size:10px">{sc}</span></td>
-                    <td class="mono" style="font-size:11px">{html_escape(entry['url'])}</td>
-                    <td>{html_escape(entry.get('content_type', ''))}</td>
-                    <td>{entry['length']:,}</td>
-                    <td>{entry.get('duration_ms', 0)}ms</td>
-                </tr>
-        """)
-
-    free_finding_rows = "".join(all_finding_rows[:FREE_PREVIEW_COUNT])
-    gated_findings_block = ""
-    if len(all_finding_rows) > FREE_PREVIEW_COUNT:
-        gated_rows_html = "".join(all_finding_rows[FREE_PREVIEW_COUNT:])
-        gated_findings_block = f"""
-    <div class="paywall-gated" id="gate-ffuf" style="margin-top:8px">
-        <div class="gated-content">
-            <div class="glass-card" style="margin-top:0">
-                <div class="card-title">Detailed Findings — <span class="badge badge-red">LOCKED</span></div>
-                <div style="overflow-x:auto;max-height:400px;overflow-y:auto">
-                    <table class="data-table">
-                        <thead>
-                            <tr><th>Status</th><th>URL</th><th>Content Type</th><th>Size (bytes)</th><th>Response</th></tr>
-                        </thead>
-                        <tbody>{gated_rows_html}</tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="gated-overlay">
-            <span class="lock-text">&#x1F512; {len(all_finding_rows) - FREE_PREVIEW_COUNT} More Endpoints Locked</span>
-            <span class="lock-sub">Enter password to reveal all {len(all_finding_rows)} endpoints</span>
-            <input type="password" class="pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')unlockGate('gate-ffuf')">
-            <span class="pw-error">Incorrect password</span>
-            <button class="btn-unlock" onclick="unlockGate('gate-ffuf')">Unlock</button>
-        </div>
-    </div>
-"""
 
     return f"""
     <div class="glass-card">
@@ -2838,19 +2359,14 @@ def _build_ffuf_section(ffuf_data):
             <span style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Content Types: </span>
             {ct_html}
         </div>
-        <div style="overflow-x:auto;max-height:400px;overflow-y:auto">
-            <table class="data-table">
-                <thead>
-                    <tr><th>Status</th><th>URL</th><th>Content Type</th><th>Size (bytes)</th><th>Response</th></tr>
-                </thead>
-                <tbody>{free_finding_rows}</tbody>
-            </table>
-        </div>
     </div>
 
     {git_html}
-    {gated_findings_block}
-    """ 
+    {critical_rows}
+    {high_rows}
+    {medium_rows}
+    {low_rows}
+    """
 
 
 # ─── Main ────────────────────────────────────────────────────────────────────
@@ -2874,7 +2390,7 @@ def _build_vulners_section(nmap_data):
     total_exploits = sum(v.get("exploit_count", 0) for v in vulners_sorted)
     services = sorted(set(v.get("service", "Unknown") for v in vulners_sorted))
 
-    row_items = []
+    rows = ""
     for v in vulners_sorted:
         cvss = v.get("cvss", 0)
         if cvss >= 9.0:
@@ -2896,7 +2412,7 @@ def _build_vulners_section(nmap_data):
         vid = v['id']
         vuln_url = f'https://vulners.com/search?query={vid}'
 
-        row_items.append(f"""
+        rows += f"""
             <tr>
                 <td><span class="badge {sev_badge}" style="font-size:10px">{v['severity']}</span></td>
                 <td class="mono" style="font-size:11px"><a href="{vuln_url}" target="_blank" style="color:var(--color-info)"><strong>{html_escape(vid)}</strong></a></td>
@@ -2904,35 +2420,7 @@ def _build_vulners_section(nmap_data):
                 <td>{html_escape(v.get('service', 'N/A'))}</td>
                 <td>{exploit_badge} {cve_marker}</td>
             </tr>
-        """)
-
-    free_rows = "".join(row_items[:FREE_PREVIEW_COUNT])
-    gated_block = ""
-    if len(row_items) > FREE_PREVIEW_COUNT:
-        gated_rows_html = "".join(row_items[FREE_PREVIEW_COUNT:])
-        gated_block = f"""
-    <div class="paywall-gated" id="gate-vulners" style="margin-top:8px">
-        <div class="gated-content">
-            <div class="glass-card" style="margin-top:0">
-                <div style="overflow-x:auto;max-height:600px;overflow-y:auto">
-                    <table class="data-table">
-                        <thead>
-                            <tr><th>Severity</th><th>Vulnerability ID</th><th>CVSS</th><th>Service</th><th>Exploits</th></tr>
-                        </thead>
-                        <tbody>{gated_rows_html}</tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="gated-overlay">
-            <span class="lock-text">&#x1F512; {len(row_items) - FREE_PREVIEW_COUNT} More CVEs Locked</span>
-            <span class="lock-sub">Enter password to reveal all {len(row_items)} CVEs</span>
-            <input type="password" class="pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')unlockGate('gate-vulners')">
-            <span class="pw-error">Incorrect password</span>
-            <button class="btn-unlock" onclick="unlockGate('gate-vulners')">Unlock</button>
-        </div>
-    </div>
-"""
+        """
 
     html = f"""
     <div class="glass-card">
@@ -2956,11 +2444,10 @@ def _build_vulners_section(nmap_data):
                 <thead>
                     <tr><th>Severity</th><th>Vulnerability ID</th><th>CVSS</th><th>Service</th><th>Exploits</th></tr>
                 </thead>
-                <tbody>{free_rows}</tbody>
+                <tbody>{rows}</tbody>
             </table>
         </div>
     </div>
-    {gated_block}
 
     <!-- ═══ Inner Tab: All Vulners Raw Entries ═══ -->
     <div class="inner-tabs-nav" style="margin-top:16px">

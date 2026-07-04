@@ -1,4 +1,0 @@
-# Nmap 7.95 scan initiated Thu Jul  2 10:48:48 2026 as: "C:\\Program Files (x86)\\Nmap\\nmap.exe" -sT -sV -O -p- -T4 -A -oA C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/vuln_report_function/nmap_scan 8.8.8.8
-Host: 8.8.8.8 (dns.google)	Status: Up
-Host: 8.8.8.8 (dns.google)	Ports: 53/open/tcp//tcpwrapped///, 443/open/tcp//ssl|https//HTTP server (unknown)/, 853/open/tcp//ssl|domain//(generic dns response: SERVFAIL)/	Ignored State: filtered (65532)	Seq Index: 251	IP ID Seq: Broken little-endian incremental
-# Nmap done at Thu Jul  2 10:53:42 2026 -- 1 IP address (1 host up) scanned in 293.97 seconds

@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 """
-fingerprint_report.py - Cyber Samurai Fingerprint & Vulnerability Report Generator
+Version :2.0
+report.py - Cyber Samurai Fingerprint & Vulnerability Report Generator
 =============================================================================
 Parses nmap scan data, dirsearch results, and whatweb results to
 extract actionable security findings, then compiles a professional HTML report
 styled with the Cyber Samurai global_report.css theme.
 
 Usage:
-    python fingerprint_report.py <domain>
+    python report.py <domain>
     (reads from vuln_report_function/<domain>/ folder)
 
-    python fingerprint_report.py </absolute/path>
+    python report.py </absolute/path>
     (reads from the given path directly — used by fetchVuln.sh)
 
-    python fingerprint_report.py
+    python report.py
     (reads from vuln_report_function/ folder — legacy fallback)
 """
 
@@ -42,7 +43,7 @@ else:
 NMAP_FILE = os.path.join(DATA_DIR, "nmap_rawReport.xml")
 DIRSEARCH_FILE = os.path.join(DATA_DIR, "dirsearch_rawReport.json")
 WHATWEB_FILE = os.path.join(DATA_DIR, "whatweb_rawReport.json")
-FFUF_FILE = os.path.join(DATA_DIR, "ffuf_report.json")
+FFUF_FILE = os.path.join(DATA_DIR, "ffuf_rawReport.json")
 OUTPUT_FILE = os.path.join(DATA_DIR, "vulnReport.html")
 CSS_PATH = os.path.join(BASE_DIR, "..", "reference", "global_report.css")
 REPORT_TITLE = "Cyber Samurai — Fingerprint & Security Assessment Report"
@@ -53,13 +54,16 @@ SCAN_DATE = datetime.now().strftime("%d %B %Y, %H:%M")
 
 def parse_nmap_scan(file_path):
     """
-    Parse nmap_scan.xml and extract:
-      - Scan metadata (target, args, start/end time)
-      - Open ports with service details
-      - Discovered vulnerabilities (Slowloris, missing HSTS)
-      - Security headers per port
-      - Unusual port detections
-      - Host information (uptime, distance, traceroute)
+    Comprehensive Nmap XML parser. Extracts:
+      - Scan metadata (scanner, args, timestamps)
+      - Open ports with full service details (name, product, version, CPE, extrainfo)
+      - Port-level scripts: vulners (CVSS scores, exploit flags, CVE IDs),
+        http-vuln-* (any CVE-tagged vulnerability), http-git (repo exposure),
+        http-enum, http-title, http-server-header, ssh-hostkey,
+        http-security-headers, http-slowloris-check, unusual-port
+      - Aggregated vulnerability assessment with severity classification
+      - OS detection results (matches, accuracy, CPE)
+      - Host info (uptime, distance, traceroute, DNS, ASN)
 
     Returns a structured dictionary.
     """
@@ -78,13 +82,11 @@ def parse_nmap_scan(file_path):
         "version": root.get("version", "Unknown"),
     }
 
-    # Finish time
     finish_el = root.find(".//finished")
     if finish_el is not None:
         scan_info["end_time"] = finish_el.get("timestr", "Unknown")
         scan_info["elapsed"] = finish_el.get("elapsed", "N/A")
 
-    # Summary
     hosts_up = root.find(".//hosts")
     if hosts_up is not None:
         scan_info["hosts_up"] = hosts_up.get("up", "0")
@@ -93,11 +95,15 @@ def parse_nmap_scan(file_path):
     # ── Host data ──
     host_data = {
         "ip": "Unknown",
+        "hostname": "Unknown",
         "status": "unknown",
         "open_ports": [],
-        "vulnerabilities": [],
+        "vulnerabilities": [],         # Aggregated vuln dicts
+        "vulners_entries": [],          # Raw vulners tables per port
         "security_notes": [],
         "unusual_ports": [],
+        "git_exposure_nmap": None,      # http-git findings
+        "os_detection": None,           # OS fingerprint
         "extra_ports": {"filtered": 0, "filtered_ranges": []},
         "uptime": None,
         "distance": None,
@@ -106,7 +112,7 @@ def parse_nmap_scan(file_path):
         "asn_info": None,
     }
 
-    # Find the first "up" host, fall back to first host
+    # Find host
     host_el = None
     for h in root.findall(".//host"):
         st = h.find("status")
@@ -117,30 +123,55 @@ def parse_nmap_scan(file_path):
         host_el = root.find(".//host")
 
     if host_el is not None:
-        # IP address
+        # ── IP & hostname ──
         addr_el = host_el.find("address[@addrtype='ipv4']")
         if addr_el is not None:
             host_data["ip"] = addr_el.get("addr", "Unknown")
 
-        # Status
+        hostnames_el = host_el.find("hostnames")
+        if hostnames_el is not None:
+            hn = hostnames_el.find("hostname")
+            if hn is not None:
+                host_data["hostname"] = hn.get("name", "Unknown")
+
         status_el = host_el.find("status")
         if status_el is not None:
             host_data["status"] = status_el.get("state", "unknown")
 
-        # ── Parse open ports ──
+        # ── OS Detection ──
+        os_el = host_el.find("os")
+        if os_el is not None:
+            os_matches = []
+            for om in os_el.findall("osmatch"):
+                os_classes = []
+                for oc in om.findall("osclass"):
+                    os_classes.append({
+                        "type": oc.get("type", ""),
+                        "vendor": oc.get("vendor", ""),
+                        "osfamily": oc.get("osfamily", ""),
+                        "osgen": oc.get("osgen", ""),
+                        "accuracy": oc.get("accuracy", ""),
+                        "cpe": [c.text for c in oc.findall("cpe") if c.text],
+                    })
+                os_matches.append({
+                    "name": om.get("name", ""),
+                    "accuracy": om.get("accuracy", "0"),
+                    "classes": os_classes,
+                })
+            host_data["os_detection"] = {
+                "matches": os_matches,
+                "best_match": os_matches[0]["name"] if os_matches else "Unknown",
+                "best_accuracy": os_matches[0]["accuracy"] if os_matches else "0",
+            }
+
+        # ── Parse ports ──
         ports_el = host_el.find("ports")
         if ports_el is not None:
-            # Extra ports (filtered)
             extra_el = ports_el.find("extraports")
             if extra_el is not None:
-                host_data["extra_ports"]["filtered"] = int(
-                    extra_el.get("count", 0)
-                )
-                host_data["extra_ports"]["filtered_ranges"] = (
-                    extra_el.get("ports", "").split(",")
-                )
+                host_data["extra_ports"]["filtered"] = int(extra_el.get("count", 0))
+                host_data["extra_ports"]["filtered_ranges"] = extra_el.get("ports", "").split(",")
 
-            # Open ports
             for port_el in ports_el.findall("port"):
                 state_el = port_el.find("state")
                 if state_el is None or state_el.get("state") != "open":
@@ -152,28 +183,93 @@ def parse_nmap_scan(file_path):
                 svc_el = port_el.find("service")
                 service_name = ""
                 service_product = ""
+                service_version = ""
+                service_extrainfo = ""
                 service_tunnel = ""
                 service_cpe = ""
+                service_ostype = ""
                 if svc_el is not None:
                     service_name = svc_el.get("name", "")
                     service_product = svc_el.get("product", "")
+                    service_version = svc_el.get("version", "")
+                    service_extrainfo = svc_el.get("extrainfo", "")
                     service_tunnel = svc_el.get("tunnel", "")
                     service_cpe = svc_el.get("cpe", "")
+                    service_ostype = svc_el.get("ostype", "")
 
-                # Parse scripts attached to this port
+                # Parse scripts
                 port_scripts = {}
                 vulns_found = []
+                vulners_for_port = []
                 security_headers = {}
                 unusual_flag = False
+                git_nmap_finding = None
+                http_enum_findings = []
+                title_finding = None
+                server_header = None
+                ssh_keys = []
 
                 for script_el in port_el.findall("script"):
                     script_id = script_el.get("id", "")
                     script_output = script_el.get("output", "")
 
-                    # ── Vulnerability detection ──
-                    if script_id == "http-slowloris-check" and "VULNERABLE" in script_output:
-                        # Extract CVE details from structured elements
-                        cve_id = ""
+                    # ── vulners: CVE database lookup (structured tables) ──
+                    if script_id == "vulners":
+                        for table_el in script_el.findall(".//table"):
+                            row = {}
+                            for elem_el in table_el.findall("elem"):
+                                key = elem_el.get("key", "")
+                                text = (elem_el.text or "").strip()
+                                if key:
+                                    row[key] = text
+                            if row:
+                                cvss_val = float(row.get("cvss", 0))
+                                is_exploit = row.get("is_exploit", "false") == "true"
+                                entry_type = row.get("type", "unknown")
+                                entry_id = row.get("id", "UNKNOWN")
+
+                                # Severity label
+                                if cvss_val >= 9.0:
+                                    severity = "CRITICAL"
+                                elif cvss_val >= 7.0:
+                                    severity = "HIGH"
+                                elif cvss_val >= 4.0:
+                                    severity = "MEDIUM"
+                                else:
+                                    severity = "LOW"
+
+                                vulners_for_port.append({
+                                    "id": entry_id,
+                                    "cvss": cvss_val,
+                                    "severity": severity,
+                                    "is_exploit": is_exploit,
+                                    "type": entry_type,
+                                    "port": port_id,
+                                    "service": f"{service_name} {service_version}".strip(),
+                                })
+
+                        # Top 5 vulners as port-level vulns
+                        sorted_vulns = sorted(vulners_for_port, key=lambda x: -x["cvss"])[:5]
+                        for sv in sorted_vulns:
+                            vulns_found.append({
+                                "type": "CVE / Vulners",
+                                "script_id": "vulners",
+                                "cve_id": sv["id"],
+                                "cvss": sv["cvss"],
+                                "severity": sv["severity"],
+                                "title": f"{sv['id']} (CVSS {sv['cvss']})",
+                                "state": "EXPLOIT AVAILABLE" if sv["is_exploit"] else "VULNERABLE",
+                                "description": (
+                                    f"Vulnerability {sv['id']} with CVSS score {sv['cvss']} "
+                                    f"affects {sv['service']} on port {sv['port']}. "
+                                    f"{'Public exploit available.' if sv['is_exploit'] else 'No public exploit identified.'}"
+                                ),
+                                "references": [f"https://vulners.com/{sv['type']}/{sv['id']}"],
+                            })
+
+                    # ── Generic http-vuln-* scripts ──
+                    elif script_id.startswith("http-vuln-") and "VULNERABLE" in script_output:
+                        cve_ids = []
                         cve_title = ""
                         cve_state = ""
                         cve_desc = ""
@@ -188,22 +284,17 @@ def parse_nmap_scan(file_path):
                                 elif key == "state":
                                     cve_state = text
 
-                        # Get CVE IDs
                         ids_table = script_el.find(".//table[@key='ids']")
                         if ids_table is not None:
                             for e in ids_table.findall("elem"):
-                                cve_id = (e.text or "").strip()
+                                cve_ids.append((e.text or "").strip())
 
-                        # Get description
-                        desc_table = script_el.find(
-                            ".//table[@key='description']"
-                        )
+                        desc_table = script_el.find(".//table[@key='description']")
                         if desc_table is not None:
                             desc_el = desc_table.find("elem")
                             if desc_el is not None:
                                 cve_desc = (desc_el.text or "").strip()
 
-                        # Get references
                         refs_table = script_el.find(".//table[@key='refs']")
                         if refs_table is not None:
                             for e in refs_table.findall("elem"):
@@ -212,34 +303,154 @@ def parse_nmap_scan(file_path):
                         vulns_found.append({
                             "type": "Vulnerability",
                             "script_id": script_id,
+                            "cve_id": cve_ids[0] if cve_ids else script_id.replace("http-vuln-", "").upper(),
+                            "cvss": 0,
+                            "severity": "HIGH",
+                            "title": cve_title or script_id.replace("http-vuln-", "").upper(),
+                            "state": cve_state or "VULNERABLE",
+                            "description": cve_desc or script_output[:300],
+                            "references": cve_refs,
+                        })
+
+                    # ── http-slowloris-check ──
+                    elif script_id == "http-slowloris-check" and "VULNERABLE" in script_output:
+                        cve_id = ""
+                        cve_title = ""
+                        cve_state = ""
+                        cve_desc = ""
+                        cve_refs = []
+                        for table_el in script_el.findall(".//table"):
+                            for elem_el in table_el.findall("elem"):
+                                key = elem_el.get("key", "")
+                                text = (elem_el.text or "").strip()
+                                if key == "title":
+                                    cve_title = text
+                                elif key == "state":
+                                    cve_state = text
+                        ids_table = script_el.find(".//table[@key='ids']")
+                        if ids_table is not None:
+                            for e in ids_table.findall("elem"):
+                                cve_id = (e.text or "").strip()
+                        desc_table = script_el.find(".//table[@key='description']")
+                        if desc_table is not None:
+                            desc_el = desc_table.find("elem")
+                            if desc_el is not None:
+                                cve_desc = (desc_el.text or "").strip()
+                        refs_table = script_el.find(".//table[@key='refs']")
+                        if refs_table is not None:
+                            for e in refs_table.findall("elem"):
+                                cve_refs.append((e.text or "").strip())
+                        vulns_found.append({
+                            "type": "Vulnerability",
+                            "script_id": script_id,
                             "cve_id": cve_id,
+                            "cvss": 0,
+                            "severity": "MEDIUM",
                             "title": cve_title,
                             "state": cve_state,
                             "description": cve_desc,
                             "references": cve_refs,
                         })
 
-                    # ── Missing HSTS ──
-                    if script_id == "http-security-headers":
+                    # ── http-git: Git repository exposure ──
+                    elif script_id == "http-git":
+                        git_files = {}
+                        git_remotes = []
+                        git_desc = ""
+                        for table_el in script_el.findall(".//table"):
+                            tkey = table_el.get("key", "")
+                            if tkey == "files-found":
+                                for elem_el in table_el.findall("elem"):
+                                    fkey = elem_el.get("key", "")
+                                    fval = (elem_el.text or "").strip()
+                                    git_files[fkey] = fval == "true"
+                            elif tkey == "remotes":
+                                for elem_el in table_el.findall("elem"):
+                                    git_remotes.append((elem_el.text or "").strip())
+                        desc_el = script_el.find(".//elem[@key='repository-description']")
+                        if desc_el is not None:
+                            git_desc = (desc_el.text or "").strip()
+
+                        exposed = [k for k, v in git_files.items() if v]
+                        git_nmap_finding = {
+                            "exposed_files": exposed,
+                            "all_files": git_files,
+                            "remotes": git_remotes,
+                            "description": git_desc,
+                            "risk_level": "CRITICAL" if (".git/config" in exposed or ".git/HEAD" in exposed) else "HIGH",
+                        }
+                        # Add as a vulnerability
+                        vulns_found.append({
+                            "type": "Git Exposure",
+                            "script_id": "http-git",
+                            "cve_id": "N/A",
+                            "cvss": 0,
+                            "severity": git_nmap_finding["risk_level"],
+                            "title": "Publicly Accessible .git Repository",
+                            "state": "EXPOSED",
+                            "description": (
+                                f"Nmap discovered an accessible .git repository. "
+                                f"{len(exposed)} files exposed: {', '.join(exposed)}. "
+                                f"Remote origin: {', '.join(git_remotes) if git_remotes else 'unknown'}."
+                            ),
+                            "references": git_remotes,
+                        })
+
+                    # ── http-enum ──
+                    elif script_id == "http-enum" and script_output.strip():
+                        for line in script_output.strip().split("\n"):
+                            line = line.strip()
+                            if line:
+                                http_enum_findings.append(line)
+
+                    # ── http-title ──
+                    elif script_id == "http-title":
+                        title_el = script_el.find("elem[@key='title']")
+                        if title_el is not None:
+                            title_finding = (title_el.text or "").strip()
+                        elif script_output:
+                            title_finding = script_output.strip()
+
+                    # ── http-server-header ──
+                    elif script_id == "http-server-header":
+                        elem = script_el.find("elem")
+                        if elem is not None and elem.text:
+                            server_header = elem.text.strip()
+                        elif script_output:
+                            server_header = script_output.strip()
+
+                    # ── ssh-hostkey ──
+                    elif script_id == "ssh-hostkey":
+                        for table_el in script_el.findall("table"):
+                            key_info = {}
+                            for elem_el in table_el.findall("elem"):
+                                k = elem_el.get("key", "")
+                                v = (elem_el.text or "").strip()
+                                if k:
+                                    key_info[k] = v
+                            if key_info:
+                                ssh_keys.append(key_info)
+
+                    # ── http-security-headers ──
+                    elif script_id == "http-security-headers":
                         if "HSTS not configured" in script_output:
                             vulns_found.append({
                                 "type": "Missing Header",
                                 "script_id": script_id,
                                 "cve_id": "N/A",
-                                "title": "HTTP Strict Transport Security (HSTS) Not Configured",
+                                "cvss": 0,
+                                "severity": "MEDIUM",
+                                "title": "HSTS Not Configured",
                                 "state": "MISSING",
                                 "description": (
-                                    "HSTS is not enabled on this HTTPS port. "
-                                    "Without HSTS, browsers may connect over "
-                                    "unencrypted HTTP, exposing users to "
-                                    "man-in-the-middle downgrade attacks."
+                                    "HTTP Strict Transport Security is not enabled. "
+                                    "Without HSTS, browsers may connect over unencrypted HTTP, "
+                                    "exposing users to MITM downgrade attacks."
                                 ),
                                 "references": [
                                     "https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Strict_Transport_Security_Cheat_Sheet.html"
                                 ],
                             })
-
-                        # Extract present security headers
                         for table_el in script_el.findall("table"):
                             table_key = table_el.get("key", "")
                             for elem_el in table_el.findall("elem"):
@@ -249,47 +460,81 @@ def parse_nmap_scan(file_path):
                                         security_headers[table_key] = []
                                     security_headers[table_key].append(text)
 
-                    # ── Unusual port detection ──
-                    if script_id == "unusual-port":
+                    # ── unusual-port ──
+                    elif script_id == "unusual-port":
                         unusual_flag = True
 
-                    # Store all scripts
+                    # Store script
                     port_scripts[script_id] = {
                         "output": script_output,
                         "id": script_id,
                     }
+
+                # Build service version string
+                version_parts = []
+                if service_product:
+                    version_parts.append(service_product)
+                if service_version:
+                    version_parts.append(service_version)
+                if service_extrainfo:
+                    version_parts.append(f"({service_extrainfo})")
+                service_full_version = " ".join(version_parts) if version_parts else service_name
 
                 port_info = {
                     "port": port_id,
                     "protocol": protocol,
                     "service_name": service_name,
                     "service_product": service_product,
+                    "service_version": service_version,
+                    "service_extrainfo": service_extrainfo,
+                    "service_full_version": service_full_version,
                     "service_tunnel": service_tunnel,
                     "service_cpe": service_cpe,
+                    "service_ostype": service_ostype,
                     "is_ssl": service_tunnel == "ssl",
                     "vulnerabilities": vulns_found,
                     "security_headers": security_headers,
                     "unusual": unusual_flag,
+                    "http_title": title_finding,
+                    "server_header": server_header,
+                    "http_enum": http_enum_findings,
+                    "ssh_keys": ssh_keys,
                 }
                 host_data["open_ports"].append(port_info)
 
                 if unusual_flag:
                     host_data["unusual_ports"].append(port_id)
 
-            # Collect all vulnerabilities
+                # Store vulners per port (raw)
+                if vulners_for_port:
+                    host_data["vulners_entries"].extend(vulners_for_port)
+
+                # Store git exposure from nmap
+                if git_nmap_finding:
+                    host_data["git_exposure_nmap"] = git_nmap_finding
+
+            # Aggregate vulnerabilities across ports
+            seen = set()
             for port_info in host_data["open_ports"]:
                 for vuln in port_info.get("vulnerabilities", []):
-                    if vuln not in host_data["vulnerabilities"]:
+                    key = vuln.get("cve_id", "") + vuln.get("title", "")
+                    if key not in seen:
+                        seen.add(key)
                         host_data["vulnerabilities"].append(vuln)
 
-            # Collect security notes (headers summary)
+            # ── Deduplicate vulners: group exploits under their CVEs ──
+            if host_data["vulners_entries"]:
+                host_data["vulners_deduped"] = _dedup_vulners(
+                    host_data["vulners_entries"]
+                )
+
+            # Security notes
             for port_info in host_data["open_ports"]:
                 if port_info["security_headers"]:
-                    note = {
+                    host_data["security_notes"].append({
                         "port": port_info["port"],
                         "headers": port_info["security_headers"],
-                    }
-                    host_data["security_notes"].append(note)
+                    })
 
         # ── Uptime ──
         uptime_el = host_el.find("uptime")
@@ -330,6 +575,82 @@ def parse_nmap_scan(file_path):
         "scan_info": scan_info,
         "host": host_data,
     }
+
+
+
+def _dedup_vulners(vulners_entries):
+    """Group vulners entries by (service, cvss) — merge exploits under CVEs."""
+    from collections import defaultdict
+
+    # Group by (service, cvss)
+    groups = defaultdict(lambda: {"cves": [], "exploits": [], "max_cvss": 0})
+    for v in vulners_entries:
+        key = (v.get("service", ""), v.get("cvss", 0))
+        g = groups[key]
+        g["max_cvss"] = max(g["max_cvss"], v.get("cvss", 0))
+        if v.get("type") == "cve":
+            g["cves"].append(v)
+        else:
+            g["exploits"].append(v)
+
+    deduped = []
+    seen_cve_ids = set()
+
+    for (svc, cvss), g in sorted(groups.items(), key=lambda x: -x[1]["max_cvss"]):
+        exploit_count = len(g["exploits"])
+
+        # If we have real CVEs, show them with exploit count
+        for cve in g["cves"]:
+            cid = cve["id"]
+            if cid in seen_cve_ids:
+                continue
+            seen_cve_ids.add(cid)
+
+            # Severity label
+            if cvss >= 9.0:
+                severity = "CRITICAL"
+            elif cvss >= 7.0:
+                severity = "HIGH"
+            elif cvss >= 4.0:
+                severity = "MEDIUM"
+            else:
+                severity = "LOW"
+
+            deduped.append({
+                "id": cid,
+                "cvss": cvss,
+                "severity": severity,
+                "is_exploit": exploit_count > 0,
+                "type": "cve",
+                "port": cve.get("port", ""),
+                "service": svc,
+                "exploit_count": exploit_count,
+            })
+
+        # If only exploits (no CVE), show the first exploit as representative
+        if not g["cves"] and g["exploits"]:
+            rep = g["exploits"][0]
+            if cvss >= 9.0:
+                severity = "CRITICAL"
+            elif cvss >= 7.0:
+                severity = "HIGH"
+            elif cvss >= 4.0:
+                severity = "MEDIUM"
+            else:
+                severity = "LOW"
+
+            deduped.append({
+                "id": f"{len(g['exploits'])} exploits for {svc}",
+                "cvss": cvss,
+                "severity": severity,
+                "is_exploit": True,
+                "type": "exploit_group",
+                "port": rep.get("port", ""),
+                "service": svc,
+                "exploit_count": exploit_count,
+            })
+
+    return deduped
 
 
 # ─── Dirsearch Parsing ───────────────────────────────────────────────────────
@@ -567,7 +888,7 @@ def parse_whatweb_results(file_path):
 
 def parse_ffuf_results(file_path):
     """
-    Parse ffuf_report.json and extract:
+    Parse ffuf_rawReport.json and extract:
       - Scan metadata (command, timestamp)
       - Discovered endpoints with categorised risk levels
       - Sensitive file exposure (.git, .env, backups, configs)
@@ -721,7 +1042,7 @@ def _summarize_ffuf_git_exposure(git_findings):
         "exposed_files": exposed_files,
         "total_git_hits": len(git_findings),
         "summary_text": (
-            f"FFUF directory brute-force discovered {len(exposed_files)} publicly "
+            f"The Security Assessment revealed there are  {len(exposed_files)} publicly "
             f"accessible Git repository files on the target. These files expose "
             f"internal repository structure, commit history, and metadata. "
             f"This is a {risk_level} severity finding."
@@ -939,6 +1260,66 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
             letter-spacing: 0.5px;
         }}
 
+        .key-findings-subsection {{
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin: 16px 0 6px 0;
+            padding-bottom: 4px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }}
+
+        .pie-chart-container {{
+            margin-bottom: 18px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }}
+        .pie-chart-title {{
+            font-family: 'Outfit', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }}
+
+        .inner-tabs-nav {{
+            display: flex;
+            gap: 4px;
+            margin-bottom: 0;
+        }}
+        .inner-tab-btn {{
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.15s;
+        }}
+        .inner-tab-btn.active {{
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border-bottom-color: transparent;
+            font-weight: 600;
+        }}
+        .inner-tab-btn:hover {{
+            color: var(--text-primary);
+        }}
+        .inner-tab-content {{
+            display: none;
+        }}
+        .inner-tab-content.active {{
+            display: block;
+        }}
+
         /* Print styles */
                 @media print {{
                     body {{ background: #fff; color: #000; }}
@@ -1000,17 +1381,26 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
                     <span class="score-label" style="color:{_risk_color(risk_score)}">{risk_label}</span>
                 </div>
                 <div class="stat-grid" style="margin-top:16px">
+                    <div class="stat-card" style="grid-column:1/-1;text-align:center;padding:8px 12px">
+                        <span class="stat-lbl" style="font-size:13px;color:var(--text-secondary);text-transform:none;letter-spacing:0">
+                            {_cve_breakdown_text(nmap_data)}
+                        </span>
+                    </div>
                     <div class="stat-card">
-                        <span class="stat-val stat-critical">{_vuln_count(nmap_data)}</span>
-                        <span class="stat-lbl">Vulnerabilities</span>
+                        <span class="stat-val stat-critical">{_cve_unique_count(nmap_data)}</span>
+                        <span class="stat-lbl">Unique CVEs</span>
                     </div>
                     <div class="stat-card">
                         <span class="stat-val stat-info">{_open_port_count(nmap_data)}</span>
                         <span class="stat-lbl">Open Ports</span>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-val stat-warning">{_git_exposed_count(dirsearch_data)}</span>
+                        <span class="stat-val stat-warning">{_git_exposed_count(dirsearch_data, ffuf_data)}</span>
                         <span class="stat-lbl">.git Files Exposed</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-val stat-critical">{_vuln_count(nmap_data)}</span>
+                        <span class="stat-lbl">Vulnerabilities</span>
                     </div>
                     <div class="stat-card">
                         <span class="stat-val stat-pass">{_tech_count(whatweb_data)}</span>
@@ -1031,36 +1421,18 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
 
         <!-- ═══ Tab Navigation ═══ -->
         <div class="tabs-nav">
-            <button class="tab-btn active" onclick="switchTab('tab-ports')">Open Ports</button>
-            <button class="tab-btn" onclick="switchTab('tab-vulns')">Vulnerabilities</button>
-            <button class="tab-btn" onclick="switchTab('tab-dirsearch')">Directory Enum</button>
-            <button class="tab-btn" onclick="switchTab('tab-git')">.git Exposure</button>
-            <button class="tab-btn" onclick="switchTab('tab-tech')">Tech Fingerprint</button>
+            <button class="tab-btn active" onclick="switchTab('tab-os')">OS Detection</button>
+            <button class="tab-btn" onclick="switchTab('tab-ports')">Open Ports</button>
+            <button class="tab-btn" onclick="switchTab('tab-tech')">Tech Findings</button>
             <button class="tab-btn" onclick="switchTab('tab-ffuf')">Asset Discovery</button>
-            <button class="tab-btn" onclick="switchTab('tab-headers')">Security Headers</button>
+            <button class="tab-btn" onclick="switchTab('tab-vulners')">CVE Database</button>
+            <button class="tab-btn" onclick="switchTab('tab-vulns')">Vulnerabilities</button>
         </div>
 
         <!-- ═══ Tab: Open Ports & Services ═══ -->
-        <div class="tab-content active" id="tab-ports">
+        <div class="tab-content" id="tab-ports">
             <h2 class="section-title">Open Ports &amp; Services</h2>
             {_build_ports_section(nmap_data)}
-        </div>
-
-        <!-- ═══ Tab: Vulnerability Findings ═══ -->
-        <div class="tab-content" id="tab-vulns">
-            <h2 class="section-title">Vulnerability Findings</h2>
-            {_build_vulnerabilities_section(nmap_data)}
-        </div>
-
-        <!-- ═══ Tab: Directory Enumeration ═══ -->
-        <div class="tab-content" id="tab-dirsearch">
-            <h2 class="section-title">Directory &amp; File Enumeration</h2>
-            {_build_dirsearch_section(dirsearch_data)}
-        </div>
-
-        <!-- ═══ Tab: .git Exposure Details ═══ -->
-        <div class="tab-content" id="tab-git">
-            {_build_git_exposure_section(dirsearch_data)}
         </div>
 
         <!-- ═══ Tab: Technology Fingerprint ═══ -->
@@ -1075,10 +1447,22 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
             {_build_ffuf_section(ffuf_data)}
         </div>
 
-        <!-- ═══ Tab: Security Header Analysis ═══ -->
-        <div class="tab-content" id="tab-headers">
-            <h2 class="section-title">Security Header Analysis</h2>
-            {_build_security_headers_section(nmap_data)}
+        <!-- ═══ Tab: CVE Vulnerability Database ═══ -->
+        <div class="tab-content" id="tab-vulners">
+            <h2 class="section-title">CVE Vulnerability Assessment</h2>
+            {_build_vulners_section(nmap_data)}
+        </div>
+
+        <!-- ═══ Tab: OS Detection ═══ -->
+        <div class="tab-content active" id="tab-os">
+            <h2 class="section-title">Operating System Detection</h2>
+            {_build_os_section(nmap_data)}
+        </div>
+
+        <!-- ═══ Tab: Vulnerability Findings ═══ -->
+        <div class="tab-content" id="tab-vulns">
+            <h2 class="section-title">Vulnerability Findings</h2>
+            {_build_vulnerabilities_section(nmap_data)}
         </div>
 
         <!-- ═══ Footer ═══ -->
@@ -1089,6 +1473,15 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
     </div>
 
     <script>
+        function switchInnerTab(btn, contentId) {{
+            var parent = btn.parentElement;
+            var container = parent.parentElement;
+            parent.querySelectorAll('.inner-tab-btn').forEach(function(b) {{ b.classList.remove('active'); }});
+            btn.classList.add('active');
+            container.querySelectorAll('.inner-tab-content').forEach(function(c) {{ c.classList.remove('active'); }});
+            var target = document.getElementById(contentId);
+            if (target) target.classList.add('active');
+        }}
         function switchTab(tabId) {{
             document.querySelectorAll('.tab-btn').forEach(function(btn) {{ btn.classList.remove('active'); }});
             document.querySelectorAll('.tab-content').forEach(function(tc) {{ tc.classList.remove('active'); }});
@@ -1129,14 +1522,38 @@ def _calculate_risk_score(nmap_data, dirsearch_data, whatweb_data, ffuf_data=Non
     """Compute a weighted risk score 0-100 from findings."""
     score = 0
 
-    # Nmap vulnerabilities
+    # Nmap vulnerabilities (including vulners CVSS-based scoring)
     if nmap_data and nmap_data.get("host"):
         vulns = nmap_data["host"].get("vulnerabilities", [])
         for v in vulns:
-            if v.get("state") == "LIKELY VULNERABLE":
+            sev = v.get("severity", "")
+            if sev == "CRITICAL":
+                score += 15
+            elif sev == "HIGH":
+                score += 10
+            elif sev == "MEDIUM":
+                score += 5
+            elif sev == "LOW":
+                score += 2
+            # Legacy fallback
+            elif v.get("state") == "LIKELY VULNERABLE":
                 score += 12
             elif v.get("state") == "MISSING":
                 score += 8
+
+        # Vulners entries with CVSS scores
+        for ve in nmap_data["host"].get("vulners_entries", []):
+            cvss = ve.get("cvss", 0)
+            if cvss >= 9.0:
+                score += 6
+            elif cvss >= 7.0:
+                score += 4
+            elif cvss >= 4.0:
+                score += 2
+
+        # Nmap git exposure
+        if nmap_data["host"].get("git_exposure_nmap"):
+            score += 20
 
         # Unusual ports
         unusual = nmap_data["host"].get("unusual_ports", [])
@@ -1184,9 +1601,44 @@ def _calculate_risk_score(nmap_data, dirsearch_data, whatweb_data, ffuf_data=Non
     return score, label
 
 
-def _vuln_count(nmap_data):
+def _cve_breakdown_text(nmap_data):
+    """Return text like '12 unique CVEs across 1 service: 3 Critical, 5 High, 4 Medium, 3 Low'"""
+    if not nmap_data or not nmap_data.get("host"):
+        return ""
+    dd = nmap_data["host"].get("vulners_deduped", [])
+    if not dd:
+        return ""
+    cves = [v for v in dd if v.get("type") == "cve"]
+    services = sorted(set(v.get("service", "Unknown") for v in dd))
+    crit = sum(1 for v in dd if v.get("cvss", 0) >= 9.0)
+    high = sum(1 for v in dd if 7.0 <= v.get("cvss", 0) < 9.0)
+    med  = sum(1 for v in dd if 4.0 <= v.get("cvss", 0) < 7.0)
+    low  = sum(1 for v in dd if v.get("cvss", 0) < 4.0)
+    svc_word = "service" if len(services) == 1 else "services"
+    return f"{len(cves)} unique CVEs across {len(services)} {svc_word}: {crit} Critical, {high} High, {med} Medium, {low} Low"
+
+
+def _cve_unique_count(nmap_data):
+    """Count unique CVEs from deduped vulners data."""
     if nmap_data and nmap_data.get("host"):
-        return len(nmap_data["host"].get("vulnerabilities", []))
+        dd = nmap_data["host"].get("vulners_deduped", [])
+        cves = [v for v in dd if v.get("type") == "cve"]
+        if cves:
+            return len(cves)
+        # fallback to raw if no deduped
+        raw = nmap_data["host"].get("vulners_entries", [])
+        return len(raw)
+    return 0
+
+
+def _vuln_count(nmap_data):
+    """Total vulnerability count including vulners entries."""
+    if nmap_data and nmap_data.get("host"):
+        host = nmap_data["host"]
+        aggregated = len(host.get("vulnerabilities", []))
+        vulners = len(host.get("vulners_entries", []))
+        # Return the larger of the two to reflect actual vuln scope
+        return max(aggregated, vulners)
     return 0
 
 
@@ -1196,10 +1648,27 @@ def _open_port_count(nmap_data):
     return 0
 
 
-def _git_exposed_count(dirsearch_data):
+def _git_exposed_count(dirsearch_data, ffuf_data=None):
+    """Count .git file exposures from both dirsearch and FFUF (Asset Discovery)."""
+    count = 0
     if dirsearch_data and dirsearch_data.get("git_exposure"):
-        return len(dirsearch_data["git_exposure"])
-    return 0
+        count += len(dirsearch_data["git_exposure"])
+    if ffuf_data and ffuf_data.get("git_findings"):
+        count += len(ffuf_data["git_findings"])
+    return count
+
+
+def _vuln_count(nmap_data):
+    """Count unique vulnerability findings from the Vulnerabilities tab."""
+    if not nmap_data or not nmap_data.get("host"):
+        return 0
+    vulns = nmap_data["host"].get("vulnerabilities", [])
+    seen = set()
+    for v in vulns:
+        key = v.get("title", "") + v.get("cve_id", "")
+        if key not in seen:
+            seen.add(key)
+    return len(seen)
 
 
 def _git_exposed_from_ffuf_count(ffuf_data):
@@ -1232,54 +1701,112 @@ def _ffuf_git_exposed_count(ffuf_data):
 
 
 def _build_key_findings(nmap_data, dirsearch_data, whatweb_data, ffuf_data=None):
-    """Build the key findings summary for the dashboard."""
-    items = []
+    """Build the key findings summary with subsections and severity pie chart."""
+    sections = []  # List of (section_title, items_list)
 
-    # .git exposure (dirsearch)
-    if dirsearch_data and dirsearch_data.get("git_summary"):
-        summary = dirsearch_data["git_summary"]
-        items.append(f"""\n            <div class="finding-row finding-severity-critical">\n                <span class="finding-label">Git Exposure</span>\n                <span class="finding-value">\n                    <span class="badge badge-red">{summary['risk_level']}</span>\n                    <span class="finding-text">{summary['exposed_file_count']} Git files publicly accessible &mdash; source code and config leakage risk.</span>\n                </span>\n            </div>\n        """)
+    def section(title, items_list):
+        if items_list:
+            sections.append((title, items_list))
 
-    # .git / sensitive file exposure from FFUF
-    if ffuf_data:
-        git_summary = ffuf_data.get("git_summary")
-        if git_summary:
-            risk_badge = "badge-red" if git_summary["risk_level"] == "CRITICAL" else "badge-yellow"
-            items.append(f"""\n            <div class="finding-row finding-severity-high">\n                <span class="finding-label">FFUF Discovery</span>\n                <span class="finding-value">\n                    <span class="badge {risk_badge}">{git_summary['risk_level']}</span>\n                    <span class="finding-text">{git_summary['exposed_file_count']} .git files exposed via directory brute-force — repository structure and metadata leaked.</span>\n                </span>\n            </div>\n        """)
-        # Other critical/sensitive FFUF findings (non-git)
-        critical = ffuf_data.get("critical", [])
-        non_git_critical = [c for c in critical if ".git" not in c.get("url", "")]
-        if non_git_critical:
-            items.append(f"""\n            <div class="finding-row finding-severity-high">\n                <span class="finding-label">Sensitive Endpoints</span>\n                <span class="finding-value">\n                    <span class="badge badge-red">CRITICAL</span>\n                    <span class="finding-text">{len(non_git_critical)} sensitive endpoints discovered: {', '.join(c['fuzz_word'] for c in non_git_critical[:5])}</span>\n                </span>\n            </div>\n        """)
-        # Endpoint count
-        total = ffuf_data.get("total_findings", 0)
-        if total > 0:
-            items.append(f"""\n            <div class="finding-row finding-severity-low">\n                <span class="finding-label">Asset Discovery</span>\n                <span class="finding-value">\n                    <span class="badge badge-green">INFO</span>\n                    <span class="finding-text">{total} endpoints discovered via directory brute-force scan.</span>\n                </span>\n            </div>\n        """)
-
-    # Vulnerabilities from nmap
+    # ── HOST section (Nmap) ──
+    host_items = []
     if nmap_data and nmap_data.get("host"):
-        vulns = nmap_data["host"].get("vulnerabilities", [])
-        for v in vulns:
-            sev = "badge-red" if "VULNERABLE" in v.get("state", "") else "badge-yellow"
-            items.append(f"""\n                <div class="finding-row finding-severity-high">\n                    <span class="finding-label">Vulnerability</span>\n                    <span class="finding-value">\n                        <span class="badge {sev}">{v.get('state', 'FOUND')}</span>\n                        <span class="finding-text">{html_escape(v.get('title', 'Unknown finding'))}{f" ({html_escape(v.get('cve_id', ''))})" if v.get('cve_id') and v['cve_id'] != 'N/A' else ""}</span>\n                    </span>\n                </div>\n            """)
+        # OS
+        osd = nmap_data["host"].get("os_detection")
+        if osd:
+            host_items.append(
+                f"""<div class="finding-row"><span class="finding-label">OS</span><span class="finding-value"><span class="badge badge-blue">DETECTED</span><span class="finding-text">{html_escape(osd['best_match'])} ({osd['best_accuracy']}% accuracy)</span></span></div>""")
 
-    # Unusual ports
-    if nmap_data and nmap_data.get("host"):
+
+
+
+
+        # Unusual ports
         unusual = nmap_data["host"].get("unusual_ports", [])
         if unusual:
-            items.append(f"""\n                <div class="finding-row finding-severity-medium">\n                    <span class="finding-label">Unusual Ports</span>\n                    <span class="finding-value">\n                        <span class="badge badge-blue">INFO</span>\n                        <span class="finding-text">{len(unusual)} non-standard HTTP ports detected: {', '.join(str(p) for p in unusual)}</span>\n                    </span>\n                </div>\n            """)
+            host_items.append(
+                f"""<div class="finding-row finding-severity-medium"><span class="finding-label">Unusual Ports</span><span class="finding-value"><span class="badge badge-yellow">WARNING</span><span class="finding-text">{len(unusual)} non-standard port(s): {', '.join(str(p) for p in unusual)}</span></span></div>""")
 
-    # WhatWeb tech count
+
+
+    # ── VULNERABILITIES section ──
+    vuln_items = []
+    if nmap_data and nmap_data.get("host"):
+        # Vulners CVE summary
+        dedup = nmap_data["host"].get("vulners_deduped", [])
+        raw = nmap_data["host"].get("vulners_entries", [])
+        if dedup:
+            cves = [v for v in dedup if v["type"] == "cve"]
+            exploits = sum(v.get("exploit_count", 0) for v in dedup)
+            crit_c = sum(1 for v in dedup if v.get("cvss", 0) >= 9.0)
+            high_c = sum(1 for v in dedup if 7.0 <= v.get("cvss", 0) < 9.0)
+            med_c  = sum(1 for v in dedup if 4.0 <= v.get("cvss", 0) < 7.0)
+            low_c  = sum(1 for v in dedup if v.get("cvss", 0) < 4.0)
+            vuln_items.append(
+                f"""<div class="finding-row finding-severity-high"><span class="finding-label">CVE Database</span><span class="finding-value"><span class="badge badge-red">{crit_c + high_c} HIGH+</span><span class="finding-text">{len(cves)} unique CVEs across services — {crit_c} critical, {high_c} high, {med_c} medium, {low_c} low. {exploits} public exploits catalogued.</span></span></div>""")
+
+        # Active vulnerabilities (http-vuln, git, etc.)
+        agg = nmap_data["host"].get("vulnerabilities", [])
+        for v in agg:
+            sev = v.get("severity", "HIGH")
+            badge = "badge-red" if sev == "CRITICAL" else ("badge-yellow" if sev == "HIGH" else "badge-blue")
+            vuln_items.append(
+                f"""<div class="finding-row finding-severity-high"><span class="finding-label">{html_escape(v.get('type','Vuln'))}</span><span class="finding-value"><span class="badge {badge}">{html_escape(v.get('state','FOUND'))}</span><span class="finding-text">{html_escape(v.get('title',''))}</span></span></div>""")
+
+        # Git exposed (nmap)
+        gex = nmap_data["host"].get("git_exposure_nmap")
+        if gex:
+            vuln_items.append(
+                f"""<div class="finding-row finding-severity-critical"><span class="finding-label">Git Exposed</span><span class="finding-value"><span class="badge badge-red">CRITICAL</span><span class="finding-text">Nmap http-git: {len(gex['exposed_files'])} files exposed ({', '.join(gex['exposed_files'][:3])})</span></span></div>""")
+
+    section("Vulnerabilities &amp; Exposures", vuln_items)
+
+    # ── WEB / DISCOVERY section (FFUF + WhatWeb + Dirsearch) ──
+    web_items = []
+    if ffuf_data:
+        total = ffuf_data.get("total_findings", 0)
+        if total:
+            web_items.append(
+                f"""<div class="finding-row"><span class="finding-label">Endpoints</span><span class="finding-value"><span class="badge badge-blue">INFO</span><span class="finding-text">{total} endpoints discovered via FFUF directory brute-force.</span></span></div>""")
+
+        git_sum = ffuf_data.get("git_summary")
+        if git_sum:
+            web_items.append(
+                f"""<div class="finding-row finding-severity-high"><span class="finding-label">Git Files</span><span class="finding-value"><span class="badge badge-yellow">{git_sum['risk_level']}</span><span class="finding-text">{git_sum['exposed_file_count']} .git files via FFUF.</span></span></div>""")
+
+        critical = ffuf_data.get("critical", [])
+        non_git = [c for c in critical if ".git" not in c.get("url", "")]
+        if non_git:
+            web_items.append(
+                f"""<div class="finding-row finding-severity-critical"><span class="finding-label">Sensitive</span><span class="finding-value"><span class="badge badge-red">CRITICAL</span><span class="finding-text">{len(non_git)} sensitive endpoint(s): {', '.join(c['fuzz_word'] for c in non_git[:4])}</span></span></div>""")
+
+    # Dirsearch
+    if dirsearch_data and dirsearch_data.get("true_positives_count", 0) > 0:
+        tp = dirsearch_data["true_positives_count"]
+        web_items.append(
+            f"""<div class="finding-row"><span class="finding-label">Dir Enum</span><span class="finding-value"><span class="badge badge-blue">INFO</span><span class="finding-text">{tp} non-404 paths found via directory enumeration.</span></span></div>""")
+
+    # WhatWeb tech
     if whatweb_data:
         tech = whatweb_data.get("technology_stack", [])
         if tech:
-            tech_names = [t["plugin"] for t in tech]
-            items.append(f"""\n                <div class="finding-row finding-severity-low">\n                    <span class="finding-label">Tech Stack</span>\n                    <span class="finding-value">\n                        <span class="badge badge-green">DETECTED</span>\n                        <span class="finding-text">{', '.join(tech_names)}</span>\n                    </span>\n                </div>\n            """)
+            names = ", ".join(t["plugin"] for t in tech)
+            web_items.append(
+                f"""<div class="finding-row"><span class="finding-label">Tech Stack</span><span class="finding-value"><span class="badge badge-green">DETECTED</span><span class="finding-text">{names}</span></span></div>""")
 
-    if not items:
-        items.append('<p class="summary-text">No significant findings detected.</p>')
 
-    return "\n".join(items)
+
+    # ── Build HTML ──
+    subsections_html = ""
+    for title, items in sections:
+        subsections_html += f'<h4 class="key-findings-subsection">{title}</h4>' + "\n"
+        subsections_html += "\n".join(items) + "\n"
+
+    if not sections:
+        subsections_html = '<p class="summary-text">No significant findings detected.</p>'
+
+    return subsections_html
+
 
 
 def _build_ports_section(nmap_data):
@@ -1314,7 +1841,7 @@ def _build_ports_section(nmap_data):
     <div class="glass-card">
         <div class="card-title">Discovered Services ({len(ports)} open ports)</div>
         <p class="summary-text" style="margin-bottom:12px">
-            Nmap detected <strong>{len(ports)} open ports</strong> on {html_escape(host['ip'])}
+            Black Dragon detected <strong>{len(ports)} open ports</strong> on {html_escape(host['ip'])}
             with <strong>{host['extra_ports']['filtered']:,} filtered ports</strong>.
             The target is behind Cloudflare's network (AS13335).
         </p>
@@ -1420,14 +1947,6 @@ def _build_dirsearch_section(dirsearch_data):
     tp_count = dirsearch_data.get("true_positives_count", 0)
     fp_count = dirsearch_data.get("false_positives_count", 0)
     total = dirsearch_data.get("total_results", 0)
-
-    # Status code breakdown
-    status_html = ""
-    for status, count in sorted(dirsearch_data.get("status_counts", {}).items()):
-        badge_class = "badge-red" if status == 200 else (
-            "badge-yellow" if status in (301, 403) else "badge-blue"
-        )
-        status_html += f'<span class="badge {badge_class}">{status}: {count}</span> '
 
     # True positives table
     tp = dirsearch_data.get("true_positives", [])
@@ -1626,7 +2145,7 @@ def _build_tech_fingerprint_section(whatweb_data):
     <div class="glass-card">
         <div class="card-title">Web Technology Stack</div>
         <p class="summary-text" style="margin-bottom:12px">
-            WhatWeb fingerprinting identified the following technologies and characteristics
+            The fingerpprint of your website reaveal the following information and technologies and characteristics
             on <code>{html_escape(whatweb_data.get('target', 'Unknown'))}</code>.
         </p>
         <div style="margin-bottom:16px">
@@ -1730,7 +2249,7 @@ def _build_ffuf_section(ffuf_data):
     if git_summary:
         git_html = f"""
         <div class="glass-card card-red" style="margin-bottom:20px">
-            <div class="card-title">.git Repository Exposure via FFUF <span class="badge badge-red">{git_summary['risk_level']}</span></div>
+            <div class="card-title">.git Repository <span class="badge badge-red">{git_summary['risk_level']}</span></div>
             <div class="highlight-box">
                 {html_escape(git_summary['summary_text'])}
             </div>
@@ -1827,9 +2346,9 @@ def _build_ffuf_section(ffuf_data):
 
     return f"""
     <div class="glass-card">
-        <div class="card-title">FFUF Directory Brute-Force Results</div>
+        <div class="card-title">Web Discovery</div>
         <p class="summary-text" style="margin-bottom:12px">
-            FFUF scanned the target with a common wordlist, discovering
+            During the scan the following was identified:
             <strong style="color:var(--color-info)">{total} endpoints</strong>.
             <strong style="color:var(--color-critical)">{len(critical)} critical</strong>,
             <strong style="color:var(--color-warning)">{len(high)} high</strong>,
@@ -1837,15 +2356,8 @@ def _build_ffuf_section(ffuf_data):
             {len(low)} low-severity findings.
         </p>
         <div style="margin-bottom:12px">
-            <span style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Status Breakdown: </span>
-            {status_html}
-        </div>
-        <div style="margin-bottom:12px">
             <span style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Content Types: </span>
             {ct_html}
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:16px;word-break:break-all">
-            <strong>Command:</strong> <code>{html_escape(scan_info.get('command', 'N/A'))}</code>
         </div>
     </div>
 
@@ -1858,6 +2370,299 @@ def _build_ffuf_section(ffuf_data):
 
 
 # ─── Main ────────────────────────────────────────────────────────────────────
+
+
+def _build_vulners_section(nmap_data):
+    """Build the Vulnerability Assessment table from vulners NSE script."""
+    if not nmap_data or not nmap_data.get("host"):
+        return '<div class="glass-card"><p class="summary-text">No vulnerability assessment data available.</p></div>'
+
+    vulners = nmap_data["host"].get("vulners_deduped") or nmap_data["host"].get("vulners_entries", [])
+    if not vulners:
+        return '<div class="glass-card card-green"><div class="card-title">No CVEs Detected</div><p class="summary-text">Vulners NSE script found no known CVEs matching the detected service versions.</p></div>'
+
+    vulners_sorted = sorted(vulners, key=lambda x: -x.get("cvss", 0))
+    real_cves = [v for v in vulners_sorted if v.get("type") == "cve"]
+    crit = sum(1 for v in vulners_sorted if v.get("cvss", 0) >= 9.0)
+    high = sum(1 for v in vulners_sorted if 7.0 <= v.get("cvss", 0) < 9.0)
+    med  = sum(1 for v in vulners_sorted if 4.0 <= v.get("cvss", 0) < 7.0)
+    low  = sum(1 for v in vulners_sorted if v.get("cvss", 0) < 4.0)
+    total_exploits = sum(v.get("exploit_count", 0) for v in vulners_sorted)
+    services = sorted(set(v.get("service", "Unknown") for v in vulners_sorted))
+
+    rows = ""
+    for v in vulners_sorted:
+        cvss = v.get("cvss", 0)
+        if cvss >= 9.0:
+            sev_badge = "badge-red"
+        elif cvss >= 7.0:
+            sev_badge = "badge-yellow"
+        elif cvss >= 4.0:
+            sev_badge = "badge-blue"
+        else:
+            sev_badge = "badge-green"
+
+        exploit_count = v.get("exploit_count", 0)
+        if exploit_count > 0:
+            exploit_badge = f'<span class="badge badge-red" style="font-size:9px">{exploit_count} EXPLOIT{"S" if exploit_count > 1 else ""}</span>'
+        else:
+            exploit_badge = ""
+
+        cve_marker = '<span class="badge badge-blue" style="font-size:9px">CVE</span>' if v.get("type") == "cve" else ""
+        vid = v['id']
+        vuln_url = f'https://vulners.com/search?query={vid}'
+
+        rows += f"""
+            <tr>
+                <td><span class="badge {sev_badge}" style="font-size:10px">{v['severity']}</span></td>
+                <td class="mono" style="font-size:11px"><a href="{vuln_url}" target="_blank" style="color:var(--color-info)"><strong>{html_escape(vid)}</strong></a></td>
+                <td>{cvss}</td>
+                <td>{html_escape(v.get('service', 'N/A'))}</td>
+                <td>{exploit_badge} {cve_marker}</td>
+            </tr>
+        """
+
+    html = f"""
+    <div class="glass-card">
+        <div class="card-title">Vulnerability Assessment — Vulners CVE Database</div>
+        <p class="summary-text" style="margin-bottom:12px">
+            Black Dragon detected service versions against the CVE database.
+            <strong style="color:var(--color-info)">{len(real_cves)} unique CVEs</strong>
+            identified across {len(services)} service(s):
+            <strong style="color:var(--color-critical)">{crit} Critical</strong>,
+            <strong style="color:var(--color-warning)">{high} High</strong>,
+            <strong style="color:var(--color-info)">{med} Medium</strong>,
+            <strong style="color:var(--color-pass)">{low} Low</strong>.
+            <strong style="color:var(--color-critical)">{total_exploits} public exploits available</strong> across all CVEs.
+        </p>
+        <p class="summary-text" style="margin-bottom:16px;font-size:12px">
+            Affected services: <strong>{', '.join(services)}</strong><br>
+            <span style="color:var(--text-muted)">IDs link to vulners.com search. Exploit counts show known public exploits per CVE.</span>
+        </p>
+        <div style="overflow-x:auto;max-height:600px;overflow-y:auto">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Severity</th><th>Vulnerability ID</th><th>CVSS</th><th>Service</th><th>Exploits</th></tr>
+                </thead>
+                <tbody>{rows}</tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ═══ Inner Tab: All Vulners Raw Entries ═══ -->
+    <div class="inner-tabs-nav" style="margin-top:16px">
+        <button class="inner-tab-btn active" onclick="switchInnerTab(this, 'inner-vulners-all')">All Vulners Entries</button>
+    </div>
+    """
+
+    html += _build_all_vulners_table(nmap_data)
+
+    return html
+
+
+
+
+def _build_all_vulners_table(nmap_data):
+    """Build detailed table of ALL raw vulners entries with vulners.com links."""
+    if not nmap_data or not nmap_data.get("host"):
+        return ""
+
+    vulners = nmap_data["host"].get("vulners_entries", [])
+    if not vulners:
+        return ""
+
+    vulners_sorted = sorted(vulners, key=lambda x: -x.get("cvss", 0))
+
+    rows = ""
+    for v in vulners_sorted:
+        cvss = v.get("cvss", 0)
+        if cvss >= 9.0:
+            sev_badge = "badge-red"
+        elif cvss >= 7.0:
+            sev_badge = "badge-yellow"
+        elif cvss >= 4.0:
+            sev_badge = "badge-blue"
+        else:
+            sev_badge = "badge-green"
+
+        vid = v['id']
+        vtype = v.get('type', 'unknown')
+        is_cve = vtype == 'cve'
+        cve_badge = '<span class="badge badge-blue" style="font-size:9px">CVE</span>' if is_cve else '<span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05)">{}</span>'.format(vtype)
+        vuln_url = f'https://vulners.com/search?query={vid}'
+
+        rows += f"""
+            <tr>
+                <td><span class="badge {sev_badge}" style="font-size:10px">{v['severity']}</span></td>
+                <td class="mono" style="font-size:10px"><a href="{vuln_url}" target="_blank" style="color:var(--color-info)">{html_escape(vid)}</a></td>
+                <td>{cvss}</td>
+                <td>{cve_badge}</td>
+                <td style="font-size:11px">{html_escape(v.get('service', 'N/A'))}</td>
+                <td><a href="{vuln_url}" target="_blank" style="color:var(--color-info);font-size:10px">vulners.com &nearr;</a></td>
+            </tr>
+        """
+
+    return f"""
+    <div class="inner-tab-content active" id="inner-vulners-all" style="margin-top:0">
+        <div class="glass-card">
+            <div class="card-title">All Vulners Entries ({len(vulners_sorted)} raw)</div>
+            <p class="summary-text" style="margin-bottom:12px;font-size:12px">
+                Complete list of all vulnerability database entries matched against detected service versions.
+                Each ID links to its vulners.com page for full details including exploit code and remediation guidance.
+            </p>
+            <div style="overflow-x:auto;max-height:500px;overflow-y:auto">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Severity</th>
+                            <th>Vulners ID</th>
+                            <th>CVSS</th>
+                            <th>Type</th>
+                            <th>Service</th>
+                            <th>Link</th>
+                        </tr>
+                    </thead>
+                    <tbody>{rows}</tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    """
+
+
+def _build_os_section(nmap_data):
+    """Build OS Detection card."""
+    if not nmap_data or not nmap_data.get("host"):
+        return '<div class="glass-card"><p class="summary-text">No OS detection data available.</p></div>'
+
+    os_data = nmap_data["host"].get("os_detection")
+    if not os_data or not os_data.get("matches"):
+        return '<div class="glass-card"><p class="summary-text">OS detection inconclusive.</p></div>'
+
+    matches = os_data["matches"][:3]
+    rows = ""
+    for m in matches:
+        accuracy_pct = int(m["accuracy"])
+        acc_color = "var(--color-pass)" if accuracy_pct >= 90 else "var(--color-warning)"
+        classes_html = ""
+        for c in m.get("classes", []):
+            classes_html += f'<span class="tech-tag">{html_escape(c.get("vendor", ""))} {html_escape(c.get("osfamily", ""))} {html_escape(c.get("osgen", ""))}</span> '
+        rows += f"""
+            <tr>
+                <td><strong>{html_escape(m['name'])}</strong></td>
+                <td><span style="color:{acc_color};font-weight:700">{accuracy_pct}%</span></td>
+                <td>{classes_html}</td>
+            </tr>
+        """
+
+    # ── Services summary ──
+    svc_html = ""
+    ports = nmap_data["host"].get("open_ports", [])
+    if ports:
+        svc_rows = ""
+        for p in sorted(ports, key=lambda x: x["port"]):
+            svc_rows += f"""
+                <tr>
+                    <td class="mono"><strong>{p['port']}/{p['protocol']}</strong></td>
+                    <td>{html_escape(p.get('service_name',''))}</td>
+                    <td>{html_escape(p.get('service_full_version',''))}</td>
+                </tr>
+            """
+        svc_html = f"""
+        <div class="glass-card" style="margin-top:16px">
+            <div class="card-title">Running Services ({len(ports)} open ports)</div>
+            <table class="data-table">
+                <thead><tr><th>Port</th><th>Service</th><th>Version</th></tr></thead>
+                <tbody>{svc_rows}</tbody>
+            </table>
+        </div>"""
+
+    # ── SSH Host Keys ──
+    ssh_html = ""
+    for p in ports:
+        keys = p.get("ssh_keys", [])
+        if keys:
+            key_rows = ""
+            for k in keys:
+                key_rows += f"""
+                    <tr>
+                        <td class="mono" style="font-size:11px">{html_escape(k.get('type','?'))}</td>
+                        <td class="mono" style="font-size:11px">{html_escape(k.get('bits','?'))} bits</td>
+                        <td class="mono" style="font-size:11px;word-break:break-all">{html_escape(k.get('fingerprint',''))}</td>
+                    </tr>
+                """
+            ssh_html = f"""
+            <div class="glass-card" style="margin-top:16px">
+                <div class="card-title">SSH Host Keys (Port {p['port']})</div>
+                <table class="data-table">
+                    <thead><tr><th>Algorithm</th><th>Bits</th><th>Fingerprint</th></tr></thead>
+                    <tbody>{key_rows}</tbody>
+                </table>
+            </div>"""
+            break  # Only first SSH port
+
+
+
+    return f"""
+    <div class="glass-card card-blue">
+        <div class="card-title">Operating System Detection</div>
+        <p class="summary-text" style="margin-bottom:12px">
+            OS fingerprinting identified the following likely operating systems
+            on <code>{html_escape(nmap_data['host']['ip'])}</code>.
+        </p>
+        <table class="data-table">
+            <thead><tr><th>OS Match</th><th>Accuracy</th><th>Classification</th></tr></thead>
+            <tbody>{rows}</tbody>
+        </table>
+    </div>
+    {svc_html}
+    {ssh_html}
+    """
+
+
+def _build_nmap_git_section(nmap_data):
+    """Build .git exposure section from Nmap http-git script."""
+    if not nmap_data or not nmap_data.get("host"):
+        return ""
+    gex = nmap_data["host"].get("git_exposure_nmap")
+    if not gex:
+        return ""
+
+    exposed_html = ""
+    for fname in gex.get("exposed_files", []):
+        exposed_html += f"""
+        <div class="exposure-card exposed-file">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <strong style="font-family:monospace;font-size:12px;color:var(--color-critical)">{html_escape(fname)}</strong>
+                <span class="badge badge-red">EXPOSED</span>
+            </div>
+        </div>
+        """
+
+    remotes_html = ""
+    for r in gex.get("remotes", []):
+        remotes_html += f'<li><code>{html_escape(r)}</code></li>'
+
+    return f"""
+    <div class="glass-card card-red">
+        <div class="card-title">.git Repository Exposed via Nmap <span class="badge badge-red">{gex['risk_level']}</span></div>
+        <div class="highlight-box">
+            Nmap\'s <code>http-git</code> script discovered a publicly accessible Git repository.
+            {len(gex['exposed_files'])} repository files are directly downloadable.
+            {f'Remote origin: {", ".join(gex.get("remotes", []))}.' if gex.get("remotes") else ''}
+        </div>
+        <h4 style="color:var(--text-secondary);font-size:14px;margin:16px 0 8px 0">
+            Exposed Files ({len(gex['exposed_files'])} files)
+        </h4>
+        {exposed_html}
+        {f'<h4 style="color:var(--text-secondary);font-size:14px;margin:16px 0 8px 0">Remote Origins</h4><ul style="color:var(--text-secondary);font-size:13px">{remotes_html}</ul>' if gex.get("remotes") else ''}
+        <div class="highlight-box" style="margin-top:16px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15)">
+            <strong style="color:var(--color-pass)">Remediation:</strong> Block <code>/.git/</code> at the web server level.
+            Never deploy <code>.git</code> directories to production.
+        </div>
+    </div>
+    """
+
 
 def main():
     """Main entry point: parse all data sources and generate the report."""
@@ -1877,17 +2682,8 @@ def main():
     else:
         print("    ⚠ No Nmap data loaded")
 
-    # ── Step 2: Parse Dirsearch JSON ──
-    print("[*] Parsing Dirsearch results...")
-    dirsearch_data = parse_dirsearch_results(DIRSEARCH_FILE)
-    if dirsearch_data:
-        tp = dirsearch_data.get("true_positives_count", 0)
-        git = len(dirsearch_data.get("git_exposure", []))
-        print(f"    → Found {tp} true positives, {git} .git exposure hits")
-    else:
-        print("    ⚠ No Dirsearch data loaded")
 
-    # ── Step 3: Parse WhatWeb JSON ──
+    # ── Step 2: Parse WhatWeb JSON ──
     print("[*] Parsing WhatWeb results...")
     whatweb_data = parse_whatweb_results(WHATWEB_FILE)
     if whatweb_data:
@@ -1896,8 +2692,8 @@ def main():
     else:
         print("    ⚠ No WhatWeb data loaded")
 
-    # ── Step 4: Parse FFUF JSON ──
-    print("[*] Parsing FFUF directory brute-force results...")
+    # ── Step 3: Parse FFUF JSON ──
+    print("[*] Parsing Web Discovery...")
     ffuf_data = parse_ffuf_results(FFUF_FILE)
     if ffuf_data:
         total = ffuf_data.get("total_findings", 0)
@@ -1907,9 +2703,9 @@ def main():
     else:
         print("    ⚠ No FFUF data loaded")
 
-    # ── Step 5: Build HTML Report ──
+    # ── Step 4: Build HTML Report ──
     print(f"[*] Compiling HTML report → {OUTPUT_FILE}")
-    build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, OUTPUT_FILE)
+    build_html_report(nmap_data, None, whatweb_data, ffuf_data, OUTPUT_FILE)
 
     # ── Summary ──
     print()

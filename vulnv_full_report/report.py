@@ -43,7 +43,7 @@ else:
 NMAP_FILE = os.path.join(DATA_DIR, "nmap_rawReport.xml")
 DIRSEARCH_FILE = os.path.join(DATA_DIR, "dirsearch_rawReport.json")
 WHATWEB_FILE = os.path.join(DATA_DIR, "whatweb_rawReport.json")
-FFUF_FILE = os.path.join(DATA_DIR, "ffuf_rawReport.json")
+FFUF_FILE = os.path.join(DATA_DIR, "ffuf_report.json")
 OUTPUT_FILE = os.path.join(DATA_DIR, "vulnReport.html")
 CSS_PATH = os.path.join(BASE_DIR, "..", "reference", "global_report.css")
 REPORT_TITLE = "Cyber Samurai — Fingerprint & Security Assessment Report"
@@ -2718,52 +2718,6 @@ def _build_ffuf_section(ffuf_data):
             <div class="highlight-box" style="margin-top:16px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15)">
                 <strong style="color:var(--color-pass)">Remediation:</strong> Block access to <code>/.git/</code> at the web server level.
                 Never deploy <code>.git</code> directories to production. Rotate any credentials potentially exposed in commit history.
-            </div>
-        </div>
-        """
-
-    # ── Build categorized results table ──
-    def _build_finding_rows(findings, severity_label, badge_class):
-        if not findings:
-            return ""
-        rows = ""
-        for entry in findings:
-            sc = entry["status"]
-            sc_badge = "badge-red" if sc == 200 else "badge-yellow"
-            rows += f"""
-                <tr>
-                    <td><span class="badge {sc_badge}" style="font-size:10px">{sc}</span></td>
-                    <td class="mono" style="font-size:11px">{html_escape(entry['url'])}</td>
-                    <td>{html_escape(entry.get('content_type', ''))}</td>
-                    <td>{entry['length']:,}</td>
-                    <td>{entry.get('duration_ms', 0)}ms</td>
-                </tr>
-            """
-        header_color = {
-            "CRITICAL": "var(--color-critical)",
-            "HIGH": "var(--color-warning)",
-            "MEDIUM": "var(--color-info)",
-            "LOW": "var(--color-pass)",
-        }.get(severity_label, "var(--text-secondary)")
-
-        return f"""
-        <div style="margin-bottom:20px">
-            <h4 style="color:{header_color};font-size:14px;margin:12px 0 6px 0">
-                <span class="badge {badge_class}">{severity_label}</span> — {len(findings)} finding(s)
-            </h4>
-            <div style="overflow-x:auto;max-height:400px;overflow-y:auto">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Status</th>
-                            <th>URL</th>
-                            <th>Content Type</th>
-                            <th>Size (bytes)</th>
-                            <th>Response</th>
-                        </tr>
-                    </thead>
-                    <tbody>{rows}</tbody>
-                </table>
             </div>
         </div>
         """
