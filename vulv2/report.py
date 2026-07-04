@@ -1687,21 +1687,21 @@ def _unlock_js(locked):
     if not locked:
         return ""
     return f"""\
-                        function unlockGate(containerId) {{{{
-                            var container = document.getElementById(containerId);
-                            if (!container) return;
-                            var overlay = container.querySelector('.gated-overlay');
-                            var input = overlay.querySelector('.pw-input');
-                            var error = overlay.querySelector('.pw-error');
-                            var pw = input.value.trim();
-                            if (pw === '{PAYWALL_PASSWORD}') {{{{
-                                container.classList.add('unlocked');
-                            }}}} else {{{{
-                                error.style.display = 'block';
-                                input.value = '';
-                                input.focus();
-                            }}}}
-                        }}}}"""
+                            function unlockGate(containerId) {{
+                                var container = document.getElementById(containerId);
+                                if (!container) return;
+                                var overlay = container.querySelector('.gated-overlay');
+                                var input = overlay.querySelector('.pw-input');
+                                var error = overlay.querySelector('.pw-error');
+                                var pw = input.value.trim();
+                                if (pw === '{PAYWALL_PASSWORD}') {{
+                                    container.classList.add('unlocked');
+                                }} else {{
+                                    error.style.display = 'block';
+                                    input.value = '';
+                                    input.focus();
+                                }}
+                            }}"""
 
 
 # ─── Helper: Paywall CSS ────────────────────────────────────────────────────
@@ -1712,24 +1712,24 @@ def _paywall_css(locked):
         return ""
     return """\
                 /* ---- Paywall / Gated Content (partial blur) ---- */
-                        .paywall-gated {{
+                        .paywall-gated {
                             position: relative;
                             margin-top: 12px;
-                        }}
-                        .paywall-gated .gated-content {{
+                        }
+                        .paywall-gated .gated-content {
                             filter: blur(6px);
                             pointer-events: none;
                             user-select: none;
                             opacity: 0.4;
                             transition: filter 0.3s, opacity 0.3s;
-                        }}
-                        .paywall-gated.unlocked .gated-content {{
+                        }
+                        .paywall-gated.unlocked .gated-content {
                             filter: none;
                             pointer-events: auto;
                             user-select: auto;
                             opacity: 1;
-                        }}
-                        .paywall-gated .gated-overlay {{
+                        }
+                        .paywall-gated .gated-overlay {
                             position: absolute;
                             inset: 0;
                             display: flex;
@@ -1741,20 +1741,20 @@ def _paywall_css(locked):
                             z-index: 5;
                             gap: 10px;
                             border: 1px dashed rgba(255,46,59,0.25);
-                        }}
-                        .paywall-gated.unlocked .gated-overlay {{
+                        }
+                        .paywall-gated.unlocked .gated-overlay {
                             display: none;
-                        }}
-                        .paywall-gated .gated-overlay .lock-text {{
+                        }
+                        .paywall-gated .gated-overlay .lock-text {
                             font-family: 'Outfit', sans-serif;
                             font-size: 15px;
                             color: var(--text-primary);
-                        }}
-                        .paywall-gated .gated-overlay .lock-sub {{
+                        }
+                        .paywall-gated .gated-overlay .lock-sub {
                             font-size: 12px;
                             color: var(--text-muted);
-                        }}
-                        .paywall-gated .gated-overlay .btn-unlock {{
+                        }
+                        .paywall-gated .gated-overlay .btn-unlock {
                             background: var(--accent-red);
                             color: #fff;
                             border: none;
@@ -1763,11 +1763,11 @@ def _paywall_css(locked):
                             font-size: 13px;
                             font-weight: 600;
                             cursor: pointer;
-                        }}
-                        .paywall-gated .gated-overlay .btn-unlock:hover {{
+                        }
+                        .paywall-gated .gated-overlay .btn-unlock:hover {
                             background: #e02b35;
-                        }}
-                        .paywall-gated .gated-overlay .pw-input {{
+                        }
+                        .paywall-gated .gated-overlay .pw-input {
                             background: rgba(255,255,255,0.08);
                             border: 1px solid var(--border-color);
                             border-radius: 4px;
@@ -1777,12 +1777,12 @@ def _paywall_css(locked):
                             font-family: monospace;
                             width: 200px;
                             text-align: center;
-                        }}
-                        .paywall-gated .gated-overlay .pw-error {{
+                        }
+                        .paywall-gated .gated-overlay .pw-error {
                             color: var(--color-critical);
                             font-size: 11px;
                             display: none;
-                        }}"""
+                        }"""
 
 
 # ─── Helper: Risk Calculation ────────────────────────────────────────────────

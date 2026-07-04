@@ -308,7 +308,78 @@
                     color: var(--color-pass);
                 }
 
-                
+                                /* ---- Paywall / Gated Content (partial blur) ---- */
+                        .paywall-gated {
+                            position: relative;
+                            margin-top: 12px;
+                        }
+                        .paywall-gated .gated-content {
+                            filter: blur(6px);
+                            pointer-events: none;
+                            user-select: none;
+                            opacity: 0.4;
+                            transition: filter 0.3s, opacity 0.3s;
+                        }
+                        .paywall-gated.unlocked .gated-content {
+                            filter: none;
+                            pointer-events: auto;
+                            user-select: auto;
+                            opacity: 1;
+                        }
+                        .paywall-gated .gated-overlay {
+                            position: absolute;
+                            inset: 0;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            background: rgba(10,12,18,0.6);
+                            border-radius: 8px;
+                            z-index: 5;
+                            gap: 10px;
+                            border: 1px dashed rgba(255,46,59,0.25);
+                        }
+                        .paywall-gated.unlocked .gated-overlay {
+                            display: none;
+                        }
+                        .paywall-gated .gated-overlay .lock-text {
+                            font-family: 'Outfit', sans-serif;
+                            font-size: 15px;
+                            color: var(--text-primary);
+                        }
+                        .paywall-gated .gated-overlay .lock-sub {
+                            font-size: 12px;
+                            color: var(--text-muted);
+                        }
+                        .paywall-gated .gated-overlay .btn-unlock {
+                            background: var(--accent-red);
+                            color: #fff;
+                            border: none;
+                            border-radius: 6px;
+                            padding: 8px 20px;
+                            font-size: 13px;
+                            font-weight: 600;
+                            cursor: pointer;
+                        }
+                        .paywall-gated .gated-overlay .btn-unlock:hover {
+                            background: #e02b35;
+                        }
+                        .paywall-gated .gated-overlay .pw-input {
+                            background: rgba(255,255,255,0.08);
+                            border: 1px solid var(--border-color);
+                            border-radius: 4px;
+                            padding: 6px 12px;
+                            color: var(--text-primary);
+                            font-size: 13px;
+                            font-family: monospace;
+                            width: 200px;
+                            text-align: center;
+                        }
+                        .paywall-gated .gated-overlay .pw-error {
+                            color: var(--color-critical);
+                            font-size: 11px;
+                            display: none;
+                        }
 
                 /* ---- Severity Risk Matrix ---- */
                 .risk-matrix {
@@ -391,7 +462,7 @@
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">Report Generated</span>
-                        <span class="meta-val">04 July 2026, 17:56</span>
+                        <span class="meta-val">04 July 2026, 20:44</span>
                     </div>
                 </div>
             </div>
@@ -512,12 +583,16 @@
                     <button class="tab-btn active" onclick="switchTab('tab-os')">OS Detection</button>
                     <button class="tab-btn" onclick="switchTab('tab-ports')">Open Ports</button>
                     <button class="tab-btn" onclick="switchTab('tab-tech')">Tech Findings</button>
-                    <button class="tab-btn" onclick="switchTab('tab-ffuf')">Asset Discovery</button>
-                                        <button class="tab-btn" onclick="switchTab('tab-vulners')">CVE Database</button>
-                                        <button class="tab-btn" onclick="switchTab('tab-vulns')">Vulnerabilities</button>
+                    <button class="tab-btn locked-tab" onclick="switchTab('tab-ffuf')">Asset Discovery &#x1F512;</button>
+                                        <button class="tab-btn locked-tab" onclick="switchTab('tab-vulners')">CVE Database &#x1F512;</button>
+                                        <button class="tab-btn locked-tab" onclick="switchTab('tab-vulns')">Vulnerabilities &#x1F512;</button>
                 </div>
 
-                
+                                <!-- Paywall promotion banner -->
+                        <div class="highlight-box paywall-banner" style="background:rgba(255,46,59,0.08);border:1px solid rgba(255,46,59,0.2);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+                            <span style="font-size:13px">&#x1F512; <strong style="color:var(--color-critical)">Premium Content Locked</strong> — The first 2 findings in each section are free. Enter the password to reveal all results.</span>
+                            <span style="font-size:11px;color:var(--text-muted)">Contact Cyber Samurai to obtain your unlock code.</span>
+                        </div>
 
         <!-- ═══ Tab: Open Ports & Services ═══ -->
         <div class="tab-content" id="tab-ports">
@@ -612,7 +687,8 @@
         <!-- ═══ Tab: Asset Discovery (FFUF) ═══ -->
                 <div class="tab-content" id="tab-ffuf">
                     <h2 class="section-title">Asset &amp; Endpoint Discovery</h2>
-                        <div class="glass-card">
+                    
+    <div class="glass-card">
         <div class="card-title">Web Discovery</div>
         <p class="summary-text" style="margin-bottom:12px">
             During the scan the following was identified:
@@ -646,46 +722,6 @@
                     <td>application/octet-stream</td>
                     <td>240</td>
                     <td>13.0ms</td>
-                </tr>
-        
-                <tr>
-                    <td><span class="badge badge-red" style="font-size:10px">200</span></td>
-                    <td class="mono" style="font-size:11px">https://cybersamurai.co.uk/.git/logs/HEAD</td>
-                    <td>application/octet-stream</td>
-                    <td>185</td>
-                    <td>13.3ms</td>
-                </tr>
-        
-                <tr>
-                    <td><span class="badge badge-red" style="font-size:10px">200</span></td>
-                    <td class="mono" style="font-size:11px">https://cybersamurai.co.uk/.well-known/http-opportunistic</td>
-                    <td>application/json</td>
-                    <td>29</td>
-                    <td>8.6ms</td>
-                </tr>
-        
-                <tr>
-                    <td><span class="badge badge-red" style="font-size:10px">200</span></td>
-                    <td class="mono" style="font-size:11px">https://cybersamurai.co.uk/index.html</td>
-                    <td>text/html</td>
-                    <td>62,440</td>
-                    <td>17.5ms</td>
-                </tr>
-        
-                <tr>
-                    <td><span class="badge badge-red" style="font-size:10px">200</span></td>
-                    <td class="mono" style="font-size:11px">https://cybersamurai.co.uk/robots.txt</td>
-                    <td>text/plain; charset=utf-8</td>
-                    <td>1,248</td>
-                    <td>18.4ms</td>
-                </tr>
-        
-                <tr>
-                    <td><span class="badge badge-red" style="font-size:10px">200</span></td>
-                    <td class="mono" style="font-size:11px">https://cybersamurai.co.uk/sitemap.xml</td>
-                    <td>text/xml</td>
-                    <td>5,098</td>
-                    <td>13.6ms</td>
                 </tr>
         </tbody>
             </table>
@@ -748,6 +784,70 @@
         </div>
         
     
+    <div class="paywall-gated" id="gate-ffuf" style="margin-top:8px">
+        <div class="gated-content">
+            <div class="glass-card" style="margin-top:0">
+                <div class="card-title">Detailed Findings — <span class="badge badge-red">LOCKED</span></div>
+                <div style="overflow-x:auto;max-height:400px;overflow-y:auto">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Status</th><th>URL</th><th>Content Type</th><th>Size (bytes)</th><th>Response</th></tr>
+                        </thead>
+                        <tbody>
+                <tr>
+                    <td><span class="badge badge-red" style="font-size:10px">200</span></td>
+                    <td class="mono" style="font-size:11px">https://cybersamurai.co.uk/.git/logs/HEAD</td>
+                    <td>application/octet-stream</td>
+                    <td>185</td>
+                    <td>13.3ms</td>
+                </tr>
+        
+                <tr>
+                    <td><span class="badge badge-red" style="font-size:10px">200</span></td>
+                    <td class="mono" style="font-size:11px">https://cybersamurai.co.uk/.well-known/http-opportunistic</td>
+                    <td>application/json</td>
+                    <td>29</td>
+                    <td>8.6ms</td>
+                </tr>
+        
+                <tr>
+                    <td><span class="badge badge-red" style="font-size:10px">200</span></td>
+                    <td class="mono" style="font-size:11px">https://cybersamurai.co.uk/index.html</td>
+                    <td>text/html</td>
+                    <td>62,440</td>
+                    <td>17.5ms</td>
+                </tr>
+        
+                <tr>
+                    <td><span class="badge badge-red" style="font-size:10px">200</span></td>
+                    <td class="mono" style="font-size:11px">https://cybersamurai.co.uk/robots.txt</td>
+                    <td>text/plain; charset=utf-8</td>
+                    <td>1,248</td>
+                    <td>18.4ms</td>
+                </tr>
+        
+                <tr>
+                    <td><span class="badge badge-red" style="font-size:10px">200</span></td>
+                    <td class="mono" style="font-size:11px">https://cybersamurai.co.uk/sitemap.xml</td>
+                    <td>text/xml</td>
+                    <td>5,098</td>
+                    <td>13.6ms</td>
+                </tr>
+        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="gated-overlay">
+            <span class="lock-text">&#x1F512; 5 More Endpoints Locked</span>
+            <span class="lock-sub">Enter password to reveal all 7 endpoints</span>
+            <input type="password" class="pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')unlockGate('gate-ffuf')">
+            <span class="pw-error">Incorrect password</span>
+            <button class="btn-unlock" onclick="unlockGate('gate-ffuf')">Unlock</button>
+        </div>
+    </div>
+
+    
                 </div>
 
         <!-- ═══ Tab: CVE Vulnerability Database ═══ -->
@@ -791,7 +891,20 @@
                 <td>ssh 9.6p1 Ubuntu 3ubuntu13.16</td>
                 <td><span class="badge badge-red" style="font-size:9px">1 EXPLOIT</span> </td>
             </tr>
-        
+        </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="paywall-gated" id="gate-vulners" style="margin-top:8px">
+        <div class="gated-content">
+            <div class="glass-card" style="margin-top:0">
+                <div style="overflow-x:auto;max-height:600px;overflow-y:auto">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Severity</th><th>Vulnerability ID</th><th>CVSS</th><th>Service</th><th>Exploits</th></tr>
+                        </thead>
+                        <tbody>
             <tr>
                 <td><span class="badge badge-red" style="font-size:10px">CRITICAL</span></td>
                 <td class="mono" style="font-size:11px"><a href="https://vulners.com/search?query=5 exploits for ssh 9.6p1 Ubuntu 3ubuntu13.16" target="_blank" style="color:var(--color-info)"><strong>5 exploits for ssh 9.6p1 Ubuntu 3ubuntu13.16</strong></a></td>
@@ -896,10 +1009,19 @@
                 <td> <span class="badge badge-blue" style="font-size:9px">CVE</span></td>
             </tr>
         </tbody>
-            </table>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="gated-overlay">
+            <span class="lock-text">&#x1F512; 13 More CVEs Locked</span>
+            <span class="lock-sub">Enter password to reveal all 15 CVEs</span>
+            <input type="password" class="pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')unlockGate('gate-vulners')">
+            <span class="pw-error">Incorrect password</span>
+            <button class="btn-unlock" onclick="unlockGate('gate-vulners')">Unlock</button>
         </div>
     </div>
-    
+
 
     <!-- ═══ Inner Tab: All Vulners Raw Entries ═══ -->
     <div class="inner-tabs-nav" style="margin-top:16px">
@@ -1811,6 +1933,9 @@
             <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/1EEC8894-D2F7-547C-827C-915BE866875C" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/1EEC8894-D2F7-547C-827C-915BE866875C</a></div>
         </div>
         
+    <div class="paywall-gated" id="gate-vulns">
+        <div class="gated-content">
+            
         <div class="glass-card card-red">
             <div class="card-title">09B905C6-CD97-54E6-AD97-B0DD1AC4771B (CVSS 10.0)</div>
             <div style="margin:8px 0">
@@ -1872,12 +1997,21 @@ overlapping byte ranges are requested.</p>
             <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://github.com/bazzofx/cybersamurai.git" target="_blank" style="color:var(--color-info)">https://github.com/bazzofx/cybersamurai.git</a></div>
         </div>
         
+        </div>
+        <div class="gated-overlay">
+            <span class="lock-text">&#x1F512; 5 More Vulnerabilities Locked</span>
+            <span class="lock-sub">Enter password to reveal all 7 vulnerabilities</span>
+            <input type="password" class="pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')unlockGate('gate-vulns')">
+            <span class="pw-error">Incorrect password</span>
+            <button class="btn-unlock" onclick="unlockGate('gate-vulns')">Unlock</button>
+        </div>
+    </div>
                 </div>
 
         <!-- ═══ Footer ═══ -->
         <div class="footer">
             <p>Cyber Samurai &mdash; Fingerprint &amp; Vulnerability Assessment Report</p>
-            <p style="font-size:11px;margin-top:4px">Generated on 04 July 2026, 17:56 | This report contains confidential security findings.</p>
+            <p style="font-size:11px;margin-top:4px">Generated on 04 July 2026, 20:44 | This report contains confidential security findings.</p>
         </div>
     </div>
 
@@ -1903,7 +2037,21 @@ overlapping byte ranges are requested.</p>
                                 }
                             }
                         }
-                        
+                                                    function unlockGate(containerId) {
+                                var container = document.getElementById(containerId);
+                                if (!container) return;
+                                var overlay = container.querySelector('.gated-overlay');
+                                var input = overlay.querySelector('.pw-input');
+                                var error = overlay.querySelector('.pw-error');
+                                var pw = input.value.trim();
+                                if (pw === 'cybersamurai2024') {
+                                    container.classList.add('unlocked');
+                                } else {
+                                    error.style.display = 'block';
+                                    input.value = '';
+                                    input.focus();
+                                }
+                            }
         </script>
 </body>
 </html>

@@ -99,3 +99,17 @@ python vulv2/report.py -locked cybersamurai.co.uk
 - When `locked=False`, ALL paywall infrastructure is stripped from the HTML: no CSS, no JS, no lock icons, no banner, no gated divs
 - All five UI helper functions return empty strings when not locked — no wrapping or conditional HTML
 - The default is **full display** (locked=False); the user must opt-in to locking with `-locked`
+
+## Critical Pitfall: f-string Brace Escaping in Helper Functions
+
+The HTML template in `build_html_report()` is a single f-string. When helper functions like `_paywall_css()` and `_unlock_js()` return strings that get injected via `{helper(locked)}` into this outer f-string, their braces are NOT processed by the outer f-string — they're already strings, not f-string expressions.
+
+**Rule:** Helper functions returning CSS or JS with braces must use SINGLE `{` `}` — NOT `{{` `}}`.
+
+| Case | Wrong (produces invalid output) | Right (produces valid output) |
+|---|---|---|
+| `_paywall_css` (plain string) | `return """... .rule {{ ... }}"""` → output has `{{` | `return """... .rule { ... }"""` → output has `{` |
+| `_unlock_js` (own f-string) | `return f"""... function() {{{{ ... }}}}"""` → output has `{{` | `return f"""... function() {{ ... }}"""` → output has `{` |
+| `_paywall_banner` (own f-string) | N/A — no brace literals needed | `return f"""... {FREE_PREVIEW_COUNT} ..."""` — f-string vars use single `{` |
+
+**Why this matters:** The original inline CSS/JS in the f-string used `{{` (f-string escape for literal `{`). When extracted to helper functions, the escaping context changes — the return value is NOT re-processed by the outer f-string. Double braces pass through as-is, producing invalid CSS (browser ignores rules) and broken JS (syntax errors).
