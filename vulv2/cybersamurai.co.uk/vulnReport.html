@@ -308,25 +308,25 @@
                     color: var(--color-pass);
                 }
 
-                /* ---- Paywall / Gated Content (partial blur) ---- */
-                        .paywall-gated {
+                                /* ---- Paywall / Gated Content (partial blur) ---- */
+                        .paywall-gated {{
                             position: relative;
                             margin-top: 12px;
-                        }
-                        .paywall-gated .gated-content {
+                        }}
+                        .paywall-gated .gated-content {{
                             filter: blur(6px);
                             pointer-events: none;
                             user-select: none;
                             opacity: 0.4;
                             transition: filter 0.3s, opacity 0.3s;
-                        }
-                        .paywall-gated.unlocked .gated-content {
+                        }}
+                        .paywall-gated.unlocked .gated-content {{
                             filter: none;
                             pointer-events: auto;
                             user-select: auto;
                             opacity: 1;
-                        }
-                        .paywall-gated .gated-overlay {
+                        }}
+                        .paywall-gated .gated-overlay {{
                             position: absolute;
                             inset: 0;
                             display: flex;
@@ -338,20 +338,20 @@
                             z-index: 5;
                             gap: 10px;
                             border: 1px dashed rgba(255,46,59,0.25);
-                        }
-                        .paywall-gated.unlocked .gated-overlay {
+                        }}
+                        .paywall-gated.unlocked .gated-overlay {{
                             display: none;
-                        }
-                        .paywall-gated .gated-overlay .lock-text {
+                        }}
+                        .paywall-gated .gated-overlay .lock-text {{
                             font-family: 'Outfit', sans-serif;
                             font-size: 15px;
                             color: var(--text-primary);
-                        }
-                        .paywall-gated .gated-overlay .lock-sub {
+                        }}
+                        .paywall-gated .gated-overlay .lock-sub {{
                             font-size: 12px;
                             color: var(--text-muted);
-                        }
-                        .paywall-gated .gated-overlay .btn-unlock {
+                        }}
+                        .paywall-gated .gated-overlay .btn-unlock {{
                             background: var(--accent-red);
                             color: #fff;
                             border: none;
@@ -360,11 +360,11 @@
                             font-size: 13px;
                             font-weight: 600;
                             cursor: pointer;
-                        }
-                        .paywall-gated .gated-overlay .btn-unlock:hover {
+                        }}
+                        .paywall-gated .gated-overlay .btn-unlock:hover {{
                             background: #e02b35;
-                        }
-                        .paywall-gated .gated-overlay .pw-input {
+                        }}
+                        .paywall-gated .gated-overlay .pw-input {{
                             background: rgba(255,255,255,0.08);
                             border: 1px solid var(--border-color);
                             border-radius: 4px;
@@ -374,12 +374,12 @@
                             font-family: monospace;
                             width: 200px;
                             text-align: center;
-                        }
-                        .paywall-gated .gated-overlay .pw-error {
+                        }}
+                        .paywall-gated .gated-overlay .pw-error {{
                             color: var(--color-critical);
                             font-size: 11px;
                             display: none;
-                        }
+                        }}
 
                 /* ---- Severity Risk Matrix ---- */
                 .risk-matrix {
@@ -462,7 +462,7 @@
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">Report Generated</span>
-                        <span class="meta-val">04 July 2026, 16:52</span>
+                        <span class="meta-val">04 July 2026, 17:51</span>
                     </div>
                 </div>
             </div>
@@ -584,11 +584,11 @@
                     <button class="tab-btn" onclick="switchTab('tab-ports')">Open Ports</button>
                     <button class="tab-btn" onclick="switchTab('tab-tech')">Tech Findings</button>
                     <button class="tab-btn locked-tab" onclick="switchTab('tab-ffuf')">Asset Discovery &#x1F512;</button>
-                    <button class="tab-btn locked-tab" onclick="switchTab('tab-vulners')">CVE Database &#x1F512;</button>
-                    <button class="tab-btn locked-tab" onclick="switchTab('tab-vulns')">Vulnerabilities &#x1F512;</button>
+                                        <button class="tab-btn locked-tab" onclick="switchTab('tab-vulners')">CVE Database &#x1F512;</button>
+                                        <button class="tab-btn locked-tab" onclick="switchTab('tab-vulns')">Vulnerabilities &#x1F512;</button>
                 </div>
 
-                <!-- Paywall promotion banner -->
+                                <!-- Paywall promotion banner -->
                         <div class="highlight-box paywall-banner" style="background:rgba(255,46,59,0.08);border:1px solid rgba(255,46,59,0.2);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
                             <span style="font-size:13px">&#x1F512; <strong style="color:var(--color-critical)">Premium Content Locked</strong> — The first 2 findings in each section are free. Enter the password to reveal all results.</span>
                             <span style="font-size:11px;color:var(--text-muted)">Contact Cyber Samurai to obtain your unlock code.</span>
@@ -2011,7 +2011,7 @@ overlapping byte ranges are requested.</p>
         <!-- ═══ Footer ═══ -->
         <div class="footer">
             <p>Cyber Samurai &mdash; Fingerprint &amp; Vulnerability Assessment Report</p>
-            <p style="font-size:11px;margin-top:4px">Generated on 04 July 2026, 16:52 | This report contains confidential security findings.</p>
+            <p style="font-size:11px;margin-top:4px">Generated on 04 July 2026, 17:51 | This report contains confidential security findings.</p>
         </div>
     </div>
 
@@ -2037,21 +2037,21 @@ overlapping byte ranges are requested.</p>
                                 }
                             }
                         }
-                        function unlockGate(containerId) {
+                                                function unlockGate(containerId) {{
                             var container = document.getElementById(containerId);
                             if (!container) return;
                             var overlay = container.querySelector('.gated-overlay');
                             var input = overlay.querySelector('.pw-input');
                             var error = overlay.querySelector('.pw-error');
                             var pw = input.value.trim();
-                            if (pw === 'cybersamurai2024') {
+                            if (pw === 'cybersamurai2024') {{
                                 container.classList.add('unlocked');
-                            } else {
+                            }} else {{
                                 error.style.display = 'block';
                                 input.value = '';
                                 input.focus();
-                            }
-                        }
+                            }}
+                        }}
         </script>
 </body>
 </html>
