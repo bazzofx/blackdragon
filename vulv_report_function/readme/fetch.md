@@ -1,6 +1,6 @@
 # fetch.sh — Automated Reconnaissance & Report Pipeline
 
-**Script:** `vulv2/fetch.sh`
+**Script:** `vulv_report_function/fetch.sh`
 **Platform:** Linux / WSL (bash)
 
 ## What It Does

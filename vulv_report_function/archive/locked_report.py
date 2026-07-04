@@ -9,22 +9,18 @@ styled with the Cyber Samurai global_report.css theme.
 
 Usage:
     python report.py <domain>
-    (reads from vulv2/<domain>/ folder; full display by default)
-
-    python report.py <domain> -locked
-    (same, but with password-protected locked report)
+    (reads from vuln_report_function/<domain>/ folder)
 
     python report.py </absolute/path>
     (reads from the given path directly — used by fetchVuln.sh)
 
     python report.py
-    (reads from vulv2/ folder — legacy fallback)
+    (reads from vuln_report_function/ folder — legacy fallback)
 """
 
 import os
 import sys
 import json
-import base64
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from html import escape as html_escape
@@ -33,13 +29,9 @@ from html import escape as html_escape
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# ── CLI: detect -locked flag ──
-LOCKED = "-locked" in sys.argv
-
-# Accept domain or path as optional CLI argument (filter out -locked flag)
-args = [a for a in sys.argv[1:] if a != "-locked"]
-if args:
-    domain_arg = args[0].strip()
+# Accept domain or path as optional CLI argument
+if len(sys.argv) > 1:
+    domain_arg = sys.argv[1].strip()
     # If it's an absolute path, use it directly; otherwise treat as domain name
     if os.path.isabs(domain_arg):
         DATA_DIR = domain_arg
@@ -1062,7 +1054,7 @@ def _summarize_ffuf_git_exposure(git_findings):
 
 # ─── HTML Report Builder ─────────────────────────────────────────────────────
 
-def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output_path, locked=False):
+def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output_path):
     """
     Compile all parsed findings into a professional HTML report
     styled with the Cyber Samurai global_report.css theme.
@@ -1100,26 +1092,6 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
     # Resolve CSS path relative to output
     css_relative = os.path.relpath(CSS_PATH, os.path.dirname(output_path))
     css_relative = css_relative.replace("\\", "/")
-
-    # Try to load and base64-encode the samurai hero banner image
-    image_base64 = ""
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    banner_paths = [
-        os.path.join(script_dir, '..', 'reference', 'cyber_samurai_banner.jpg'),
-        os.path.join(script_dir, 'reference', 'cyber_samurai_banner.jpg')
-    ]
-    for path in banner_paths:
-        if os.path.exists(path):
-            try:
-                with open(path, 'rb') as img_file:
-                    image_base64 = base64.b64encode(img_file.read()).decode('utf-8')
-                break
-            except Exception:
-                pass
-
-    hero_style = ""
-    if image_base64:
-        hero_style = f"style=\"background-image: linear-gradient(rgba(7, 7, 9, 0.60), rgba(7, 7, 9, 0.60)), url('data:image/jpeg;base64,{image_base64}');\""
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -1431,7 +1403,78 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
                     color: var(--color-pass);
                 }}
 
-                {_paywall_css(locked)}
+                /* ---- Paywall / Gated Content (partial blur) ---- */
+                        .paywall-gated {{
+                            position: relative;
+                            margin-top: 12px;
+                        }}
+                        .paywall-gated .gated-content {{
+                            filter: blur(6px);
+                            pointer-events: none;
+                            user-select: none;
+                            opacity: 0.4;
+                            transition: filter 0.3s, opacity 0.3s;
+                        }}
+                        .paywall-gated.unlocked .gated-content {{
+                            filter: none;
+                            pointer-events: auto;
+                            user-select: auto;
+                            opacity: 1;
+                        }}
+                        .paywall-gated .gated-overlay {{
+                            position: absolute;
+                            inset: 0;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            background: rgba(10,12,18,0.6);
+                            border-radius: 8px;
+                            z-index: 5;
+                            gap: 10px;
+                            border: 1px dashed rgba(255,46,59,0.25);
+                        }}
+                        .paywall-gated.unlocked .gated-overlay {{
+                            display: none;
+                        }}
+                        .paywall-gated .gated-overlay .lock-text {{
+                            font-family: 'Outfit', sans-serif;
+                            font-size: 15px;
+                            color: var(--text-primary);
+                        }}
+                        .paywall-gated .gated-overlay .lock-sub {{
+                            font-size: 12px;
+                            color: var(--text-muted);
+                        }}
+                        .paywall-gated .gated-overlay .btn-unlock {{
+                            background: var(--accent-red);
+                            color: #fff;
+                            border: none;
+                            border-radius: 6px;
+                            padding: 8px 20px;
+                            font-size: 13px;
+                            font-weight: 600;
+                            cursor: pointer;
+                        }}
+                        .paywall-gated .gated-overlay .btn-unlock:hover {{
+                            background: #e02b35;
+                        }}
+                        .paywall-gated .gated-overlay .pw-input {{
+                            background: rgba(255,255,255,0.08);
+                            border: 1px solid var(--border-color);
+                            border-radius: 4px;
+                            padding: 6px 12px;
+                            color: var(--text-primary);
+                            font-size: 13px;
+                            font-family: monospace;
+                            width: 200px;
+                            text-align: center;
+                        }}
+                        .paywall-gated .gated-overlay .pw-error {{
+                            color: var(--color-critical);
+                            font-size: 11px;
+                            display: none;
+                        }}
 
                 /* ---- Severity Risk Matrix ---- */
                 .risk-matrix {{
@@ -1494,7 +1537,7 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
         </div>
 
         <!-- ═══ Hero Section ═══ -->
-        <div class="hero-section" {hero_style}>
+        <div class="hero-section">
             <div class="hero-overlay"></div>
             <div class="hero-content">
                 <div class="hero-tagline">Security Fingerprint Assessment</div>
@@ -1592,12 +1635,16 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
                     <button class="tab-btn active" onclick="switchTab('tab-os')">OS Detection</button>
                     <button class="tab-btn" onclick="switchTab('tab-ports')">Open Ports</button>
                     <button class="tab-btn" onclick="switchTab('tab-tech')">Tech Findings</button>
-                    <button class="tab-btn{_lock_class(locked)}" onclick="switchTab('tab-ffuf')">Asset Discovery{_lock_icon(locked)}</button>
-                                        <button class="tab-btn{_lock_class(locked)}" onclick="switchTab('tab-vulners')">CVE Database{_lock_icon(locked)}</button>
-                                        <button class="tab-btn{_lock_class(locked)}" onclick="switchTab('tab-vulns')">Vulnerabilities{_lock_icon(locked)}</button>
+                    <button class="tab-btn locked-tab" onclick="switchTab('tab-ffuf')">Asset Discovery &#x1F512;</button>
+                    <button class="tab-btn locked-tab" onclick="switchTab('tab-vulners')">CVE Database &#x1F512;</button>
+                    <button class="tab-btn locked-tab" onclick="switchTab('tab-vulns')">Vulnerabilities &#x1F512;</button>
                 </div>
 
-                {_paywall_banner(locked)}
+                <!-- Paywall promotion banner -->
+                        <div class="highlight-box paywall-banner" style="background:rgba(255,46,59,0.08);border:1px solid rgba(255,46,59,0.2);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+                            <span style="font-size:13px">&#x1F512; <strong style="color:var(--color-critical)">Premium Content Locked</strong> — The first {FREE_PREVIEW_COUNT} findings in each section are free. Enter the password to reveal all results.</span>
+                            <span style="font-size:11px;color:var(--text-muted)">Contact Cyber Samurai to obtain your unlock code.</span>
+                        </div>
 
         <!-- ═══ Tab: Open Ports & Services ═══ -->
         <div class="tab-content" id="tab-ports">
@@ -1614,13 +1661,13 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
         <!-- ═══ Tab: Asset Discovery (FFUF) ═══ -->
                 <div class="tab-content" id="tab-ffuf">
                     <h2 class="section-title">Asset &amp; Endpoint Discovery</h2>
-                    {_build_ffuf_section(ffuf_data, locked=locked)}
+                    {_build_ffuf_section(ffuf_data)}
                 </div>
 
         <!-- ═══ Tab: CVE Vulnerability Database ═══ -->
                 <div class="tab-content" id="tab-vulners">
                     <h2 class="section-title">CVE Vulnerability Assessment</h2>
-                    {_build_vulners_section(nmap_data, locked=locked)}
+                    {_build_vulners_section(nmap_data)}
                 </div>
 
         <!-- ═══ Tab: OS Detection ═══ -->
@@ -1632,7 +1679,7 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
         <!-- ═══ Tab: Vulnerability Findings ═══ -->
                 <div class="tab-content" id="tab-vulns">
                     <h2 class="section-title">Vulnerability Findings</h2>
-                    {_build_vulnerabilities_section(nmap_data, locked=locked)}
+                    {_build_vulnerabilities_section(nmap_data)}
                 </div>
 
         <!-- ═══ Footer ═══ -->
@@ -1664,7 +1711,21 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
                                 }}
                             }}
                         }}
-                        {_unlock_js(locked)}
+                        function unlockGate(containerId) {{
+                            var container = document.getElementById(containerId);
+                            if (!container) return;
+                            var overlay = container.querySelector('.gated-overlay');
+                            var input = overlay.querySelector('.pw-input');
+                            var error = overlay.querySelector('.pw-error');
+                            var pw = input.value.trim();
+                            if (pw === '{PAYWALL_PASSWORD}') {{
+                                container.classList.add('unlocked');
+                            }} else {{
+                                error.style.display = 'block';
+                                input.value = '';
+                                input.focus();
+                            }}
+                        }}
         </script>
 </body>
 </html>
@@ -1677,133 +1738,6 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
 
     print(f"[+] Report compiled successfully: {output_path}")
     return html
-
-
-# ─── Helper: Lock/paywall UI helpers ──────────────────────────────────────
-
-def _lock_class(locked):
-    """Return ' locked-tab' class if locked, empty string otherwise."""
-    return " locked-tab" if locked else ""
-
-
-def _lock_icon(locked):
-    """Return lock icon HTML entity if locked, empty string otherwise."""
-    return " &#x1F512;" if locked else ""
-
-
-def _paywall_banner(locked):
-    """Return paywall banner HTML if locked, empty string otherwise."""
-    if not locked:
-        return ""
-    return f"""\
-                <!-- Paywall promotion banner -->
-                        <div class="highlight-box paywall-banner" style="background:rgba(255,46,59,0.08);border:1px solid rgba(255,46,59,0.2);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-                            <span style="font-size:13px">&#x1F512; <strong style="color:var(--color-critical)">Premium Content Locked</strong> — The first {FREE_PREVIEW_COUNT} findings in each section are free. Enter the password to reveal all results.</span>
-                            <span style="font-size:11px;color:var(--text-muted)">Contact Cyber Samurai to obtain your unlock code.</span>
-                        </div>"""
-
-
-def _unlock_js(locked):
-    """Return unlockGate JavaScript if locked, empty string otherwise."""
-    if not locked:
-        return ""
-    return f"""\
-                            function unlockGate(containerId) {{
-                                var container = document.getElementById(containerId);
-                                if (!container) return;
-                                var overlay = container.querySelector('.gated-overlay');
-                                var input = overlay.querySelector('.pw-input');
-                                var error = overlay.querySelector('.pw-error');
-                                var pw = input.value.trim();
-                                if (pw === '{PAYWALL_PASSWORD}') {{
-                                    container.classList.add('unlocked');
-                                }} else {{
-                                    error.style.display = 'block';
-                                    input.value = '';
-                                    input.focus();
-                                }}
-                            }}"""
-
-
-# ─── Helper: Paywall CSS ────────────────────────────────────────────────────
-
-def _paywall_css(locked):
-    """Return paywall CSS if locked, empty string otherwise."""
-    if not locked:
-        return ""
-    return """\
-                /* ---- Paywall / Gated Content (partial blur) ---- */
-                        .paywall-gated {
-                            position: relative;
-                            margin-top: 12px;
-                        }
-                        .paywall-gated .gated-content {
-                            filter: blur(6px);
-                            pointer-events: none;
-                            user-select: none;
-                            opacity: 0.4;
-                            transition: filter 0.3s, opacity 0.3s;
-                        }
-                        .paywall-gated.unlocked .gated-content {
-                            filter: none;
-                            pointer-events: auto;
-                            user-select: auto;
-                            opacity: 1;
-                        }
-                        .paywall-gated .gated-overlay {
-                            position: absolute;
-                            inset: 0;
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            justify-content: center;
-                            background: rgba(10,12,18,0.6);
-                            border-radius: 8px;
-                            z-index: 5;
-                            gap: 10px;
-                            border: 1px dashed rgba(255,46,59,0.25);
-                        }
-                        .paywall-gated.unlocked .gated-overlay {
-                            display: none;
-                        }
-                        .paywall-gated .gated-overlay .lock-text {
-                            font-family: 'Outfit', sans-serif;
-                            font-size: 15px;
-                            color: var(--text-primary);
-                        }
-                        .paywall-gated .gated-overlay .lock-sub {
-                            font-size: 12px;
-                            color: var(--text-muted);
-                        }
-                        .paywall-gated .gated-overlay .btn-unlock {
-                            background: var(--accent-red);
-                            color: #fff;
-                            border: none;
-                            border-radius: 6px;
-                            padding: 8px 20px;
-                            font-size: 13px;
-                            font-weight: 600;
-                            cursor: pointer;
-                        }
-                        .paywall-gated .gated-overlay .btn-unlock:hover {
-                            background: #e02b35;
-                        }
-                        .paywall-gated .gated-overlay .pw-input {
-                            background: rgba(255,255,255,0.08);
-                            border: 1px solid var(--border-color);
-                            border-radius: 4px;
-                            padding: 6px 12px;
-                            color: var(--text-primary);
-                            font-size: 13px;
-                            font-family: monospace;
-                            width: 200px;
-                            text-align: center;
-                        }
-                        .paywall-gated .gated-overlay .pw-error {
-                            color: var(--color-critical);
-                            font-size: 11px;
-                            display: none;
-                        }"""
 
 
 # ─── Helper: Risk Calculation ────────────────────────────────────────────────
@@ -2288,10 +2222,9 @@ def _build_ports_section(nmap_data):
     """
 
 
-def _gated_section(container_id, items, label, free_count=2, locked=True):
-    """Wrap items in a paywall gate: show first `free_count` free, blur the rest behind a password.
-    When locked=False, all items are shown without gating."""
-    if not locked or len(items) <= free_count:
+def _gated_section(container_id, items, label, free_count=2):
+    """Wrap items in a paywall gate: show first `free_count` free, blur the rest behind a password."""
+    if len(items) <= free_count:
         return "".join(items)
 
     free_html = "".join(items[:free_count])
@@ -2366,7 +2299,7 @@ def _vuln_business_context(vuln):
     )
 
 
-def _build_vulnerabilities_section(nmap_data, locked=True):
+def _build_vulnerabilities_section(nmap_data):
     """Build the vulnerabilities findings section with business impact & remediation."""
     if not nmap_data or not nmap_data.get("host"):
         return '<div class="glass-card"><p class="summary-text">No vulnerability data available.</p></div>'
@@ -2443,7 +2376,7 @@ def _build_vulnerabilities_section(nmap_data, locked=True):
         </div>
         """)
 
-    return _gated_section("gate-vulns", card_items, "Vulnerabilities", FREE_PREVIEW_COUNT, locked=locked)
+    return _gated_section("gate-vulns", card_items, "Vulnerabilities", FREE_PREVIEW_COUNT)
 
 
 def _build_dirsearch_section(dirsearch_data):
@@ -2738,7 +2671,7 @@ def _build_security_headers_section(nmap_data):
     return cards
 
 
-def _build_ffuf_section(ffuf_data, locked=True):
+def _build_ffuf_section(ffuf_data):
     """Build the Asset Discovery section from FFUF results."""
     if not ffuf_data:
         return '<div class="glass-card"><p class="summary-text">No FFUF directory brute-force data available.</p></div>'
@@ -2861,38 +2794,6 @@ def _build_ffuf_section(ffuf_data, locked=True):
                 </tr>
         """)
 
-    if not locked:
-        # Full display: show all rows without gating
-        all_rows_html = "".join(all_finding_rows)
-        return f"""\
-    <div class="glass-card">
-        <div class="card-title">Web Discovery</div>
-        <p class="summary-text" style="margin-bottom:12px">
-            During the scan the following was identified:
-            <strong style="color:var(--color-info)">{total} endpoints</strong>.
-            <strong style="color:var(--color-critical)">{len(critical)} critical</strong>,
-            <strong style="color:var(--color-warning)">{len(high)} high</strong>,
-            <strong style="color:var(--color-info)">{len(medium)} medium</strong>, and
-            {len(low)} low-severity findings.
-        </p>
-        <div style="margin-bottom:12px">
-            <span style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Content Types: </span>
-            {ct_html}
-        </div>
-        <div style="overflow-x:auto;max-height:400px;overflow-y:auto">
-            <table class="data-table">
-                <thead>
-                    <tr><th>Status</th><th>URL</th><th>Content Type</th><th>Size (bytes)</th><th>Response</th></tr>
-                </thead>
-                <tbody>{all_rows_html}</tbody>
-            </table>
-        </div>
-    </div>
-
-    {git_html}
-    """
-
-    # Locked mode: gate beyond preview count
     free_finding_rows = "".join(all_finding_rows[:FREE_PREVIEW_COUNT])
     gated_findings_block = ""
     if len(all_finding_rows) > FREE_PREVIEW_COUNT:
@@ -2955,7 +2856,7 @@ def _build_ffuf_section(ffuf_data, locked=True):
 # ─── Main ────────────────────────────────────────────────────────────────────
 
 
-def _build_vulners_section(nmap_data, locked=True):
+def _build_vulners_section(nmap_data):
     """Build the Vulnerability Assessment table from vulners NSE script."""
     if not nmap_data or not nmap_data.get("host"):
         return '<div class="glass-card"><p class="summary-text">No vulnerability assessment data available.</p></div>'
@@ -3005,15 +2906,11 @@ def _build_vulners_section(nmap_data, locked=True):
             </tr>
         """)
 
-    if not locked:
-        free_rows = "".join(row_items)
-        gated_block = ""
-    else:
-        free_rows = "".join(row_items[:FREE_PREVIEW_COUNT])
-        gated_block = ""
-        if len(row_items) > FREE_PREVIEW_COUNT:
-            gated_rows_html = "".join(row_items[FREE_PREVIEW_COUNT:])
-            gated_block = f"""
+    free_rows = "".join(row_items[:FREE_PREVIEW_COUNT])
+    gated_block = ""
+    if len(row_items) > FREE_PREVIEW_COUNT:
+        gated_rows_html = "".join(row_items[FREE_PREVIEW_COUNT:])
+        gated_block = f"""
     <div class="paywall-gated" id="gate-vulners" style="margin-top:8px">
         <div class="gated-content">
             <div class="glass-card" style="margin-top:0">
@@ -3321,9 +3218,7 @@ def main():
 
     # ── Step 4: Build HTML Report ──
     print(f"[*] Compiling HTML report → {OUTPUT_FILE}")
-    lock_str = "locked" if LOCKED else "full display"
-    print(f"    → Mode: {lock_str}")
-    build_html_report(nmap_data, None, whatweb_data, ffuf_data, OUTPUT_FILE, locked=LOCKED)
+    build_html_report(nmap_data, None, whatweb_data, ffuf_data, OUTPUT_FILE)
 
     # ── Summary ──
     print()
