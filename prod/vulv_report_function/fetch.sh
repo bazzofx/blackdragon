@@ -104,7 +104,7 @@ fi
 echo "[*] Resolved IP: $ip"
 
 ###############################
-#           WHATWEB 
+#           WHATWEB
 ###############################
 #Purpose:
 # Gather information about the technology stack running on the target web server.
@@ -113,10 +113,10 @@ echo "[*] Resolved IP: $ip"
 # and follows redirects to map the full technology fingerprint.
 echo ""
 echo "[*] Running whatweb against $domain ..."
-whatweb "http://$domain" -v -a 3 --follow-redirect=always $proxy_whatweb --log-json "${output_dir}/whatweb_rawReport.json"
+#whatweb "http://$domain" -v -a 3 --follow-redirect=always $proxy_whatweb --log-json "${output_dir}/whatweb_rawReport.json"
 
 ###############################
-#           NMAP 
+#           NMAP
 ###############################
 #Purpose:
 # Comprehensive port scanning to identify open ports, running services, service
@@ -137,11 +137,11 @@ fi
 
 # Fast port discovery (all ports, top speed)
 PORTS_FILE="${output_dir}/open_ports.txt"
-nmap -p- -T4 --min-rate=1000 $PROXY_CMD "$ip" | \
-    grep -E '^[0-9]+/tcp' | \
-    cut -d '/' -f 1 | \
-    tr '\n' ',' | \
-    sed 's/,$//' > "$PORTS_FILE"
+#nmap -p- -T4 --min-rate=1000 $PROXY_CMD "$ip" | \
+#    grep -E '^[0-9]+/tcp' | \
+#    cut -d '/' -f 1 | \
+#    tr '\n' ',' | \
+#    sed 's/,$//' > "$PORTS_FILE"
 
 # Read the ports back
 OPEN_PORTS=$(cat "$PORTS_FILE")
@@ -159,12 +159,12 @@ echo "[+] Open ports saved to: $PORTS_FILE"
 # ==========================================
 echo "[*] Stage 2: Running detailed scan on open ports..."
 
-nmap -sS -sV -O -p "$OPEN_PORTS" \
-    -T4 -A \
-    --script default,vuln,vulners \
-    $PROXY_CMD \
-    -oX "${output_dir}/nmap_rawReport.xml" \
-    "$ip"
+#nmap -sS -sV -O -p "$OPEN_PORTS" \
+#    -T4 -A \
+#    --script default,vuln,vulners \
+#    $PROXY_CMD \
+#    -oX "${output_dir}/nmap_rawReport.xml" \
+#    "$ip"
 
 # ==========================================
 # Check results
@@ -183,7 +183,7 @@ else
 fi
 
 ###############################
-#           FFUF 
+#           FFUF
 ###############################
 #Purpose:
 # Directory and file brute-forcing to discover hidden paths, backup files,
@@ -192,8 +192,6 @@ fi
 # rate-limiting responses (429) and server errors (500, 503) to reduce noise.
 echo ""
 echo "[*] Running FFUF against $domain ..."
-output_dir="/home/kali/Documents/pbtools/blackdragon_dev/$output_dir"
-domain="cybersamurai.co.uk"
 
 ffuf -u "https://$domain/FUZZ" \
     -w /home/kali/wordlist/pblist/fuzzing/common.txt \
@@ -205,7 +203,7 @@ ffuf -u "https://$domain/FUZZ" \
     -v \
     -r
 ###############################
-#           NIKTO 
+#           NIKTO
 ###############################
 #Purpose:
 # Web server vulnerability scanner that checks for outdated server software,

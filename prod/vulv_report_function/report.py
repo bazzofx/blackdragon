@@ -2463,7 +2463,7 @@ def _build_vulnerabilities_section(nmap_data, locked=True):
         return """
         <div class="glass-card card-green">
             <div class="card-title">No Critical Vulnerabilities</div>
-            <p class="summary-text">Nmap vulnerability scripts did not detect any exploitable vulnerabilities on the target host.</p>
+            <p class="summary-text">BlackDragon vulnerability scan did not detect any exploitable vulnerabilities on the target host.</p>
         </div>
         """
 
