@@ -70,7 +70,7 @@ fi
 
 
 # Generate enhanced, integrated TLS + HTTP report in the same folder
-python3 "$SCRIPT_DIR/report.py" -o "$folder/enhancedTLSReport.html" "$folder/rawTLSReport.html"
+python3 "$SCRIPT_DIR/report.py" -o "$folder/enhancedTLSReport.html" "$folder/rawTLSReport.html" "-locked"
 
 echo "✅ TLS/SSL & HTTP Report Generated in: $folder/"
 echo "📄 Reports saved in: $(pwd)/$folder/"

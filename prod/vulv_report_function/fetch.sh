@@ -254,5 +254,5 @@ if [[ -n "$proxy" ]]; then
 fi
 
 
-python3 report.py "$output_dir"
+python3 report.py "$output_dir" "-locked"
 echo "END"
