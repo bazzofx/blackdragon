@@ -1,3 +1,0 @@
-[
-{"target":"http://cybersamurai.co.uk","http_status":200,"request_config":{"headers":{"User-Agent":"WhatWeb/0.6.2"}},"plugins":{"Country":{"string":["UNITED STATES"],"module":["US"]},"Email":{"string":["hello@cybersamurai.co.uk"]},"HTML5":{},"HTTPServer":{"os":["Ubuntu Linux"],"string":["nginx/1.24.0 (Ubuntu)"]},"IP":{"string":["172.236.21.180"]},"nginx":{"version":["1.24.0"]},"Script":{"string":["module"]},"Title":{"string":["A Cyber Security Digest by Paulo Bazzo"]},"X-UA-Compatible":{"string":["IE=edge"]}}}
-]
