@@ -618,7 +618,159 @@ def render_certificate_info_html(cert_info: Dict) -> str:
     return html
 
 
-def generate_html_report(findings: Dict, input_file: str) -> str:
+# ─── Configuration for Gated Content ─────────────────────────────────────────
+PAYWALL_PASSWORD = "cybersamurai2024"
+FREE_PREVIEW_COUNT = 3
+
+
+def _lock_class(locked):
+    """Return ' locked-tab' class if locked, empty string otherwise."""
+    return " locked-tab" if locked else ""
+
+
+def _lock_icon(locked):
+    """Return lock icon HTML entity if locked, empty string otherwise."""
+    return " &#x1F512;" if locked else ""
+
+
+def _paywall_banner(locked):
+    """Return paywall banner HTML if locked, empty string otherwise."""
+    if not locked:
+        return ""
+    return f"""\
+        <!-- Paywall promotion banner -->
+        <div class="highlight-box paywall-banner" style="background:rgba(255,46,59,0.08);border:1px solid rgba(255,46,59,0.2);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <span style="font-size:13px">&#x1F512; <strong style="color:var(--color-critical)">Premium Content Locked</strong> — The first {FREE_PREVIEW_COUNT} findings in each section are free. Enter the password to reveal all results.</span>
+            <span style="font-size:11px;color:var(--text-muted)">Contact Cyber Samurai to obtain your unlock code.</span>
+        </div>"""
+
+
+def _unlock_js(locked):
+    """Return unlockGate JavaScript if locked, empty string otherwise."""
+    if not locked:
+        return ""
+    return f"""\
+    function unlockGate(containerId) {{
+        var container = document.getElementById(containerId);
+        if (!container) return;
+        var overlay = container.querySelector('.gated-overlay');
+        var input = overlay.querySelector('.pw-input');
+        var error = overlay.querySelector('.pw-error');
+        var pw = input.value.trim();
+        if (pw === '{PAYWALL_PASSWORD}') {{
+            container.classList.add('unlocked');
+        }} else {{
+            error.style.display = 'block';
+            input.value = '';
+            input.focus();
+        }}
+    }}"""
+
+
+def _paywall_css(locked):
+    """Return paywall CSS if locked, empty string otherwise."""
+    if not locked:
+        return ""
+    return """\
+        /* ---- Paywall / Gated Content (partial blur) ---- */
+        .paywall-gated {
+            position: relative;
+            margin-top: 12px;
+        }
+        .paywall-gated .gated-content {
+            filter: blur(6px);
+            pointer-events: none;
+            user-select: none;
+            opacity: 0.4;
+            transition: filter 0.3s, opacity 0.3s;
+        }
+        .paywall-gated.unlocked .gated-content {
+            filter: none;
+            pointer-events: auto;
+            user-select: auto;
+            opacity: 1;
+        }
+        .paywall-gated .gated-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10,12,18,0.6);
+            border-radius: 8px;
+            z-index: 5;
+            gap: 10px;
+            border: 1px dashed rgba(255,46,59,0.25);
+        }
+        .paywall-gated.unlocked .gated-overlay {
+            display: none;
+        }
+        .paywall-gated .gated-overlay .lock-text {
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            color: var(--text-primary);
+        }
+        .paywall-gated .gated-overlay .lock-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .paywall-gated .gated-overlay .btn-unlock {
+            background: var(--accent-red);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .paywall-gated .gated-overlay .btn-unlock:hover {
+            background: #e02b35;
+        }
+        .paywall-gated .gated-overlay .pw-input {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 6px 12px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: monospace;
+            width: 200px;
+            text-align: center;
+        }
+        .paywall-gated .gated-overlay .pw-error {
+            color: var(--color-critical);
+            font-size: 11px;
+            display: none;
+        }"""
+
+
+def _gated_section(container_id, items, label, free_count=3, locked=True):
+    """Wrap items in a paywall gate: show first `free_count` free, blur the rest behind a password.
+    When locked=False, all items are shown without gating."""
+    if not locked or len(items) <= free_count:
+        return "".join(items)
+
+    free_html = "".join(items[:free_count])
+    gated_html = "".join(items[free_count:])
+
+    return free_html + f"""
+    <div class="paywall-gated" id="{container_id}">
+        <div class="gated-content">
+            {gated_html}
+        </div>
+        <div class="gated-overlay">
+            <span class="lock-text">&#x1F512; {len(items) - free_count} More {label} Locked</span>
+            <span class="lock-sub">Enter password to reveal all {len(items)} {label.lower()}</span>
+            <input type="password" class="pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')unlockGate('{container_id}')">
+            <span class="pw-error">Incorrect password</span>
+            <button class="btn-unlock" onclick="unlockGate('{container_id}')">Unlock</button>
+        </div>
+    </div>"""
+
+
+def generate_html_report(findings: Dict, input_file: str, locked: bool = False) -> str:
     """Generate a premium, branded HTML report from findings."""
     import os
     import json
@@ -1784,6 +1936,7 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
                 color: black !important;
             }
         }
+        <!--PAYWALL_CSS-->
     </style>
 </head>
 <body>
@@ -1874,10 +2027,11 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
         <button class="tab-btn active" onclick="switchTab(event, 'dashboard')">Overview</button>
         <button class="tab-btn" onclick="switchTab(event, 'certificate')">Certificate Info</button>
         <!--CURL_TAB_BUTTON-->
-        <button class="tab-btn" onclick="switchTab(event, 'vulnerabilities')">Vulnerabilities</button>
+        <button class="tab-btn<!--VULN_LOCK_CLASS-->" onclick="switchTab(event, 'vulnerabilities')">Vulnerabilities<!--VULN_LOCK_ICON--></button>
         <button class="tab-btn" onclick="switchTab(event, 'ciphers')">Protocols & Ciphers</button>
-        <button class="tab-btn" onclick="switchTab(event, 'roadmap')">Action Roadmap</button>
+        <button class="tab-btn<!--ROADMAP_LOCK_CLASS-->" onclick="switchTab(event, 'roadmap')">Action Roadmap<!--ROADMAP_LOCK_ICON--></button>
     </div>
+    <!--PAYWALL_BANNER-->
 
     <!-- TAB 1.5: CERTIFICATE INFO -->
     <div id="certificate" class="tab-content">
@@ -2071,6 +2225,7 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
             }
         });
     }
+    <!--PAYWALL_JS-->
 </script>
 </body>
 </html>
@@ -2078,6 +2233,15 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
 
     # Inject metadata and summary stats
     html = html_template
+    
+    # Inject paywall setup
+    html = html.replace('<!--PAYWALL_CSS-->', _paywall_css(locked))
+    html = html.replace('<!--PAYWALL_JS-->', _unlock_js(locked))
+    html = html.replace('<!--VULN_LOCK_CLASS-->', _lock_class(locked))
+    html = html.replace('<!--VULN_LOCK_ICON-->', _lock_icon(locked))
+    html = html.replace('<!--ROADMAP_LOCK_CLASS-->', _lock_class(locked))
+    html = html.replace('<!--ROADMAP_LOCK_ICON-->', _lock_icon(locked))
+    html = html.replace('<!--PAYWALL_BANNER-->', _paywall_banner(locked))
     
     # Retrieve and render certificate information
     cert_info = fetch_certificate_info(findings.get('target', ''))
@@ -2163,7 +2327,7 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
     html = html.replace('<!--CIPHERS_WEAK_HTML-->', weak_html)
 
     # Construct Vulnerabilities Cards HTML
-    vuln_cards_html = ""
+    vuln_cards_list = []
     for vuln_name, data in sorted(findings['vulnerabilities'].items(), key=lambda x: ('critical', 'warning', 'pass').index(x[1]['severity'].lower())):
         status_class = data['severity'].lower()
         original_info = data.get('original_info', vuln_name)
@@ -2181,7 +2345,7 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
         elif status_class == 'warning':
             status_text = "WARNING"
             
-        vuln_cards_html += f'''
+        vuln_cards_list.append(f'''
             <div class="vuln-item-card" data-severity="{status_class}">
                 <div class="vuln-card-header" onclick="toggleVulnCard(this)">
                     <div class="vuln-meta-left">
@@ -2209,7 +2373,8 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
                         <div class="raw-output-block">{escape(data['detail'])}</div>
                     </div>
                 </div>
-            </div>'''
+            </div>''')
+    vuln_cards_html = _gated_section("gate-vulns", vuln_cards_list, "Vulnerabilities", free_count=3, locked=locked)
     html = html.replace('<!--VULN_CARDS_HTML-->', vuln_cards_html)
 
     # Construct Roadmap items HTML (Static List of items found)
@@ -2270,25 +2435,98 @@ def generate_html_report(findings: Dict, input_file: str) -> str:
         })
 
     # Render groups to HTML
-    for key, p_data in priorities.items():
-        if not p_data['items']:
-            continue
-            
-        group_html = f'''
+    all_roadmap_items = []
+    for key in ['critical', 'high', 'medium']:
+        for item in priorities[key]['items']:
+            all_roadmap_items.append((key, item))
+
+    total_roadmap_count = len(all_roadmap_items)
+    
+    if not locked or total_roadmap_count <= 3:
+        roadmap_html = ""
+        for key, p_data in priorities.items():
+            if not p_data['items']:
+                continue
+                
+            group_html = f'''
                 <div class="roadmap-priority-group">
                     <div class="priority-title {p_data['class']}">{escape(p_data['title'])}</div>'''
-                    
-        for item in p_data['items']:
-            group_html += f'''
+                        
+            for item in p_data['items']:
+                group_html += f'''
                     <div class="roadmap-item">
                         <div class="roadmap-item-details">
                             <div class="roadmap-item-title">{escape(item['title'])}</div>
                             <span class="roadmap-item-desc">{escape(item['desc'])}</span>
                         </div>
                     </div>'''
+                
+            group_html += '</div>'
+            roadmap_html += group_html
+    else:
+        # Gated mode: show first 3 free, gate the rest
+        free_items = all_roadmap_items[:3]
+        gated_items = all_roadmap_items[3:]
+        
+        # Build free_html
+        free_html = ""
+        for key in ['critical', 'high', 'medium']:
+            key_free_items = [x[1] for x in free_items if x[0] == key]
+            if not key_free_items:
+                continue
             
-        group_html += '</div>'
-        roadmap_html += group_html
+            p_data = priorities[key]
+            group_html = f'''
+                <div class="roadmap-priority-group">
+                    <div class="priority-title {p_data['class']}">{escape(p_data['title'])}</div>'''
+            for item in key_free_items:
+                group_html += f'''
+                    <div class="roadmap-item">
+                        <div class="roadmap-item-details">
+                            <div class="roadmap-item-title">{escape(item['title'])}</div>
+                            <span class="roadmap-item-desc">{escape(item['desc'])}</span>
+                        </div>
+                    </div>'''
+            group_html += '</div>'
+            free_html += group_html
+            
+        # Build gated_html
+        gated_html = ""
+        for key in ['critical', 'high', 'medium']:
+            key_gated_items = [x[1] for x in gated_items if x[0] == key]
+            if not key_gated_items:
+                continue
+            
+            p_data = priorities[key]
+            group_html = f'''
+                <div class="roadmap-priority-group">
+                    <div class="priority-title {p_data['class']}">{escape(p_data['title'])}</div>'''
+            for item in key_gated_items:
+                group_html += f'''
+                    <div class="roadmap-item">
+                        <div class="roadmap-item-details">
+                            <div class="roadmap-item-title">{escape(item['title'])}</div>
+                            <span class="roadmap-item-desc">{escape(item['desc'])}</span>
+                        </div>
+                    </div>'''
+            group_html += '</div>'
+            gated_html += group_html
+            
+        # Wrap gated_html inside paywall-gated div
+        gated_count = len(gated_items)
+        roadmap_html = free_html + f"""
+        <div class="paywall-gated" id="gate-roadmap">
+            <div class="gated-content">
+                {gated_html}
+            </div>
+            <div class="gated-overlay">
+                <span class="lock-text">&#x1F512; {gated_count} More Action Items Locked</span>
+                <span class="lock-sub">Enter password to reveal all {total_roadmap_count} action items</span>
+                <input type="password" class="pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')unlockGate('gate-roadmap')">
+                <span class="pw-error">Incorrect password</span>
+                <button class="btn-unlock" onclick="unlockGate('gate-roadmap')">Unlock</button>
+            </div>
+        </div>"""
 
     if not roadmap_html:
         roadmap_html = '''
@@ -2318,6 +2556,8 @@ def main():
     parser.add_argument('input', help='Input HTML file from TLS scanner')
     parser.add_argument('-o', '--output', default='enhanced_report.html',
                        help='Output HTML file (default: enhanced_report.html)')
+    parser.add_argument('-locked', action='store_true',
+                       help='Generate a password-protected locked report')
     args = parser.parse_args()
 
     try:
@@ -2333,7 +2573,7 @@ def main():
     parser_obj = SamuraiReportParser(content)
     findings = parser_obj.get_summary()
 
-    html_report = generate_html_report(findings, args.input)
+    html_report = generate_html_report(findings, args.input, locked=args.locked)
 
     try:
         with open(args.output, 'w', encoding='utf-8') as f:

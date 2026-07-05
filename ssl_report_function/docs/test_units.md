@@ -6,7 +6,7 @@ This document explains the purpose, implementation, methodology, and passing cri
 
 ## 🔍 1. Brief Description & Purpose
 
-The test suite is implemented in [test_tls.py](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/testUnits/test_tls.py).
+The test suite is implemented in [test_tls.py](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/test_units/test_tls.py).
 
 Its primary purpose is to guard the TLS parser logic against regression anomalies, specifically ensuring that deprecated protocols (`TLSv1` and `TLSv1.1`) are only flagged as supported and vulnerable when they are actually offered by the target server. If they are disabled/unsupported on the server, the parser must ignore them, preventing them from incorrectly appearing in the client-facing Action Roadmap.
 
@@ -14,16 +14,16 @@ Its primary purpose is to guard the TLS parser logic against regression anomalie
 
 ## 💻 2. Code Implementation
 
-Below is the complete implementation of the unit test suite located in [testUnits/test_tls.py:L1-56](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/testUnits/test_tls.py#L1-L56):
+Below is the complete implementation of the unit test suite located in [test_tls.py:L1-56](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/test_units/test_tls.py#L1-L56):
 
 ```python
 import os
 import sys
 import unittest
 
-# Add workspace root to python path to resolve tls package imports
+# Add parent directory to python path to resolve module imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from tls.tls import SamuraiReportParser
+from generateTLSReport import SamuraiReportParser
 
 class TestTLSReportParser(unittest.TestCase):
     def setUp(self):
@@ -81,11 +81,11 @@ if __name__ == '__main__':
 The test suite validates the parser under two contrasting scenarios:
 
 ### 📥 Test Case 1: Offered Protocols (`test_samurai_report_parsing`)
-- **Input Context**: Ingests [rawTLSReport.html](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/testUnits/rawTLSReport.html) which contains active cipher suites under the `TLSv1` and `TLSv1.1` protocol blocks.
+- **Input Context**: Ingests [rawTLSReport.html](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/test_units/rawTLSReport.html) which contains active cipher suites under the `TLSv1` and `TLSv1.1` protocol blocks.
 - **Expectation**: The parser must recognize that these protocols are actively supported/offered by the server and flag them as supported and vulnerable.
 
 ### 📥 Test Case 2: Disabled Protocols (`test_nec_report_parsing`)
-- **Input Context**: Ingests [tls1_falsePositiveReport.html](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/testUnits/tls1_falsePositiveReport.html) which shows a hyphen (`-`) under the `TLSv1` and `TLSv1.1` protocol blocks.
+- **Input Context**: Ingests [tls1_falsePositiveReport.html](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/test_units/tls1_falsePositiveReport.html) which shows a hyphen (`-`) under the `TLSv1` and `TLSv1.1` protocol blocks.
 - **Expectation**: The parser must recognize that these protocols are not offered/disabled by the server and omit them from the supported and vulnerable findings lists.
 
 ### 📊 Verification Flowchart
@@ -110,7 +110,7 @@ graph TD
 A test run is considered successful and marked as **passed** if and only if the following assertions are satisfied:
 
 1. **Existence Bounding**:
-   - The files [rawTLSReport.html](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/testUnits/rawTLSReport.html) and [tls1_falsePositiveReport.html](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/testUnits/tls1_falsePositiveReport.html) must be present in the `testUnits/` directory.
+   - The files [rawTLSReport.html](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/test_units/rawTLSReport.html) and [tls1_falsePositiveReport.html](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/test_units/tls1_falsePositiveReport.html) must be present in the `test_units/` directory.
 2. **Supported Protocols Validation**:
    - `TLSv1` and `TLSv1.1` must exist in both `findings['protocols']['supported']` and `findings['protocols']['vulnerable']` for the `raw` report.
    - `TLSv1.2` and `TLSv1.3` must always exist in `findings['protocols']['supported']` for both reports.
@@ -126,7 +126,7 @@ The tests utilize the native Python `unittest` framework and can be run manually
 ### Manual Execution
 Run the following command from the workspace root:
 ```bash
-python testUnits/test_tls.py
+python ssl_report_function/test_units/test_tls.py
 ```
 
 ### Successful Output Signature

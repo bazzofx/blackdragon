@@ -2,9 +2,9 @@ import os
 import sys
 import unittest
 
-# Add workspace root to python path to resolve tls package imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-from tls.generateTLSReport import SamuraiReportParser
+# Add parent directory to python path to resolve module imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from generateTLSReport import SamuraiReportParser
 
 class TestTLSReportParser(unittest.TestCase):
     def setUp(self):

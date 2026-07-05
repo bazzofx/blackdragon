@@ -17,7 +17,7 @@ For example, to run the assessment on `cybersamurai.co.uk`:
 ./runTLSReport.sh cybersamurai.co.uk
 ```
 
-For a step-by-step walkthrough of the orchestrator script's execution path and logic flow, see [run_tls_report_readme.md](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/logic_readme/run_tls_report_readme.md).
+For a step-by-step walkthrough of the orchestrator script's execution path and logic flow, see [run_tls_report.md](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/docs/logic/run_tls_report.md).
 
 ---
 
@@ -25,11 +25,11 @@ For a step-by-step walkthrough of the orchestrator script's execution path and l
 
 Click on the files below to view the technical specifications and logic for specific features:
 
-### 1. [TLS Security Health Score Logic](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/logic_readme/score_logic_readme.md)
+### 1. [TLS Security Health Score Logic](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/docs/logic/score.md)
 Detailed walkthrough of how vulnerabilities, protocol versions, and cipher suite grades are analyzed to produce a percentage-based security health score (e.g., `SECURE`, `STRONG`, `WARNING`, `CRITICAL`).
 
-### 2. [Certificate Retrieval & Chain Validation Logic](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/logic_readme/cert_fetch_logic_readme.md)
+### 2. [Certificate Retrieval & Chain Validation Logic](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/docs/logic/cert_fetch.md)
 Technical details of using OpenSSL `s_client` to retrieve complete certificate parameters, identify issuer attributes, verify the certificate trust chain, and display it in the enhanced HTML report.
 
-### 3. [Website Security Assessment & HTTP Header Analysis](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/logic_readme/curl_report_logic_readme.md)
+### 3. [Website Security Assessment & HTTP Header Analysis](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/docs/logic/curl_report.md)
 Detailed breakdown of curl-based security checks, including missing security headers (HSTS, CSP, X-Frame-Options), cookie settings (Secure, HttpOnly, SameSite flag validation), information leakage checks, and risk scoring metrics.

@@ -45,4 +45,7 @@ You run the scan orchestrator by executing the [runTLSReport.sh](file:///C:/User
 - [runTLSReport.sh](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/runTLSReport.sh) - Orchestrator bash script.
 - [curlReport.sh](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/curlReport.sh) - Wrapper to trigger the HTTP assessment Python module.
 - [generateTLSReport.py](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/generateTLSReport.py) - Main HTML parsing, scoring, and report enhancement script.
-- [logic_readme](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/logic_readme) - Directory containing technical walk-throughs for each component's inner workings.
+- [docs/](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/docs) - Consolidated folder containing all script user guides and technical logic walkthroughs.
+- [test_units/](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/test_units) - Folder containing unit tests and test assets.
+- [archive/](file:///C:/Users/joker/OneDrive/Documents/Github/cybersamurai_business/blackdragon/ssl_report_function/archive) - Directory for legacy/unused openSSL and curl scripts.
+
