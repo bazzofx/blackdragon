@@ -620,7 +620,7 @@ def render_certificate_info_html(cert_info: Dict) -> str:
 
 # ─── Configuration for Gated Content ─────────────────────────────────────────
 PAYWALL_PASSWORD = "cybersamurai2024"
-FREE_PREVIEW_COUNT = 3
+FREE_PREVIEW_COUNT = 2
 
 
 def _lock_class(locked):
@@ -746,7 +746,7 @@ def _paywall_css(locked):
         }"""
 
 
-def _gated_section(container_id, items, label, free_count=3, locked=True):
+def _gated_section(container_id, items, label, free_count=2, locked=True):
     """Wrap items in a paywall gate: show first `free_count` free, blur the rest behind a password.
     When locked=False, all items are shown without gating."""
     if not locked or len(items) <= free_count:
@@ -2374,7 +2374,7 @@ def generate_html_report(findings: Dict, input_file: str, locked: bool = False) 
                     </div>
                 </div>
             </div>''')
-    vuln_cards_html = _gated_section("gate-vulns", vuln_cards_list, "Vulnerabilities", free_count=3, locked=locked)
+    vuln_cards_html = _gated_section("gate-vulns", vuln_cards_list, "Vulnerabilities", free_count=FREE_PREVIEW_COUNT, locked=locked)
     html = html.replace('<!--VULN_CARDS_HTML-->', vuln_cards_html)
 
     # Construct Roadmap items HTML (Static List of items found)
@@ -2442,7 +2442,7 @@ def generate_html_report(findings: Dict, input_file: str, locked: bool = False) 
 
     total_roadmap_count = len(all_roadmap_items)
     
-    if not locked or total_roadmap_count <= 3:
+    if not locked or total_roadmap_count <= FREE_PREVIEW_COUNT:
         roadmap_html = ""
         for key, p_data in priorities.items():
             if not p_data['items']:
@@ -2464,9 +2464,9 @@ def generate_html_report(findings: Dict, input_file: str, locked: bool = False) 
             group_html += '</div>'
             roadmap_html += group_html
     else:
-        # Gated mode: show first 3 free, gate the rest
-        free_items = all_roadmap_items[:3]
-        gated_items = all_roadmap_items[3:]
+        # Gated mode: show first FREE_PREVIEW_COUNT free, gate the rest
+        free_items = all_roadmap_items[:FREE_PREVIEW_COUNT]
+        gated_items = all_roadmap_items[FREE_PREVIEW_COUNT:]
         
         # Build free_html
         free_html = ""
@@ -2586,6 +2586,7 @@ def main():
         critical = sum(1 for v in findings['vulnerabilities'].values() if v['severity'] == 'CRITICAL')
         warning = sum(1 for v in findings['vulnerabilities'].values() if v['severity'] == 'WARNING')
         print(f"   - Critical: {critical}, Warning: {warning}, Passed: {len(findings['vulnerabilities']) - critical - warning}")
+        print(f" ✅ HTTP assessment finished")
     except Exception as e:
         print(f"Error writing output: {e}")
         sys.exit(1)
