@@ -345,11 +345,91 @@
                 .rm-sev-medium   { background: rgba(59,130,246,0.15) !important; color: var(--color-info); }
                 .rm-sev-low      { background: rgba(16,185,129,0.10) !important; color: var(--color-pass); }
 
+                /* Contact Button override */
+                .btn-contact {
+                    background: var(--accent-red);
+                    color: #fff !important;
+                    border: 1px solid var(--accent-red);
+                    padding: 8px 18px;
+                    border-radius: 6px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    text-decoration: none;
+                }
+                .btn-contact:hover {
+                    background: var(--bg-primary);
+                    color: var(--accent-red) !important;
+                    border-color: var(--accent-red);
+                }
+
+                /* Collapsible Vulnerability Cards */
+                .collapsible-card {
+                    padding: 0 !important;
+                    transition: border-color 0.25s ease;
+                    overflow: hidden;
+                }
+                .vuln-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    cursor: pointer;
+                    padding: 16px 20px;
+                }
+                .vuln-title-area {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                    flex: 1;
+                }
+                .vuln-title-row {
+                    display: flex;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    gap: 10px;
+                }
+                .vuln-title-text {
+                    font-family: 'Outfit', sans-serif;
+                    font-size: 16px;
+                    font-weight: 700;
+                    color: var(--text-primary);
+                }
+                .vuln-header-arrow {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-left: 12px;
+                    color: var(--text-muted);
+                    transition: transform 0.25s ease;
+                }
+                .collapsible-card.expanded .vuln-header-arrow {
+                    transform: rotate(90deg);
+                }
+                .vuln-body {
+                    max-height: 0;
+                    overflow: hidden;
+                    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                .collapsible-card.expanded .vuln-body {
+                    max-height: 1200px;
+                    border-top: 1px solid var(--border-color);
+                }
+                .vuln-body-inner {
+                    padding: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 14px;
+                }
+
                 /* Print styles */
                         @media print {
                     body { background: #fff; color: #000; }
                     .glass-card { background: #f8f8f8; border: 1px solid #ddd; box-shadow: none; }
-                    .btn-print { display: none; }
+                    .btn-print, .btn-contact { display: none; }
                     .tabs-nav { display: none; }
                     .tab-content { display: block !important; opacity: 1 !important; }
                 }
@@ -364,10 +444,10 @@
                 <span class="brand-logo">CYBER<span>SAMURAI</span></span>
                 <span class="brand-japanese">サイバー侍</span>
             </div>
-            <button class="btn-print" onclick="window.print()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                Print Report
-            </button>
+            <a class="btn-contact" href="http://cybersamurai.co.uk/contact" target="_blank">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                Contact Cyber Samurai
+            </a>
         </div>
 
         <!-- ═══ Hero Section ═══ -->
@@ -391,7 +471,7 @@
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">Report Generated</span>
-                        <span class="meta-val">04 July 2026, 22:56</span>
+                        <span class="meta-val">05 July 2026, 13:37</span>
                     </div>
                 </div>
             </div>
@@ -1787,89 +1867,180 @@
                 <div class="tab-content" id="tab-vulns">
                     <h2 class="section-title">Vulnerability Findings</h2>
                     
-        <div class="glass-card card-red">
-            <div class="card-title">PACKETSTORM:179290 (CVSS 10.0)</div>
-            <div style="margin:8px 0">
-                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
-                <code style="margin-left:8px;color:var(--text-muted)">PACKETSTORM:179290</code>
+        <div class="glass-card card-red collapsible-card">
+            <div class="vuln-header" onclick="toggleVulnerabilityCard(this)">
+                <div class="vuln-title-area">
+                    <div class="vuln-title-row">
+                        <span class="vuln-title-text">PACKETSTORM:179290 (CVSS 10.0)</span>
+                        <span class="badge badge-red">EXPLOIT AVAILABLE</span>
+                        <code style="color:var(--text-muted); font-size: 11px;">PACKETSTORM:179290</code>
+                    </div>
+                </div>
+                <div class="vuln-header-arrow">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
             </div>
-            <p class="summary-text">Vulnerability PACKETSTORM:179290 with CVSS score 10.0 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
-            <div class="vuln-business-impact"><strong>Business Impact:</strong> This is a critical-severity known vulnerability. Public exploits likely exist. If exploited, attackers could gain full control of your server, steal customer data, or use your infrastructure to attack others — causing regulatory fines and irreversible reputational damage.</div>
-            <div class="vuln-remediation"><strong>Remediation:</strong> Patch the affected service to the latest version immediately. If patching is not possible, implement compensating controls: network segmentation, WAF rules, or disabling the vulnerable feature until a patch can be applied.</div>
-            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/packetstorm/PACKETSTORM:179290" target="_blank" style="color:var(--color-info)">https://vulners.com/packetstorm/PACKETSTORM:179290</a></div>
+            <div class="vuln-body">
+                <div class="vuln-body-inner">
+                    <p class="summary-text" style="margin:0;">Vulnerability PACKETSTORM:179290 with CVSS score 10.0 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
+                    <div class="vuln-business-impact"><strong>Business Impact:</strong> This is a critical-severity known vulnerability. Public exploits likely exist. If exploited, attackers could gain full control of your server, steal customer data, or use your infrastructure to attack others — causing regulatory fines and irreversible reputational damage.</div>
+                    <div class="vuln-remediation"><strong>Remediation:</strong> Patch the affected service to the latest version immediately. If patching is not possible, implement compensating controls: network segmentation, WAF rules, or disabling the vulnerable feature until a patch can be applied.</div>
+                    <div style="margin-top:4px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/packetstorm/PACKETSTORM:179290" target="_blank" style="color:var(--color-info)">https://vulners.com/packetstorm/PACKETSTORM:179290</a></div>
+                </div>
+            </div>
         </div>
         
-        <div class="glass-card card-red">
-            <div class="card-title">1EEC8894-D2F7-547C-827C-915BE866875C (CVSS 10.0)</div>
-            <div style="margin:8px 0">
-                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
-                <code style="margin-left:8px;color:var(--text-muted)">1EEC8894-D2F7-547C-827C-915BE866875C</code>
+        <div class="glass-card card-red collapsible-card">
+            <div class="vuln-header" onclick="toggleVulnerabilityCard(this)">
+                <div class="vuln-title-area">
+                    <div class="vuln-title-row">
+                        <span class="vuln-title-text">1EEC8894-D2F7-547C-827C-915BE866875C (CVSS 10.0)</span>
+                        <span class="badge badge-red">EXPLOIT AVAILABLE</span>
+                        <code style="color:var(--text-muted); font-size: 11px;">1EEC8894-D2F7-547C-827C-915BE866875C</code>
+                    </div>
+                </div>
+                <div class="vuln-header-arrow">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
             </div>
-            <p class="summary-text">Vulnerability 1EEC8894-D2F7-547C-827C-915BE866875C with CVSS score 10.0 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
-            <div class="vuln-business-impact"><strong>Business Impact:</strong> This is a critical-severity known vulnerability. Public exploits likely exist. If exploited, attackers could gain full control of your server, steal customer data, or use your infrastructure to attack others — causing regulatory fines and irreversible reputational damage.</div>
-            <div class="vuln-remediation"><strong>Remediation:</strong> Patch the affected service to the latest version immediately. If patching is not possible, implement compensating controls: network segmentation, WAF rules, or disabling the vulnerable feature until a patch can be applied.</div>
-            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/1EEC8894-D2F7-547C-827C-915BE866875C" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/1EEC8894-D2F7-547C-827C-915BE866875C</a></div>
+            <div class="vuln-body">
+                <div class="vuln-body-inner">
+                    <p class="summary-text" style="margin:0;">Vulnerability 1EEC8894-D2F7-547C-827C-915BE866875C with CVSS score 10.0 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
+                    <div class="vuln-business-impact"><strong>Business Impact:</strong> This is a critical-severity known vulnerability. Public exploits likely exist. If exploited, attackers could gain full control of your server, steal customer data, or use your infrastructure to attack others — causing regulatory fines and irreversible reputational damage.</div>
+                    <div class="vuln-remediation"><strong>Remediation:</strong> Patch the affected service to the latest version immediately. If patching is not possible, implement compensating controls: network segmentation, WAF rules, or disabling the vulnerable feature until a patch can be applied.</div>
+                    <div style="margin-top:4px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/1EEC8894-D2F7-547C-827C-915BE866875C" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/1EEC8894-D2F7-547C-827C-915BE866875C</a></div>
+                </div>
+            </div>
         </div>
         
-        <div class="glass-card card-red">
-            <div class="card-title">09B905C6-CD97-54E6-AD97-B0DD1AC4771B (CVSS 10.0)</div>
-            <div style="margin:8px 0">
-                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
-                <code style="margin-left:8px;color:var(--text-muted)">09B905C6-CD97-54E6-AD97-B0DD1AC4771B</code>
+        <div class="glass-card card-red collapsible-card">
+            <div class="vuln-header" onclick="toggleVulnerabilityCard(this)">
+                <div class="vuln-title-area">
+                    <div class="vuln-title-row">
+                        <span class="vuln-title-text">09B905C6-CD97-54E6-AD97-B0DD1AC4771B (CVSS 10.0)</span>
+                        <span class="badge badge-red">EXPLOIT AVAILABLE</span>
+                        <code style="color:var(--text-muted); font-size: 11px;">09B905C6-CD97-54E6-AD97-B0DD1AC4771B</code>
+                    </div>
+                </div>
+                <div class="vuln-header-arrow">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
             </div>
-            <p class="summary-text">Vulnerability 09B905C6-CD97-54E6-AD97-B0DD1AC4771B with CVSS score 10.0 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
-            <div class="vuln-business-impact"><strong>Business Impact:</strong> This is a critical-severity known vulnerability. Public exploits likely exist. If exploited, attackers could gain full control of your server, steal customer data, or use your infrastructure to attack others — causing regulatory fines and irreversible reputational damage.</div>
-            <div class="vuln-remediation"><strong>Remediation:</strong> Patch the affected service to the latest version immediately. If patching is not possible, implement compensating controls: network segmentation, WAF rules, or disabling the vulnerable feature until a patch can be applied.</div>
-            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/09B905C6-CD97-54E6-AD97-B0DD1AC4771B" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/09B905C6-CD97-54E6-AD97-B0DD1AC4771B</a></div>
+            <div class="vuln-body">
+                <div class="vuln-body-inner">
+                    <p class="summary-text" style="margin:0;">Vulnerability 09B905C6-CD97-54E6-AD97-B0DD1AC4771B with CVSS score 10.0 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
+                    <div class="vuln-business-impact"><strong>Business Impact:</strong> This is a critical-severity known vulnerability. Public exploits likely exist. If exploited, attackers could gain full control of your server, steal customer data, or use your infrastructure to attack others — causing regulatory fines and irreversible reputational damage.</div>
+                    <div class="vuln-remediation"><strong>Remediation:</strong> Patch the affected service to the latest version immediately. If patching is not possible, implement compensating controls: network segmentation, WAF rules, or disabling the vulnerable feature until a patch can be applied.</div>
+                    <div style="margin-top:4px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/09B905C6-CD97-54E6-AD97-B0DD1AC4771B" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/09B905C6-CD97-54E6-AD97-B0DD1AC4771B</a></div>
+                </div>
+            </div>
         </div>
         
-        <div class="glass-card card-red">
-            <div class="card-title">33D623F7-98E0-5F75-80FA-81AA666D1340 (CVSS 9.8)</div>
-            <div style="margin:8px 0">
-                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
-                <code style="margin-left:8px;color:var(--text-muted)">33D623F7-98E0-5F75-80FA-81AA666D1340</code>
+        <div class="glass-card card-red collapsible-card">
+            <div class="vuln-header" onclick="toggleVulnerabilityCard(this)">
+                <div class="vuln-title-area">
+                    <div class="vuln-title-row">
+                        <span class="vuln-title-text">33D623F7-98E0-5F75-80FA-81AA666D1340 (CVSS 9.8)</span>
+                        <span class="badge badge-red">EXPLOIT AVAILABLE</span>
+                        <code style="color:var(--text-muted); font-size: 11px;">33D623F7-98E0-5F75-80FA-81AA666D1340</code>
+                    </div>
+                </div>
+                <div class="vuln-header-arrow">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
             </div>
-            <p class="summary-text">Vulnerability 33D623F7-98E0-5F75-80FA-81AA666D1340 with CVSS score 9.8 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
-            <div class="vuln-business-impact"><strong>Business Impact:</strong> This is a critical-severity known vulnerability. Public exploits likely exist. If exploited, attackers could gain full control of your server, steal customer data, or use your infrastructure to attack others — causing regulatory fines and irreversible reputational damage.</div>
-            <div class="vuln-remediation"><strong>Remediation:</strong> Patch the affected service to the latest version immediately. If patching is not possible, implement compensating controls: network segmentation, WAF rules, or disabling the vulnerable feature until a patch can be applied.</div>
-            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/33D623F7-98E0-5F75-80FA-81AA666D1340" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/33D623F7-98E0-5F75-80FA-81AA666D1340</a></div>
+            <div class="vuln-body">
+                <div class="vuln-body-inner">
+                    <p class="summary-text" style="margin:0;">Vulnerability 33D623F7-98E0-5F75-80FA-81AA666D1340 with CVSS score 9.8 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
+                    <div class="vuln-business-impact"><strong>Business Impact:</strong> This is a critical-severity known vulnerability. Public exploits likely exist. If exploited, attackers could gain full control of your server, steal customer data, or use your infrastructure to attack others — causing regulatory fines and irreversible reputational damage.</div>
+                    <div class="vuln-remediation"><strong>Remediation:</strong> Patch the affected service to the latest version immediately. If patching is not possible, implement compensating controls: network segmentation, WAF rules, or disabling the vulnerable feature until a patch can be applied.</div>
+                    <div style="margin-top:4px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/33D623F7-98E0-5F75-80FA-81AA666D1340" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/33D623F7-98E0-5F75-80FA-81AA666D1340</a></div>
+                </div>
+            </div>
         </div>
         
-        <div class="glass-card card-red">
-            <div class="card-title">F8981437-1287-5B69-93F1-657DFB1DCE59 (CVSS 9.3)</div>
-            <div style="margin:8px 0">
-                <span class="badge badge-red">EXPLOIT AVAILABLE</span>
-                <code style="margin-left:8px;color:var(--text-muted)">F8981437-1287-5B69-93F1-657DFB1DCE59</code>
+        <div class="glass-card card-red collapsible-card">
+            <div class="vuln-header" onclick="toggleVulnerabilityCard(this)">
+                <div class="vuln-title-area">
+                    <div class="vuln-title-row">
+                        <span class="vuln-title-text">F8981437-1287-5B69-93F1-657DFB1DCE59 (CVSS 9.3)</span>
+                        <span class="badge badge-red">EXPLOIT AVAILABLE</span>
+                        <code style="color:var(--text-muted); font-size: 11px;">F8981437-1287-5B69-93F1-657DFB1DCE59</code>
+                    </div>
+                </div>
+                <div class="vuln-header-arrow">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
             </div>
-            <p class="summary-text">Vulnerability F8981437-1287-5B69-93F1-657DFB1DCE59 with CVSS score 9.3 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
-            <div class="vuln-business-impact"><strong>Business Impact:</strong> This is a critical-severity known vulnerability. Public exploits likely exist. If exploited, attackers could gain full control of your server, steal customer data, or use your infrastructure to attack others — causing regulatory fines and irreversible reputational damage.</div>
-            <div class="vuln-remediation"><strong>Remediation:</strong> Patch the affected service to the latest version immediately. If patching is not possible, implement compensating controls: network segmentation, WAF rules, or disabling the vulnerable feature until a patch can be applied.</div>
-            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/F8981437-1287-5B69-93F1-657DFB1DCE59" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/F8981437-1287-5B69-93F1-657DFB1DCE59</a></div>
+            <div class="vuln-body">
+                <div class="vuln-body-inner">
+                    <p class="summary-text" style="margin:0;">Vulnerability F8981437-1287-5B69-93F1-657DFB1DCE59 with CVSS score 9.3 affects ssh 9.6p1 Ubuntu 3ubuntu13.16 on port 22. Public exploit available.</p>
+                    <div class="vuln-business-impact"><strong>Business Impact:</strong> This is a critical-severity known vulnerability. Public exploits likely exist. If exploited, attackers could gain full control of your server, steal customer data, or use your infrastructure to attack others — causing regulatory fines and irreversible reputational damage.</div>
+                    <div class="vuln-remediation"><strong>Remediation:</strong> Patch the affected service to the latest version immediately. If patching is not possible, implement compensating controls: network segmentation, WAF rules, or disabling the vulnerable feature until a patch can be applied.</div>
+                    <div style="margin-top:4px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://vulners.com/githubexploit/F8981437-1287-5B69-93F1-657DFB1DCE59" target="_blank" style="color:var(--color-info)">https://vulners.com/githubexploit/F8981437-1287-5B69-93F1-657DFB1DCE59</a></div>
+                </div>
+            </div>
         </div>
         
-        <div class="glass-card card-red">
-            <div class="card-title">Apache byterange filter DoS</div>
-            <div style="margin:8px 0">
-                <span class="badge badge-red">VULNERABLE</span>
-                <code style="margin-left:8px;color:var(--text-muted)">BID:49303</code>
+        <div class="glass-card card-red collapsible-card">
+            <div class="vuln-header" onclick="toggleVulnerabilityCard(this)">
+                <div class="vuln-title-area">
+                    <div class="vuln-title-row">
+                        <span class="vuln-title-text">Apache byterange filter DoS</span>
+                        <span class="badge badge-red">VULNERABLE</span>
+                        <code style="color:var(--text-muted); font-size: 11px;">BID:49303</code>
+                    </div>
+                </div>
+                <div class="vuln-header-arrow">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
             </div>
-            <p class="summary-text">The Apache web server is vulnerable to a denial of service attack when numerous
+            <div class="vuln-body">
+                <div class="vuln-body-inner">
+                    <p class="summary-text" style="margin:0;">The Apache web server is vulnerable to a denial of service attack when numerous
 overlapping byte ranges are requested.</p>
-            <div class="vuln-business-impact"><strong>Business Impact:</strong> An exploitable condition was detected on your server. This could allow attackers to access restricted data, modify your website content, or use your server as a launchpad for further attacks.</div>
-            <div class="vuln-remediation"><strong>Remediation:</strong> Follow the specific remediation steps in the references below. In general: update affected software, restrict access with firewall rules, and validate that the fix resolves the vulnerability by re-scanning.</div>
-            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://www.securityfocus.com/bid/49303" target="_blank" style="color:var(--color-info)">https://www.securityfocus.com/bid/49303</a><br><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192" target="_blank" style="color:var(--color-info)">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192</a><br><a href="https://seclists.org/fulldisclosure/2011/Aug/175" target="_blank" style="color:var(--color-info)">https://seclists.org/fulldisclosure/2011/Aug/175</a><br><a href="https://www.tenable.com/plugins/nessus/55976" target="_blank" style="color:var(--color-info)">https://www.tenable.com/plugins/nessus/55976</a></div>
+                    <div class="vuln-business-impact"><strong>Business Impact:</strong> An exploitable condition was detected on your server. This could allow attackers to access restricted data, modify your website content, or use your server as a launchpad for further attacks.</div>
+                    <div class="vuln-remediation"><strong>Remediation:</strong> Follow the specific remediation steps in the references below. In general: update affected software, restrict access with firewall rules, and validate that the fix resolves the vulnerability by re-scanning.</div>
+                    <div style="margin-top:4px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://www.securityfocus.com/bid/49303" target="_blank" style="color:var(--color-info)">https://www.securityfocus.com/bid/49303</a><br><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192" target="_blank" style="color:var(--color-info)">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192</a><br><a href="https://seclists.org/fulldisclosure/2011/Aug/175" target="_blank" style="color:var(--color-info)">https://seclists.org/fulldisclosure/2011/Aug/175</a><br><a href="https://www.tenable.com/plugins/nessus/55976" target="_blank" style="color:var(--color-info)">https://www.tenable.com/plugins/nessus/55976</a></div>
+                </div>
+            </div>
         </div>
         
-        <div class="glass-card card-red">
-            <div class="card-title">Publicly Accessible .git Repository</div>
-            <div style="margin:8px 0">
-                <span class="badge badge-red">EXPOSED</span>
-                
+        <div class="glass-card card-red collapsible-card">
+            <div class="vuln-header" onclick="toggleVulnerabilityCard(this)">
+                <div class="vuln-title-area">
+                    <div class="vuln-title-row">
+                        <span class="vuln-title-text">Publicly Accessible .git Repository</span>
+                        <span class="badge badge-red">EXPOSED</span>
+                        
+                    </div>
+                </div>
+                <div class="vuln-header-arrow">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
             </div>
-            <p class="summary-text">Nmap discovered an accessible .git repository. 3 files exposed: .git/description, .git/config, .git/info/exclude. Remote origin: https://github.com/bazzofx/cybersamurai.git.</p>
-            <div class="vuln-business-impact"><strong>Business Impact:</strong> Your source code, API keys, database passwords, and proprietary business logic may be exposed to anyone on the Internet. Competitors or attackers could extract intellectual property, find hardcoded credentials, and map your infrastructure — leading to full system compromise.</div>
-            <div class="vuln-remediation"><strong>Remediation:</strong> Immediately restrict access to /.git/ in your web server or CDN configuration. Rotate ALL credentials and secrets that were ever committed to the repository. Use git-secrets or truffleHog to scan history for sensitive data.</div>
-            <div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://github.com/bazzofx/cybersamurai.git" target="_blank" style="color:var(--color-info)">https://github.com/bazzofx/cybersamurai.git</a></div>
+            <div class="vuln-body">
+                <div class="vuln-body-inner">
+                    <p class="summary-text" style="margin:0;">Nmap discovered an accessible .git repository. 3 files exposed: .git/description, .git/config, .git/info/exclude. Remote origin: https://github.com/bazzofx/cybersamurai.git.</p>
+                    <div class="vuln-business-impact"><strong>Business Impact:</strong> Your source code, API keys, database passwords, and proprietary business logic may be exposed to anyone on the Internet. Competitors or attackers could extract intellectual property, find hardcoded credentials, and map your infrastructure — leading to full system compromise.</div>
+                    <div class="vuln-remediation"><strong>Remediation:</strong> Immediately restrict access to /.git/ in your web server or CDN configuration. Rotate ALL credentials and secrets that were ever committed to the repository. Use git-secrets or truffleHog to scan history for sensitive data.</div>
+                    <div style="margin-top:4px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br><a href="https://github.com/bazzofx/cybersamurai.git" target="_blank" style="color:var(--color-info)">https://github.com/bazzofx/cybersamurai.git</a></div>
+                </div>
+            </div>
         </div>
         
                 </div>
@@ -1877,11 +2048,17 @@ overlapping byte ranges are requested.</p>
         <!-- ═══ Footer ═══ -->
         <div class="footer">
             <p>Cyber Samurai &mdash; Fingerprint &amp; Vulnerability Assessment Report</p>
-            <p style="font-size:11px;margin-top:4px">Generated on 04 July 2026, 22:56 | This report contains confidential security findings.</p>
+            <p style="font-size:11px;margin-top:4px">Generated on 05 July 2026, 13:37 | This report contains confidential security findings.</p>
         </div>
     </div>
 
     <script>
+            function toggleVulnerabilityCard(header) {
+                var card = header.closest('.collapsible-card');
+                if (card) {
+                    card.classList.toggle('expanded');
+                }
+            }
             function switchInnerTab(btn, contentId) {
                 var parent = btn.parentElement;
                 var container = parent.parentElement;

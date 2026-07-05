@@ -1468,11 +1468,91 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
                 .rm-sev-medium   {{ background: rgba(59,130,246,0.15) !important; color: var(--color-info); }}
                 .rm-sev-low      {{ background: rgba(16,185,129,0.10) !important; color: var(--color-pass); }}
 
+                /* Contact Button override */
+                .btn-contact {{
+                    background: var(--accent-red);
+                    color: #fff !important;
+                    border: 1px solid var(--accent-red);
+                    padding: 8px 18px;
+                    border-radius: 6px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    text-decoration: none;
+                }}
+                .btn-contact:hover {{
+                    background: var(--bg-primary);
+                    color: var(--accent-red) !important;
+                    border-color: var(--accent-red);
+                }}
+
+                /* Collapsible Vulnerability Cards */
+                .collapsible-card {{
+                    padding: 0 !important;
+                    transition: border-color 0.25s ease;
+                    overflow: hidden;
+                }}
+                .vuln-header {{
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    cursor: pointer;
+                    padding: 16px 20px;
+                }}
+                .vuln-title-area {{
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                    flex: 1;
+                }}
+                .vuln-title-row {{
+                    display: flex;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    gap: 10px;
+                }}
+                .vuln-title-text {{
+                    font-family: 'Outfit', sans-serif;
+                    font-size: 16px;
+                    font-weight: 700;
+                    color: var(--text-primary);
+                }}
+                .vuln-header-arrow {{
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-left: 12px;
+                    color: var(--text-muted);
+                    transition: transform 0.25s ease;
+                }}
+                .collapsible-card.expanded .vuln-header-arrow {{
+                    transform: rotate(90deg);
+                }}
+                .vuln-body {{
+                    max-height: 0;
+                    overflow: hidden;
+                    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }}
+                .collapsible-card.expanded .vuln-body {{
+                    max-height: 1200px;
+                    border-top: 1px solid var(--border-color);
+                }}
+                .vuln-body-inner {{
+                    padding: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 14px;
+                }}
+
                 /* Print styles */
                         @media print {{
                     body {{ background: #fff; color: #000; }}
                     .glass-card {{ background: #f8f8f8; border: 1px solid #ddd; box-shadow: none; }}
-                    .btn-print {{ display: none; }}
+                    .btn-print, .btn-contact {{ display: none; }}
                     .tabs-nav {{ display: none; }}
                     .tab-content {{ display: block !important; opacity: 1 !important; }}
                 }}
@@ -1487,10 +1567,10 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
                 <span class="brand-logo">CYBER<span>SAMURAI</span></span>
                 <span class="brand-japanese">サイバー侍</span>
             </div>
-            <button class="btn-print" onclick="window.print()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                Print Report
-            </button>
+            <a class="btn-contact" href="http://cybersamurai.co.uk/contact" target="_blank">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                Contact Cyber Samurai
+            </a>
         </div>
 
         <!-- ═══ Hero Section ═══ -->
@@ -1643,6 +1723,12 @@ def build_html_report(nmap_data, dirsearch_data, whatweb_data, ffuf_data, output
     </div>
 
     <script>
+            function toggleVulnerabilityCard(header) {{
+                var card = header.closest('.collapsible-card');
+                if (card) {{
+                    card.classList.toggle('expanded');
+                }}
+            }}
             function switchInnerTab(btn, contentId) {{
                 var parent = btn.parentElement;
                 var container = parent.parentElement;
@@ -2404,16 +2490,29 @@ def _build_vulnerabilities_section(nmap_data, locked=True):
         impact, remediation = _vuln_business_context(v)
 
         card_items.append(f"""
-        <div class="glass-card {sev_class}">
-            <div class="card-title">{html_escape(v.get('title', 'Unknown Finding'))}</div>
-            <div style="margin:8px 0">
-                <span class="badge badge-red">{html_escape(v.get('state', 'FOUND'))}</span>
-                {f'<code style="margin-left:8px;color:var(--text-muted)">{html_escape(v.get("cve_id", ""))}</code>' if v.get('cve_id') and v['cve_id'] != 'N/A' else ''}
+        <div class="glass-card {sev_class} collapsible-card">
+            <div class="vuln-header" onclick="toggleVulnerabilityCard(this)">
+                <div class="vuln-title-area">
+                    <div class="vuln-title-row">
+                        <span class="vuln-title-text">{html_escape(v.get('title', 'Unknown Finding'))}</span>
+                        <span class="badge badge-red">{html_escape(v.get('state', 'FOUND'))}</span>
+                        {f'<code style="color:var(--text-muted); font-size: 11px;">{html_escape(v.get("cve_id", ""))}</code>' if v.get('cve_id') and v['cve_id'] != 'N/A' else ''}
+                    </div>
+                </div>
+                <div class="vuln-header-arrow">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
             </div>
-            <p class="summary-text">{html_escape(v.get('description', 'No description available.'))}</p>
-            <div class="vuln-business-impact"><strong>Business Impact:</strong> {impact}</div>
-            <div class="vuln-remediation"><strong>Remediation:</strong> {remediation}</div>
-            {f'<div style="margin-top:10px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br>{refs_html}</div>' if refs_html else ''}
+            <div class="vuln-body">
+                <div class="vuln-body-inner">
+                    <p class="summary-text" style="margin:0;">{html_escape(v.get('description', 'No description available.'))}</p>
+                    <div class="vuln-business-impact"><strong>Business Impact:</strong> {impact}</div>
+                    <div class="vuln-remediation"><strong>Remediation:</strong> {remediation}</div>
+                    {f'<div style="margin-top:4px;font-size:12px;color:var(--text-muted)"><strong>References:</strong><br>{refs_html}</div>' if refs_html else ''}
+                </div>
+            </div>
         </div>
         """)
 
@@ -2427,19 +2526,35 @@ def _build_vulnerabilities_section(nmap_data, locked=True):
 
     if hsts_missing_ports:
         card_items.append(f"""
-        <div class="glass-card card-orange">
-            <div class="card-title">HSTS Missing on HTTPS Ports</div>
-            <p class="summary-text">
-                HTTP Strict Transport Security (HSTS) is not configured on the following
-                HTTPS-enabled ports: <strong>{', '.join(hsts_missing_ports)}</strong>.
-                Without HSTS, users are vulnerable to SSL stripping and man-in-the-middle
-                downgrade attacks.
-            </p>
-            <p style="font-size:12px;color:var(--text-muted);margin-top:8px">
-                <strong>Recommendation:</strong> Add the
-                <code>Strict-Transport-Security: max-age=31536000; includeSubDomains; preload</code>
-                header to all HTTPS responses.
-            </p>
+        <div class="glass-card card-orange collapsible-card">
+            <div class="vuln-header" onclick="toggleVulnerabilityCard(this)">
+                <div class="vuln-title-area">
+                    <div class="vuln-title-row">
+                        <span class="vuln-title-text">HSTS Missing on HTTPS Ports</span>
+                        <span class="badge badge-yellow">WARNING</span>
+                    </div>
+                </div>
+                <div class="vuln-header-arrow">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+            </div>
+            <div class="vuln-body">
+                <div class="vuln-body-inner">
+                    <p class="summary-text" style="margin: 0;">
+                        HTTP Strict Transport Security (HSTS) is not configured on the following
+                        HTTPS-enabled ports: <strong>{', '.join(hsts_missing_ports)}</strong>.
+                        Without HSTS, users are vulnerable to SSL stripping and man-in-the-middle
+                        downgrade attacks.
+                    </p>
+                    <p style="font-size:12px;color:var(--text-muted);margin:0;margin-top:8px">
+                        <strong>Recommendation:</strong> Add the
+                        <code>Strict-Transport-Security: max-age=31536000; includeSubDomains; preload</code>
+                        header to all HTTPS responses.
+                    </p>
+                </div>
+            </div>
         </div>
         """)
 
