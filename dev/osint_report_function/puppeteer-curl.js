@@ -353,10 +353,6 @@ async function main() {
                 const targetUrl = targetList[activeIndex++];
                 if (!targetUrl) break;
 
-                if (verbose) {
-                    console.error(`[.] - Fetching  - ${targetUrl}`);
-                }
-
                 let page;
                 try {
                     page = await browser.newPage();
