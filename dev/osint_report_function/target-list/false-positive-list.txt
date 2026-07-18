@@ -1,0 +1,45 @@
+# Cyber Samurai OSINT False Positive Error Patterns
+# Lines starting with '#' are comments and will be ignored.
+# Use $user to dynamically substitute the target username at runtime.
+
+# Dynamic patterns (with username substitution)
+$user not found
+$user does not exist
+no profile for $user
+cannot find $user
+invalid user $user
+no such user $user
+profile not found for $user
+user $user not found
+
+# Static patterns
+not found
+user not found
+profile not found
+member not found
+no such user
+does not exist
+invalid user
+invalid username
+cannot find the user
+page not found
+error 404
+404 not found
+profile does not exist
+sign up to view
+create an account to
+register to see
+join to see
+access denied
+sign in to view
+log in to see
+login to view
+join today
+create profile
+create account
+page not available
+error code
+account suspended
+account deleted
+account terminated
+profile removed
