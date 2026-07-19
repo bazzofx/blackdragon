@@ -9,7 +9,7 @@ import sys
 def parse_standard_csv(filepath):
     """
     Parses standard CSV containing columns like base_username, site, http_code, url.
-    Filters by http_code == 200.
+    Filters by status/http_code in (200, 201) and, if present, verified == 'true'.
     """
     accounts = {}
     username = None
@@ -21,17 +21,48 @@ def parse_standard_csv(filepath):
                 if not username:
                     username = row.get('base_username') or row.get('username')
                 
-                # Check http_code
+                # Check status code
                 http_code = row.get('http_code')
-                if http_code == '200':
+                if not http_code:
+                    status_val = row.get('status')
+                    if status_val and status_val.isdigit():
+                        http_code = status_val
+                
+                # Check if verified column exists and enforce it
+                has_verified_field = reader.fieldnames and 'verified' in reader.fieldnames
+                if has_verified_field:
+                    verified_str = str(row.get('verified') or '').lower()
+                    is_verified = (verified_str == 'true') and (http_code in ('200', '201'))
+                else:
+                    is_verified = (http_code in ('200', '201'))
+                
+                if is_verified:
                     site = row.get('site')
-                    url = row.get('url') or row.get('final_url')
+                    url = row.get('final_url') or row.get('url')
+                    if not url:
+                        continue
+                    
+                    if not site:
+                        # Extract domain name as site
+                        try:
+                            from urllib.parse import urlparse
+                            domain = urlparse(url).netloc
+                            parts = domain.split('.')
+                            if len(parts) > 2 and parts[0] == 'www':
+                                site = parts[1]
+                            elif len(parts) >= 2:
+                                site = parts[0]
+                            else:
+                                site = domain
+                        except:
+                            site = 'unknown'
+                    
                     if site:
                         accounts[site.lower()] = {
-                            'site': site,
+                            'site': site.capitalize(),
                             'url': url,
-                            'code': 200,
-                            'status': row.get('status', 'Found')
+                            'code': int(http_code) if (http_code and http_code.isdigit()) else 200,
+                            'status': 'Found'
                         }
     except Exception as e:
         print(f"Error parsing standard CSV {filepath}: {e}")
@@ -151,14 +182,30 @@ def get_url_templates(file_paths):
                 with open(filepath, 'r', encoding='utf-8') as f:
                     reader = csv.DictReader(f)
                     for row in reader:
-                        site = row.get('site')
                         url = row.get('url') or row.get('final_url')
-                        username = row.get('base_username') or row.get('username')
-                        if site and url and username:
+                        username = row.get('username') or row.get('base_username')
+                        if url and username:
                             # Replace username in URL with {username} placeholder (case-insensitive)
                             pattern = re.compile(re.escape(username), re.IGNORECASE)
                             template = pattern.sub('{username}', url)
-                            templates[site.lower()] = template
+                            
+                            site = row.get('site')
+                            if not site:
+                                try:
+                                    from urllib.parse import urlparse
+                                    domain = urlparse(url).netloc
+                                    parts = domain.split('.')
+                                    if len(parts) > 2 and parts[0] == 'www':
+                                        site = parts[1]
+                                    elif len(parts) >= 2:
+                                        site = parts[0]
+                                    else:
+                                        site = domain
+                                except:
+                                    site = 'unknown'
+                            
+                            if site:
+                                templates[site.lower()] = template
             except Exception as e:
                 print(f"Error reading templates from {filepath}: {e}")
     return templates

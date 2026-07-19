@@ -1,10 +1,4 @@
 url
-https://www.dailykos.com/user/$username
-https://www.behance.net/$username
-https://genius.com/$username
-https://sketchfab.com/$username
-https://gfycat.com/@$username
-https://instagram.com/$username
 https://www.fandom.com/u/$username
 https://www.linux.org.ru/people/$username/profile
 https://www.tnaflix.com/profile/$username
@@ -389,6 +383,12 @@ https://forum.leasehackr.com/u/$username/summary/
 https://chaos.social/@$username
 https://lolchess.gg/profile/na/$username
 https://www.ifttt.com/p/$username
+https://www.dailykos.com/user/$username
+https://www.behance.net/$username
+https://genius.com/$username
+https://sketchfab.com/$username
+https://gfycat.com/@$username
+https://instagram.com/$username
 https://www.younow.com/$username/
 https://lichess.org/@/$username
 https://motherless.com/m/$username

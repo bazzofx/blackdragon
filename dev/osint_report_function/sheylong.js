@@ -519,12 +519,17 @@ async function main() {
         console.error(`\n✅ Scan completed in ${durationSec}s. Verified profiles found: ${verifiedCount}/${totalTargets}`);
 
         // Write outputs
+        const rawReportsDir = path.resolve(__dirname, 'rawReports');
+        if (!fs.existsSync(rawReportsDir)) {
+            fs.mkdirSync(rawReportsDir, { recursive: true });
+        }
+
         if (csvExport) {
-            const csvFilename = path.resolve(process.cwd(), `${username}.csv`);
+            const csvFilename = path.resolve(rawReportsDir, `${username}.csv`);
             exportToCSV(results, csvFilename);
         }
         if (jsonExport) {
-            const jsonFilename = path.resolve(process.cwd(), `${username}.json`);
+            const jsonFilename = path.resolve(rawReportsDir, `${username}.json`);
             exportToJSON(results, jsonFilename);
         }
 
@@ -646,12 +651,17 @@ async function main() {
             const results = [resultObject];
 
             // Handle exports in single mode
+            const rawReportsDir = path.resolve(__dirname, 'rawReports');
+            if (!fs.existsSync(rawReportsDir)) {
+                fs.mkdirSync(rawReportsDir, { recursive: true });
+            }
+
             if (csvExport) {
-                const csvFilename = path.resolve(process.cwd(), `${username || 'output'}.csv`);
+                const csvFilename = path.resolve(rawReportsDir, `${username || 'output'}.csv`);
                 exportToCSV(results, csvFilename);
             }
             if (jsonExport && (args.includes('-json') || args.includes('--json'))) {
-                const jsonFilename = path.resolve(process.cwd(), `${username || 'output'}.json`);
+                const jsonFilename = path.resolve(rawReportsDir, `${username || 'output'}.json`);
                 exportToJSON(results, jsonFilename);
             }
 

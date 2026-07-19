@@ -711,12 +711,8 @@ body {
                 </p>
                 <div class="hero-meta">
                     <div class="meta-item">
-                        <span class="meta-label">Primary Target (User A)</span>
-                        <span class="meta-val">luizcalixt0</span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Secondary Target (User B)</span>
-                        <span class="meta-val">robsonsaint</span>
+                        <span class="meta-label">Target A</span>
+                        <span class="meta-val">bazzofx</span>
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">Scan Constraints</span>
@@ -733,19 +729,19 @@ body {
         <!-- Quick Stats Grid -->
         <div class="stat-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 24px;">
             <div class="stat-card">
-                <span class="stat-val stat-pass">8</span>
+                <span class="stat-val stat-pass">0</span>
                 <span class="stat-lbl">Shared Locations</span>
             </div>
             <div class="stat-card">
-                <span class="stat-val stat-critical">11</span>
-                <span class="stat-lbl">Verified (luizcalixt0)</span>
+                <span class="stat-val stat-critical">1</span>
+                <span class="stat-lbl">Correlated Targets</span>
             </div>
             <div class="stat-card">
-                <span class="stat-val stat-info">10</span>
-                <span class="stat-lbl">Verified (robsonsaint)</span>
+                <span class="stat-val stat-info">32</span>
+                <span class="stat-lbl">Unique Platforms</span>
             </div>
             <div class="stat-card">
-                <span class="stat-val" style="color: #a78bfa;">13</span>
+                <span class="stat-val" style="color: #a78bfa;">32</span>
                 <span class="stat-lbl">Unique Aggregate Footprint</span>
             </div>
         </div>
@@ -814,43 +810,20 @@ graph TD
     classDef shared fill:#0f0f13,stroke:#10b981,stroke-width:2px,color:#fff;
     classDef unique fill:#0f0f13,stroke:#3b82f6,stroke-width:1.5px,color:#fff;
 
-    u1(["luizcalixt0"]):::user
-    u2(["robsonsaint"]):::user
+    u0(["bazzofx"]):::user
 
-    s_shared_0["coders rank"]:::shared
-    u1 --- s_shared_0
-    u2 --- s_shared_0
-    s_shared_1["codersrank"]:::shared
-    u1 --- s_shared_1
-    u2 --- s_shared_1
-    s_shared_2["giphy"]:::shared
-    u1 --- s_shared_2
-    u2 --- s_shared_2
-    s_shared_3["kik"]:::shared
-    u1 --- s_shared_3
-    u2 --- s_shared_3
-    s_shared_4["lolchess"]:::shared
-    u1 --- s_shared_4
-    u2 --- s_shared_4
-    s_shared_5["mapmyfitness"]:::shared
-    u1 --- s_shared_5
-    u2 --- s_shared_5
-    s_shared_6["pubmed"]:::shared
-    u1 --- s_shared_6
-    u2 --- s_shared_6
-    s_shared_7["telegram"]:::shared
-    u1 --- s_shared_7
-    u2 --- s_shared_7
-    s_u1_0["github"]:::unique
-    u1 --- s_u1_0
-    s_u1_1["github.gist"]:::unique
-    u1 --- s_u1_1
-    s_u1_2["github.sponsors"]:::unique
-    u1 --- s_u1_2
-    s_u2_0["arxiv"]:::unique
-    u2 --- s_u2_0
-    s_u2_1["twitter"]:::unique
-    u2 --- s_u2_1
+    s_u0_0["arxiv"]:::unique
+    u0 --- s_u0_0
+    s_u0_1["bazzofx"]:::unique
+    u0 --- s_u0_1
+    s_u0_2["behance"]:::unique
+    u0 --- s_u0_2
+    s_u0_3["bere"]:::unique
+    u0 --- s_u0_3
+    s_u0_4["deviantart"]:::unique
+    u0 --- s_u0_4
+    s_u0_more["+ 27 More Sites"]:::unique
+    u0 --- s_u0_more
                 </div>
             </div>
         </div>
@@ -864,10 +837,9 @@ graph TD
                 <div class="search-container">
                     <input type="text" id="site-search" class="search-box" placeholder="Filter sites by name (e.g. telegram, github)..." onkeyup="filterData()">
                     <select id="filter-type" class="search-box" style="max-width: 200px;" onchange="filterData()">
-                        <option value="all">All Connections</option>
-                        <option value="shared">Shared Platforms Only</option>
-                        <option value="unique-u1">luizcalixt0 Unique</option>
-                        <option value="unique-u2">robsonsaint Unique</option>
+                        <option value="all">All Platforms</option>
+<option value="shared">Shared Platforms Only</option>
+<option value="unique-bazzofx">bazzofx Unique</option>
                     </select>
                 </div>
                 
@@ -875,12 +847,7 @@ graph TD
                 <div style="overflow-x: auto; width: 100%;">
                     <table class="cert-table connection-table">
                         <thead>
-                            <tr>
-                                <th>Site Platform</th>
-                                <th>Correlation Type</th>
-                                <th>luizcalixt0 URL</th>
-                                <th>robsonsaint URL</th>
-                            </tr>
+                            <tr><th>Site Platform</th> <th>Correlation Type</th> <th>bazzofx URL</th></tr>
                         </thead>
                         <tbody id="connections-tbody">
                             <!-- Dynamic Content Rendered by JS -->
@@ -903,15 +870,8 @@ graph TD
         <div class="modal-content glass-card">
             <h4 class="card-title" id="modal-site-title" style="justify-content: center; font-size: 20px;">Correlation Link</h4>
             <p class="summary-text" style="margin-bottom: 20px; font-size: 14px;">Select which target profile you would like to open:</p>
-            <div class="modal-buttons">
-                <a id="modal-link-u1" href="#" target="_blank" class="modal-link-btn modal-link-btn-red">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                    Open User A Profile
-                </a>
-                <a id="modal-link-u2" href="#" target="_blank" class="modal-link-btn modal-link-btn-blue">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                    Open User B Profile
-                </a>
+            <div class="modal-buttons" id="modal-buttons-container">
+                <!-- Dynamic buttons rendered by JS -->
             </div>
             <button onclick="closeModal()" class="modal-close-btn">Cancel</button>
         </div>
@@ -925,252 +885,420 @@ graph TD
         // Embedded OSINT data
         const osintData = {
     "users": [
-        "luizcalixt0",
-        "robsonsaint"
+        "bazzofx"
     ],
     "sites": [
         {
-            "site": "arxiv",
+            "site": "Arxiv",
             "status": "unique",
-            "unique_owner": "robsonsaint",
+            "unique_owner": "bazzofx",
             "users": {
-                "luizcalixt0": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
-                },
-                "robsonsaint": {
+                "bazzofx": {
                     "present": true,
-                    "url": "https://arxiv.org/search/?searchtype=author&query=robsonsaint",
+                    "url": "https://arxiv.org/search/?searchtype=author&query=bazzofx",
                     "code": 200,
                     "status": "Found"
                 }
             }
         },
         {
-            "site": "coders rank",
-            "status": "shared",
-            "unique_owner": null,
-            "users": {
-                "luizcalixt0": {
-                    "present": true,
-                    "url": "https://profile.codersrank.io/user/luizcalixt0/",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "robsonsaint": {
-                    "present": true,
-                    "url": "https://profile.codersrank.io/user/robsonsaint/",
-                    "code": 200,
-                    "status": "Found"
-                }
-            }
-        },
-        {
-            "site": "codersrank",
-            "status": "shared",
-            "unique_owner": null,
-            "users": {
-                "luizcalixt0": {
-                    "present": true,
-                    "url": "https://profile.codersrank.io/user/luizcalixt0",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "robsonsaint": {
-                    "present": true,
-                    "url": "https://profile.codersrank.io/user/robsonsaint",
-                    "code": 200,
-                    "status": "Found"
-                }
-            }
-        },
-        {
-            "site": "giphy",
-            "status": "shared",
-            "unique_owner": null,
-            "users": {
-                "luizcalixt0": {
-                    "present": true,
-                    "url": "https://giphy.com/luizcalixt0",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "robsonsaint": {
-                    "present": true,
-                    "url": "https://giphy.com/robsonsaint",
-                    "code": 200,
-                    "status": "Found"
-                }
-            }
-        },
-        {
-            "site": "github",
+            "site": "Bazzofx",
             "status": "unique",
-            "unique_owner": "luizcalixt0",
+            "unique_owner": "bazzofx",
             "users": {
-                "luizcalixt0": {
+                "bazzofx": {
                     "present": true,
-                    "url": "https://github.com/luizcalixt0",
+                    "url": "https://bazzofx.gumroad.com/",
                     "code": 200,
                     "status": "Found"
-                },
-                "robsonsaint": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
                 }
             }
         },
         {
-            "site": "github.gist",
+            "site": "Behance",
             "status": "unique",
-            "unique_owner": "luizcalixt0",
+            "unique_owner": "bazzofx",
             "users": {
-                "luizcalixt0": {
+                "bazzofx": {
                     "present": true,
-                    "url": "https://gist.github.com/luizcalixt0",
+                    "url": "https://www.behance.net/bazzofx/projects",
                     "code": 200,
                     "status": "Found"
-                },
-                "robsonsaint": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
                 }
             }
         },
         {
-            "site": "github.sponsors",
+            "site": "Bere",
             "status": "unique",
-            "unique_owner": "luizcalixt0",
+            "unique_owner": "bazzofx",
             "users": {
-                "luizcalixt0": {
+                "bazzofx": {
                     "present": true,
-                    "url": "https://github.com/sponsors/luizcalixt0",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "robsonsaint": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
-                }
-            }
-        },
-        {
-            "site": "kik",
-            "status": "shared",
-            "unique_owner": null,
-            "users": {
-                "luizcalixt0": {
-                    "present": true,
-                    "url": "https://kik.me/luizcalixt0",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "robsonsaint": {
-                    "present": true,
-                    "url": "https://kik.me/robsonsaint",
+                    "url": "https://bere.al/bazzofx",
                     "code": 200,
                     "status": "Found"
                 }
             }
         },
         {
-            "site": "lolchess",
-            "status": "shared",
-            "unique_owner": null,
-            "users": {
-                "luizcalixt0": {
-                    "present": true,
-                    "url": "https://lolchess.gg/profile/na/luizcalixt0",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "robsonsaint": {
-                    "present": true,
-                    "url": "https://lolchess.gg/profile/na/robsonsaint",
-                    "code": 200,
-                    "status": "Found"
-                }
-            }
-        },
-        {
-            "site": "mapmyfitness",
-            "status": "shared",
-            "unique_owner": null,
-            "users": {
-                "luizcalixt0": {
-                    "present": true,
-                    "url": "https://www.mapmyfitness.com/profile/luizcalixt0",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "robsonsaint": {
-                    "present": true,
-                    "url": "https://www.mapmyfitness.com/profile/robsonsaint",
-                    "code": 200,
-                    "status": "Found"
-                }
-            }
-        },
-        {
-            "site": "pubmed",
-            "status": "shared",
-            "unique_owner": null,
-            "users": {
-                "luizcalixt0": {
-                    "present": true,
-                    "url": "https://pubmed.ncbi.nlm.nih.gov/?term=luizcalixt0",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "robsonsaint": {
-                    "present": true,
-                    "url": "https://pubmed.ncbi.nlm.nih.gov/?term=robsonsaint",
-                    "code": 200,
-                    "status": "Found"
-                }
-            }
-        },
-        {
-            "site": "telegram",
-            "status": "shared",
-            "unique_owner": null,
-            "users": {
-                "luizcalixt0": {
-                    "present": true,
-                    "url": "https://t.me/luizcalixt0",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "robsonsaint": {
-                    "present": true,
-                    "url": "https://t.me/robsonsaint",
-                    "code": 200,
-                    "status": "Found"
-                }
-            }
-        },
-        {
-            "site": "twitter",
+            "site": "Deviantart",
             "status": "unique",
-            "unique_owner": "robsonsaint",
+            "unique_owner": "bazzofx",
             "users": {
-                "luizcalixt0": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
-                },
-                "robsonsaint": {
+                "bazzofx": {
                     "present": true,
-                    "url": "https://twitter.com/robsonsaint",
+                    "url": "https://www.deviantart.com/bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "En",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://en.wikipedia.org/wiki/Special:CentralAuth/bazzofx?uselang=qqx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Facebook",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://www.facebook.com/BazzoFX/",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Forum",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://forum.guns.ru/forummisc/blog/bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Giphy",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://giphy.com/explore/bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Gist",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://gist.github.com/bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Github",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://github.com/bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Godotengine",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://godotengine.org/asset-library/asset?user=bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Gravatar",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://gravatar.com/bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Hub",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://hub.docker.com/u/bazzofx/",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Instagram",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://www.instagram.com/bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Itch",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://itch.io/profile/bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Kik",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://kik.me/bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Lolchess",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://lolchess.gg/search?region=na&name=bazzofx&hl=en",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Nature",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://www.nature.com/search?author=bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Npmjs",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://www.npmjs.com/~bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Polyhaven",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://polyhaven.com/all?a=bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Profile",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://profile.codersrank.io/user/bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Profiles",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://profiles.wordpress.org/bazzofx/",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Pubmed",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://pubmed.ncbi.nlm.nih.gov/?term=bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Sciencedirect",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://www.sciencedirect.com/search?authors=bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Sketchfab",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://sketchfab.com/bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Soundcloud",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://soundcloud.com/bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Stackblitz",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://stackblitz.com/@bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "T",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://t.me/bazzofx",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Tradingview",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://www.tradingview.com/u/Bazzofx/",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Uk",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://uk.pinterest.com/bazzofx/",
+                    "code": 200,
+                    "status": "Found"
+                }
+            }
+        },
+        {
+            "site": "Vimeo",
+            "status": "unique",
+            "unique_owner": "bazzofx",
+            "users": {
+                "bazzofx": {
+                    "present": true,
+                    "url": "https://vimeo.com/bazzofx",
                     "code": 200,
                     "status": "Found"
                 }
@@ -1178,8 +1306,6 @@ graph TD
         }
     ]
 };
-        const user1 = "luizcalixt0";
-        const user2 = "robsonsaint";
         
         // Modal helpers
         function closeModal() {
@@ -1227,7 +1353,7 @@ graph TD
             tbody.innerHTML = '';
             
             if (sites.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 30px;">No matching connection records found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${2 + osintData.users.length}" style="text-align: center; color: var(--text-muted); padding: 30px;">No matching connection records found.</td></tr>`;
                 return;
             }
             
@@ -1243,38 +1369,27 @@ graph TD
                 // Correlation Badge cell
                 const corrTd = document.createElement('td');
                 if (item.status === 'shared') {
-                    corrTd.innerHTML = '<span class="badge badge-green">Shared Connection</span>';
+                    const count = Object.values(item.users).filter(u => u.present).length;
+                    corrTd.innerHTML = `<span class="badge badge-green">Shared (${count}/${osintData.users.length})</span>`;
                 } else {
-                    const owner = item.unique_owner === user1 ? 'User A' : 'User B';
-                    corrTd.innerHTML = `<span class="badge badge-blue">Unique (${owner})</span>`;
+                    corrTd.innerHTML = `<span class="badge badge-blue">Unique (${item.unique_owner})</span>`;
                 }
                 tr.appendChild(corrTd);
                 
-                // User 1 profile link cell
-                const u1Td = document.createElement('td');
-                const u1Data = item.users[user1];
-                if (u1Data.present) {
-                    u1Td.innerHTML = `<a href="${u1Data.url}" target="_blank" class="profile-link">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                        ${u1Data.status} (HTTP ${u1Data.code})
-                    </a>`;
-                } else {
-                    u1Td.innerHTML = '<span style="color: var(--text-muted);">-</span>';
-                }
-                tr.appendChild(u1Td);
-                
-                // User 2 profile link cell
-                const u2Td = document.createElement('td');
-                const u2Data = item.users[user2];
-                if (u2Data.present) {
-                    u2Td.innerHTML = `<a href="${u2Data.url}" target="_blank" class="profile-link">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                        ${u2Data.status} (HTTP ${u2Data.code})
-                    </a>`;
-                } else {
-                    u2Td.innerHTML = '<span style="color: var(--text-muted);">-</span>';
-                }
-                tr.appendChild(u2Td);
+                // Add a cell for each user profile link
+                osintData.users.forEach(username => {
+                    const uTd = document.createElement('td');
+                    const uData = item.users[username];
+                    if (uData.present) {
+                        uTd.innerHTML = `<a href="${uData.url}" target="_blank" class="profile-link">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            ${uData.status} (HTTP ${uData.code})
+                        </a>`;
+                    } else {
+                        uTd.innerHTML = '<span style="color: var(--text-muted);">-</span>';
+                    }
+                    tr.appendChild(uTd);
+                });
                 
                 tbody.appendChild(tr);
             });
@@ -1289,10 +1404,9 @@ graph TD
             
             if (filterVal === 'shared') {
                 filtered = filtered.filter(item => item.status === 'shared');
-            } else if (filterVal === 'unique-u1') {
-                filtered = filtered.filter(item => item.status === 'unique' && item.unique_owner === user1);
-            } else if (filterVal === 'unique-u2') {
-                filtered = filtered.filter(item => item.status === 'unique' && item.unique_owner === user2);
+            } else if (filterVal.startsWith('unique-')) {
+                const targetUser = filterVal.substring(7);
+                filtered = filtered.filter(item => item.status === 'unique' && item.unique_owner === targetUser);
             }
             
             if (query) {
@@ -1431,7 +1545,7 @@ graph TD
         network.on("click", function (params) {
             if (params.nodes.length > 0) {
                 var nodeId = params.nodes[0];
-                if (nodeId === user1 || nodeId === user2) {
+                if (osintData.users.includes(nodeId)) {
                     return; // Ignore user nodes
                 }
                 
@@ -1440,16 +1554,22 @@ graph TD
                     var item = nodeObj.customData;
                     
                     if (item.status === 'shared') {
-                        // Open selection modal
                         document.getElementById('modal-site-title').innerText = item.site + " Links";
                         
-                        var u1Link = document.getElementById('modal-link-u1');
-                        u1Link.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> Open ${user1} Profile`;
-                        u1Link.href = item.users[user1].url;
+                        const btnContainer = document.getElementById('modal-buttons-container');
+                        btnContainer.innerHTML = '';
                         
-                        var u2Link = document.getElementById('modal-link-u2');
-                        u2Link.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> Open ${user2} Profile`;
-                        u2Link.href = item.users[user2].url;
+                        osintData.users.forEach((username, uIdx) => {
+                            const uData = item.users[username];
+                            if (uData.present) {
+                                const link = document.createElement('a');
+                                link.href = uData.url;
+                                link.target = '_blank';
+                                link.className = `modal-link-btn ${uIdx % 2 === 0 ? 'modal-link-btn-red' : 'modal-link-btn-blue'}`;
+                                link.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg> Open ${username} Profile`;
+                                btnContainer.appendChild(link);
+                            }
+                        });
                         
                         document.getElementById('profile-modal').style.display = 'flex';
                     } else {
