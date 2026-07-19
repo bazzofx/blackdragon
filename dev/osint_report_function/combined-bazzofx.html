@@ -11,8 +11,8 @@
     <!-- Vis Network JavaScript & CSS for interactive graphs -->
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     
-    <!-- Mermaid Diagram Library -->
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <!-- Mermaid Diagram Library (v9 UMD bundle for global compatibility) -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@9/dist/mermaid.min.js"></script>
     
     <style>
         /* Inlined global_report.css */
@@ -715,10 +715,6 @@ body {
                         <span class="meta-val">bazzofx</span>
                     </div>
                     <div class="meta-item">
-                        <span class="meta-label">Target B</span>
-                        <span class="meta-val">kimkapuan23</span>
-                    </div>
-                    <div class="meta-item">
                         <span class="meta-label">Scan Constraints</span>
                         <span class="meta-val">Verified HTTP 200 Matches Only</span>
                     </div>
@@ -733,19 +729,19 @@ body {
         <!-- Quick Stats Grid -->
         <div class="stat-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 24px;">
             <div class="stat-card">
-                <span class="stat-val stat-pass">14</span>
+                <span class="stat-val stat-pass">0</span>
                 <span class="stat-lbl">Shared Locations</span>
             </div>
             <div class="stat-card">
-                <span class="stat-val stat-critical">2</span>
+                <span class="stat-val stat-critical">1</span>
                 <span class="stat-lbl">Correlated Targets</span>
             </div>
             <div class="stat-card">
-                <span class="stat-val stat-info">23</span>
+                <span class="stat-val stat-info">32</span>
                 <span class="stat-lbl">Unique Platforms</span>
             </div>
             <div class="stat-card">
-                <span class="stat-val" style="color: #a78bfa;">37</span>
+                <span class="stat-val" style="color: #a78bfa;">32</span>
                 <span class="stat-lbl">Unique Aggregate Footprint</span>
             </div>
         </div>
@@ -815,72 +811,19 @@ graph TD
     classDef unique fill:#0f0f13,stroke:#3b82f6,stroke-width:1.5px,color:#fff;
 
     u0(["bazzofx"]):::user
-    u1(["kimkapuan23"]):::user
 
-    s_shared_0["arxiv"]:::shared
-    u0 --- s_shared_0
-    u1 --- s_shared_0
-    s_shared_1["bere"]:::shared
-    u0 --- s_shared_1
-    u1 --- s_shared_1
-    s_shared_2["en"]:::shared
-    u0 --- s_shared_2
-    u1 --- s_shared_2
-    s_shared_3["forum"]:::shared
-    u0 --- s_shared_3
-    u1 --- s_shared_3
-    s_shared_4["giphy"]:::shared
-    u0 --- s_shared_4
-    u1 --- s_shared_4
-    s_shared_5["godotengine"]:::shared
-    u0 --- s_shared_5
-    u1 --- s_shared_5
-    s_shared_6["instagram"]:::shared
-    u0 --- s_shared_6
-    u1 --- s_shared_6
-    s_shared_7["kik"]:::shared
-    u0 --- s_shared_7
-    u1 --- s_shared_7
-    s_shared_8["lolchess"]:::shared
-    u0 --- s_shared_8
-    u1 --- s_shared_8
-    s_shared_9["nature"]:::shared
-    u0 --- s_shared_9
-    u1 --- s_shared_9
-    s_shared_10["polyhaven"]:::shared
-    u0 --- s_shared_10
-    u1 --- s_shared_10
-    s_shared_11["profile"]:::shared
-    u0 --- s_shared_11
-    u1 --- s_shared_11
-    s_shared_12["sciencedirect"]:::shared
-    u0 --- s_shared_12
-    u1 --- s_shared_12
-    s_shared_13["t"]:::shared
-    u0 --- s_shared_13
-    u1 --- s_shared_13
-    s_u0_0["bazzofx"]:::unique
+    s_u0_0["arxiv"]:::unique
     u0 --- s_u0_0
-    s_u0_1["behance"]:::unique
+    s_u0_1["bazzofx"]:::unique
     u0 --- s_u0_1
-    s_u0_2["deviantart"]:::unique
+    s_u0_2["behance"]:::unique
     u0 --- s_u0_2
-    s_u0_3["facebook"]:::unique
+    s_u0_3["bere"]:::unique
     u0 --- s_u0_3
-    s_u0_4["gist"]:::unique
+    s_u0_4["deviantart"]:::unique
     u0 --- s_u0_4
-    s_u0_more["+ 13 More Sites"]:::unique
+    s_u0_more["+ 27 More Sites"]:::unique
     u0 --- s_u0_more
-    s_u1_0["huggingface"]:::unique
-    u1 --- s_u1_0
-    s_u1_1["ifttt"]:::unique
-    u1 --- s_u1_1
-    s_u1_2["threadless"]:::unique
-    u1 --- s_u1_2
-    s_u1_3["wordpress"]:::unique
-    u1 --- s_u1_3
-    s_u1_4["xvideos"]:::unique
-    u1 --- s_u1_4
                 </div>
             </div>
         </div>
@@ -897,7 +840,6 @@ graph TD
                         <option value="all">All Platforms</option>
 <option value="shared">Shared Platforms Only</option>
 <option value="unique-bazzofx">bazzofx Unique</option>
-<option value="unique-kimkapuan23">kimkapuan23 Unique</option>
                     </select>
                 </div>
                 
@@ -905,7 +847,7 @@ graph TD
                 <div style="overflow-x: auto; width: 100%;">
                     <table class="cert-table connection-table">
                         <thead>
-                            <tr><th>Site Platform</th> <th>Correlation Type</th> <th>bazzofx URL</th> <th>kimkapuan23 URL</th></tr>
+                            <tr><th>Site Platform</th> <th>Correlation Type</th> <th>bazzofx URL</th></tr>
                         </thead>
                         <tbody id="connections-tbody">
                             <!-- Dynamic Content Rendered by JS -->
@@ -943,24 +885,17 @@ graph TD
         // Embedded OSINT data
         const osintData = {
     "users": [
-        "bazzofx",
-        "kimkapuan23"
+        "bazzofx"
     ],
     "sites": [
         {
             "site": "Arxiv",
-            "status": "shared",
-            "unique_owner": null,
+            "status": "unique",
+            "unique_owner": "bazzofx",
             "users": {
                 "bazzofx": {
                     "present": true,
                     "url": "https://arxiv.org/search/?searchtype=author&query=bazzofx",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://arxiv.org/search/?searchtype=author&query=kimkapuan23",
                     "code": 200,
                     "status": "Found"
                 }
@@ -976,12 +911,6 @@ graph TD
                     "url": "https://bazzofx.gumroad.com/",
                     "code": 200,
                     "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
                 }
             }
         },
@@ -995,29 +924,17 @@ graph TD
                     "url": "https://www.behance.net/bazzofx/projects",
                     "code": 200,
                     "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
                 }
             }
         },
         {
             "site": "Bere",
-            "status": "shared",
-            "unique_owner": null,
+            "status": "unique",
+            "unique_owner": "bazzofx",
             "users": {
                 "bazzofx": {
                     "present": true,
                     "url": "https://bere.al/bazzofx",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://bere.al/kimkapuan23",
                     "code": 200,
                     "status": "Found"
                 }
@@ -1033,29 +950,17 @@ graph TD
                     "url": "https://www.deviantart.com/bazzofx",
                     "code": 200,
                     "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
                 }
             }
         },
         {
             "site": "En",
-            "status": "shared",
-            "unique_owner": null,
+            "status": "unique",
+            "unique_owner": "bazzofx",
             "users": {
                 "bazzofx": {
                     "present": true,
                     "url": "https://en.wikipedia.org/wiki/Special:CentralAuth/bazzofx?uselang=qqx",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://en.wikipedia.org/wiki/Special:CentralAuth/kimkapuan23?uselang=qqx",
                     "code": 200,
                     "status": "Found"
                 }
@@ -1071,29 +976,17 @@ graph TD
                     "url": "https://www.facebook.com/BazzoFX/",
                     "code": 200,
                     "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
                 }
             }
         },
         {
             "site": "Forum",
-            "status": "shared",
-            "unique_owner": null,
+            "status": "unique",
+            "unique_owner": "bazzofx",
             "users": {
                 "bazzofx": {
                     "present": true,
                     "url": "https://forum.guns.ru/forummisc/blog/bazzofx",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://forum.guns.ru/forummisc/blog/kimkapuan23",
                     "code": 200,
                     "status": "Found"
                 }
@@ -1101,18 +994,12 @@ graph TD
         },
         {
             "site": "Giphy",
-            "status": "shared",
-            "unique_owner": null,
+            "status": "unique",
+            "unique_owner": "bazzofx",
             "users": {
                 "bazzofx": {
                     "present": true,
                     "url": "https://giphy.com/explore/bazzofx",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://giphy.com/explore/kimkapuan23",
                     "code": 200,
                     "status": "Found"
                 }
@@ -1128,12 +1015,6 @@ graph TD
                     "url": "https://gist.github.com/bazzofx",
                     "code": 200,
                     "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
                 }
             }
         },
@@ -1147,29 +1028,17 @@ graph TD
                     "url": "https://github.com/bazzofx",
                     "code": 200,
                     "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
                 }
             }
         },
         {
             "site": "Godotengine",
-            "status": "shared",
-            "unique_owner": null,
+            "status": "unique",
+            "unique_owner": "bazzofx",
             "users": {
                 "bazzofx": {
                     "present": true,
                     "url": "https://godotengine.org/asset-library/asset?user=bazzofx",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://godotengine.org/asset-library/asset?user=kimkapuan23",
                     "code": 200,
                     "status": "Found"
                 }
@@ -1185,12 +1054,6 @@ graph TD
                     "url": "https://gravatar.com/bazzofx",
                     "code": 200,
                     "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
                 }
             }
         },
@@ -1204,67 +1067,17 @@ graph TD
                     "url": "https://hub.docker.com/u/bazzofx/",
                     "code": 200,
                     "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
-                }
-            }
-        },
-        {
-            "site": "Huggingface",
-            "status": "unique",
-            "unique_owner": "kimkapuan23",
-            "users": {
-                "bazzofx": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://huggingface.co/kimkapuan23",
-                    "code": 200,
-                    "status": "Found"
-                }
-            }
-        },
-        {
-            "site": "Ifttt",
-            "status": "unique",
-            "unique_owner": "kimkapuan23",
-            "users": {
-                "bazzofx": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://ifttt.com/p/kimkapuan23",
-                    "code": 200,
-                    "status": "Found"
                 }
             }
         },
         {
             "site": "Instagram",
-            "status": "shared",
-            "unique_owner": null,
+            "status": "unique",
+            "unique_owner": "bazzofx",
             "users": {
                 "bazzofx": {
                     "present": true,
                     "url": "https://www.instagram.com/bazzofx",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://www.instagram.com/kimkapuan23",
                     "code": 200,
                     "status": "Found"
                 }
@@ -1280,29 +1093,17 @@ graph TD
                     "url": "https://itch.io/profile/bazzofx",
                     "code": 200,
                     "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
                 }
             }
         },
         {
             "site": "Kik",
-            "status": "shared",
-            "unique_owner": null,
+            "status": "unique",
+            "unique_owner": "bazzofx",
             "users": {
                 "bazzofx": {
                     "present": true,
                     "url": "https://kik.me/bazzofx",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://kik.me/kimkapuan23",
                     "code": 200,
                     "status": "Found"
                 }
@@ -1310,18 +1111,12 @@ graph TD
         },
         {
             "site": "Lolchess",
-            "status": "shared",
-            "unique_owner": null,
+            "status": "unique",
+            "unique_owner": "bazzofx",
             "users": {
                 "bazzofx": {
                     "present": true,
                     "url": "https://lolchess.gg/search?region=na&name=bazzofx&hl=en",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://lolchess.gg/search?region=na&name=kimkapuan23&hl=en",
                     "code": 200,
                     "status": "Found"
                 }
@@ -1329,18 +1124,12 @@ graph TD
         },
         {
             "site": "Nature",
-            "status": "shared",
-            "unique_owner": null,
+            "status": "unique",
+            "unique_owner": "bazzofx",
             "users": {
                 "bazzofx": {
                     "present": true,
                     "url": "https://www.nature.com/search?author=bazzofx",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://www.nature.com/search?author=kimkapuan23",
                     "code": 200,
                     "status": "Found"
                 }
@@ -1356,29 +1145,17 @@ graph TD
                     "url": "https://www.npmjs.com/~bazzofx",
                     "code": 200,
                     "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
                 }
             }
         },
         {
             "site": "Polyhaven",
-            "status": "shared",
-            "unique_owner": null,
+            "status": "unique",
+            "unique_owner": "bazzofx",
             "users": {
                 "bazzofx": {
                     "present": true,
                     "url": "https://polyhaven.com/all?a=bazzofx",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://polyhaven.com/all?a=kimkapuan23",
                     "code": 200,
                     "status": "Found"
                 }
@@ -1386,18 +1163,12 @@ graph TD
         },
         {
             "site": "Profile",
-            "status": "shared",
-            "unique_owner": null,
+            "status": "unique",
+            "unique_owner": "bazzofx",
             "users": {
                 "bazzofx": {
                     "present": true,
                     "url": "https://profile.codersrank.io/user/bazzofx",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://profile.codersrank.io/user/kimkapuan23",
                     "code": 200,
                     "status": "Found"
                 }
@@ -1413,12 +1184,6 @@ graph TD
                     "url": "https://profiles.wordpress.org/bazzofx/",
                     "code": 200,
                     "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
                 }
             }
         },
@@ -1432,29 +1197,17 @@ graph TD
                     "url": "https://pubmed.ncbi.nlm.nih.gov/?term=bazzofx",
                     "code": 200,
                     "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
                 }
             }
         },
         {
             "site": "Sciencedirect",
-            "status": "shared",
-            "unique_owner": null,
+            "status": "unique",
+            "unique_owner": "bazzofx",
             "users": {
                 "bazzofx": {
                     "present": true,
                     "url": "https://www.sciencedirect.com/search?authors=bazzofx",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://www.sciencedirect.com/search?authors=kimkapuan23",
                     "code": 200,
                     "status": "Found"
                 }
@@ -1470,12 +1223,6 @@ graph TD
                     "url": "https://sketchfab.com/bazzofx",
                     "code": 200,
                     "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
                 }
             }
         },
@@ -1489,12 +1236,6 @@ graph TD
                     "url": "https://soundcloud.com/bazzofx",
                     "code": 200,
                     "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
                 }
             }
         },
@@ -1508,48 +1249,17 @@ graph TD
                     "url": "https://stackblitz.com/@bazzofx",
                     "code": 200,
                     "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
                 }
             }
         },
         {
             "site": "T",
-            "status": "shared",
-            "unique_owner": null,
+            "status": "unique",
+            "unique_owner": "bazzofx",
             "users": {
                 "bazzofx": {
                     "present": true,
                     "url": "https://t.me/bazzofx",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://t.me/kimkapuan23",
-                    "code": 200,
-                    "status": "Found"
-                }
-            }
-        },
-        {
-            "site": "Threadless",
-            "status": "unique",
-            "unique_owner": "kimkapuan23",
-            "users": {
-                "bazzofx": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://www.threadless.com/@kimkapuan23",
                     "code": 200,
                     "status": "Found"
                 }
@@ -1565,12 +1275,6 @@ graph TD
                     "url": "https://www.tradingview.com/u/Bazzofx/",
                     "code": 200,
                     "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
                 }
             }
         },
@@ -1584,12 +1288,6 @@ graph TD
                     "url": "https://uk.pinterest.com/bazzofx/",
                     "code": 200,
                     "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
                 }
             }
         },
@@ -1601,50 +1299,6 @@ graph TD
                 "bazzofx": {
                     "present": true,
                     "url": "https://vimeo.com/bazzofx",
-                    "code": 200,
-                    "status": "Found"
-                },
-                "kimkapuan23": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
-                }
-            }
-        },
-        {
-            "site": "Wordpress",
-            "status": "unique",
-            "unique_owner": "kimkapuan23",
-            "users": {
-                "bazzofx": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://wordpress.com/typo/?subdomain=kimkapuan23",
-                    "code": 200,
-                    "status": "Found"
-                }
-            }
-        },
-        {
-            "site": "Xvideos",
-            "status": "unique",
-            "unique_owner": "kimkapuan23",
-            "users": {
-                "bazzofx": {
-                    "present": false,
-                    "url": null,
-                    "code": null,
-                    "status": "Not Found"
-                },
-                "kimkapuan23": {
-                    "present": true,
-                    "url": "https://www.xvideos.com/profiles/kimkapuan23",
                     "code": 200,
                     "status": "Found"
                 }
@@ -1660,7 +1314,7 @@ graph TD
         
         // Initialize Mermaid
         mermaid.initialize({
-            startOnLoad: true,
+            startOnLoad: false,
             theme: 'dark',
             themeVariables: {
                 background: '#0f0f13',

@@ -433,8 +433,8 @@ def generate_html_report_from_files(file_paths, output_filepath, css_base_dir=".
     <!-- Vis Network JavaScript & CSS for interactive graphs -->
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     
-    <!-- Mermaid Diagram Library -->
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <!-- Mermaid Diagram Library (v9 UMD bundle for global compatibility) -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@9/dist/mermaid.min.js"></script>
     
     <style>
         /* Inlined global_report.css */
@@ -824,7 +824,7 @@ def generate_html_report_from_files(file_paths, output_filepath, css_base_dir=".
         
         // Initialize Mermaid
         mermaid.initialize({
-            startOnLoad: true,
+            startOnLoad: false,
             theme: 'dark',
             themeVariables: {
                 background: '#0f0f13',
