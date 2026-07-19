@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * puppeteer-curl.js
+ * sheylong.js
  * A standalone Puppeteer CLI tool mimicking 'curl' that evades detection,
  * fetches fully-rendered page content, and computes profile verification
  * confidence scores by looking for a target username and checking against 
@@ -75,14 +75,14 @@ function loadErrorPatterns(username) {
 
 function printHelp() {
     console.log(`
-puppeteer-curl.js - Browser-mimicking curl with OSINT Username Verification
+sheylong.js - Browser-mimicking curl with OSINT Username Verification
 
 USAGE:
   # Single URL Mode:
-  node puppeteer-curl.js <URL> [OPTIONS]
+  node sheylong.js <URL> [OPTIONS]
 
   # List Scan Mode (reads target-list/targets.txt):
-  node puppeteer-curl.js -u <username> [-csv] [-json] [OPTIONS]
+  node sheylong.js -u <username> [-csv] [-json] [OPTIONS]
 
 OPTIONS:
   -u, --username <name>     Username to search for in page body.
@@ -98,6 +98,7 @@ OPTIONS:
   -csv, --csv               Generate $username.csv containing the verification summary fields.
   -json, --json             Generate $username.json containing the verification summary fields.
   -v, -verbose, --verbose   Show live url fetch details and Found/Not Found status.
+  -report, --report         Generate HTML report using report.py after list scan completes.
   --summary                 Output a human-readable verification summary instead of raw HTML.
   --no-headless             Run browser in visible (headful) mode.
   -d, --debug               Enable debug logs (printed to stderr).
@@ -105,13 +106,13 @@ OPTIONS:
 
 EXAMPLES:
   # Standard fetch
-  node puppeteer-curl.js https://github.com/luizcalixt0
+  node sheylong.js https://github.com/luizcalixt0
 
   # Fetch and verify username
-  node puppeteer-curl.js https://github.com/luizcalixt0 -u luizcalixt0
+  node sheylong.js https://github.com/luizcalixt0 -u luizcalixt0
 
   # Run batch scan for a username against targets.txt list, outputting CSV & JSON with verbose progress
-  node puppeteer-curl.js -u bazzofx -csv -json -v
+  node sheylong.js -u bazzofx -csv -json -v
     `);
 }
 
@@ -186,7 +187,8 @@ async function main() {
 
     // Parse options
     let url = null;
-    let username = null;
+    let usernames = [];
+    let generateReport = false;
     const headers = {};
     let outputFile = null;
     let timeout = null; 
@@ -205,8 +207,11 @@ async function main() {
         const nextArg = args[i + 1];
 
         if ((arg === '-u' || arg === '--username') && nextArg) {
-            username = nextArg;
+            const names = nextArg.split(',').map(n => n.trim()).filter(Boolean);
+            usernames.push(...names);
             i++;
+        } else if ((arg === '-report' || arg === '--report') && !args.includes('-report-arg-fix-safeguard')) {
+            generateReport = true;
         } else if ((arg === '-H' || arg === '--header') && nextArg) {
             const separatorIdx = nextArg.indexOf(':');
             if (separatorIdx > -1) {
@@ -247,6 +252,10 @@ async function main() {
         }
     }
 
+    if (generateReport) {
+        csvExport = true;
+    }
+
     const logDebug = (msg) => {
         if (debug) {
             console.error(`[DEBUG] ${msg}`);
@@ -257,12 +266,12 @@ async function main() {
     const listMode = !url;
 
     if (listMode) {
-        if (!username) {
+        if (usernames.length === 0) {
             console.error('❌ Error: No URL or Username provided.');
             printHelp();
             process.exit(1);
         }
-        logDebug(`Running in LIST SCAN mode for username: ${username}`);
+        logDebug(`Running in LIST SCAN mode for usernames: ${usernames.join(', ')}`);
     } else {
         logDebug(`Running in SINGLE URL mode for URL: ${url}`);
     }
@@ -273,7 +282,7 @@ async function main() {
     }
 
     // Resolve target templates list
-    let targetList = [];
+    let targetTemplates = [];
     if (listMode) {
         let targetsPath = path.resolve(__dirname, 'target-list', 'targets.txt');
         if (!fs.existsSync(targetsPath)) {
@@ -286,12 +295,11 @@ async function main() {
         
         logDebug(`Loading targets templates from: ${targetsPath}`);
         const fileContent = fs.readFileSync(targetsPath, 'utf8');
-        targetList = fileContent.split(/\r?\n/)
+        targetTemplates = fileContent.split(/\r?\n/)
             .map(line => line.trim())
-            .filter(line => line && line !== 'url' && !line.startsWith('#'))
-            .map(template => template.replace(/\$username/g, username));
+            .filter(line => line && line !== 'url' && !line.startsWith('#'));
         
-        logDebug(`Loaded ${targetList.length} candidate URLs for verification.`);
+        logDebug(`Loaded ${targetTemplates.length} candidate target templates.`);
     }
 
     // Build browser launch args
@@ -339,203 +347,268 @@ async function main() {
 
     // ==================== LIST SCAN MODE ====================
     if (listMode) {
-        const results = [];
-        let processedCount = 0;
-        const totalTargets = targetList.length;
-
-        console.error(`🚀 Processing ${totalTargets} URLs with concurrency = ${concurrency}...`);
-        const startTime = Date.now();
-        let activeIndex = 0;
-
-        // Worker function pulling from shared queue
-        const runWorker = async () => {
-            while (activeIndex < totalTargets) {
-                const targetUrl = targetList[activeIndex++];
-                if (!targetUrl) break;
-
-                let page;
-                try {
-                    page = await browser.newPage();
-
-                    // Block resource loading (images, CSS, fonts, media)
-                    await page.setRequestInterception(true);
-                    page.on('request', (req) => {
-                        const resourceType = req.resourceType();
-                        if (['image', 'stylesheet', 'font', 'media'].includes(resourceType)) {
-                            req.abort();
-                        } else {
-                            req.continue();
-                        }
-                    });
-
-                    // Set anti-detection flags
-                    await page.evaluateOnNewDocument(() => {
-                        Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-                        Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
-                        Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
-                    });
-
-                    await page.setViewport({ width: 1280, height: 800 });
-                    await page.setUserAgent(userAgent);
-                    await page.setExtraHTTPHeaders(defaultHeaders);
-
-                    // Navigate
-                    const response = await page.goto(targetUrl, {
-                        waitUntil: 'domcontentloaded',
-                        timeout: timeout
-                    });
-
-                    if (!response) {
-                        throw new Error('No response');
-                    }
-
-                    const statusCode = response.status();
-                    const finalUrl = response.url();
-                    const renderedHtml = await page.content();
-                    const textContent = await page.evaluate(() => document.body ? document.body.innerText : '');
-                    const pageTitle = await page.title();
-
-                    // Process verification and scoring
-                    let verified = false;
-                    let baseConfidence = 0;
-                    let bonusConfidence = 0;
-                    let confidenceScore = 0;
-                    let usernameFound = false;
-                    let matchedErrorPattern = null;
-
-                    if (statusCode >= 400) {
-                        matchedErrorPattern = `HTTP ${statusCode}`;
-                    } else {
-                        // Check if final URL does not contain username on HTTP 200/201 redirects
-                        if ((statusCode === 200 || statusCode === 201) && username) {
-                            if (!finalUrl.toLowerCase().includes(username.toLowerCase())) {
-                                matchedErrorPattern = `URL Redirect Miss (${finalUrl})`;
-                            }
-                        }
-
-                        if (!matchedErrorPattern) {
-                            // Check profile error signatures from false-positive-list.txt (scans body text & page title)
-                            const errorPatterns = loadErrorPatterns(username);
-                            for (const pattern of errorPatterns) {
-                                if (textContent.toLowerCase().includes(pattern.toLowerCase()) ||
-                                    pageTitle.toLowerCase().includes(pattern.toLowerCase())) {
-                                    matchedErrorPattern = pattern;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (!matchedErrorPattern) {
-                            if (username) {
-                                const inBody = textContent.toLowerCase().includes(username.toLowerCase());
-                                const inTitle = pageTitle.toLowerCase().includes(username.toLowerCase());
-                                
-                                if (inBody || inTitle) {
-                                    verified = true;
-                                    baseConfidence = 75;
-                                    usernameFound = true;
-                                    if (inBody) {
-                                        bonusConfidence = 25; // +25% confidence if found in body text
-                                    }
-                                    confidenceScore = baseConfidence + bonusConfidence;
-                                } else {
-                                    matchedErrorPattern = 'Username not found in page body or title';
-                                }
-                            } else {
-                                // If no username specified, consider verified
-                                verified = true;
-                                confidenceScore = 100;
-                            }
-                        }
-                    }
-
-                    results.push({
-                        url: targetUrl,
-                        final_url: finalUrl,
-                        status: statusCode,
-                        title: pageTitle,
-                        verified: verified,
-                        username: username,
-                        username_found: usernameFound,
-                        confidence_score: confidenceScore,
-                        matched_error_pattern: matchedErrorPattern,
-                        body_length: renderedHtml.length
-                    });
-
-                    if (verbose) {
-                        const isFound = verified && usernameFound;
-                        if (isFound) {
-                            console.log(`- [+] - Found     - ${targetUrl}`);
-                        } else {
-                            console.log(`- [-] - Not Found - ${targetUrl}`);
-                        }
-                    }
-
-                } catch (err) {
-                    logDebug(`Failed URL: ${targetUrl} | Reason: ${err.message}`);
-                    results.push({
-                        url: targetUrl,
-                        final_url: targetUrl,
-                        status: 500,
-                        title: '',
-                        verified: false,
-                        username: username,
-                        username_found: false,
-                        confidence_score: 0,
-                        matched_error_pattern: err.message,
-                        body_length: 0
-                    });
-
-                    if (verbose) {
-                        console.log(`- [-] - Not Found - ${targetUrl}`);
-                    }
-                } finally {
-                    if (page) {
-                        try {
-                            await page.close();
-                        } catch (e) {}
-                    }
-                    processedCount++;
-                    const progressPct = Math.round((processedCount / totalTargets) * 100);
-                    if (processedCount % 15 === 0 || processedCount === totalTargets) {
-                        console.error(`   Progress: ${processedCount}/${totalTargets} (${progressPct}%) processed...`);
-                    }
-                }
-            }
-        };
-
-        // Launch concurrent sliding workers
-        const workers = [];
-        const activeConcurrency = Math.min(concurrency, totalTargets);
-        for (let w = 0; w < activeConcurrency; w++) {
-            workers.push(runWorker());
-        }
-        await Promise.all(workers);
-
-        await browser.close();
-
-        const durationSec = ((Date.now() - startTime) / 1000).toFixed(1);
-        const verifiedCount = results.filter(r => r.verified).length;
-        console.error(`\n✅ Scan completed in ${durationSec}s. Verified profiles found: ${verifiedCount}/${totalTargets}`);
-
-        // Write outputs
+        const csvFiles = [];
         const rawReportsDir = path.resolve(__dirname, 'rawReports');
         if (!fs.existsSync(rawReportsDir)) {
             fs.mkdirSync(rawReportsDir, { recursive: true });
         }
 
-        if (csvExport) {
-            const csvFilename = path.resolve(rawReportsDir, `${username}.csv`);
-            exportToCSV(results, csvFilename);
-        }
-        if (jsonExport) {
-            const jsonFilename = path.resolve(rawReportsDir, `${username}.json`);
-            exportToJSON(results, jsonFilename);
+        for (const currentUsername of usernames) {
+            const targetList = targetTemplates.map(template => template.replace(/\$username/g, currentUsername));
+            const results = [];
+            let processedCount = 0;
+            const totalTargets = targetList.length;
+
+            console.error(`🚀 Processing ${totalTargets} URLs for username ${currentUsername} with concurrency = ${concurrency}...`);
+            const startTime = Date.now();
+            let activeIndex = 0;
+
+            // Worker function pulling from shared queue
+            const runWorker = async () => {
+                while (activeIndex < totalTargets) {
+                    const targetUrl = targetList[activeIndex++];
+                    if (!targetUrl) break;
+
+                    let page;
+                    try {
+                        let timeoutId;
+                        const timeoutPromise = new Promise((_, reject) => {
+                            timeoutId = setTimeout(() => {
+                                reject(new Error('URL processing timeout'));
+                            }, timeout + 5000);
+                        });
+
+                        const pageProcessPromise = (async () => {
+                            page = await browser.newPage();
+
+                            // Block resource loading (images, CSS, fonts, media)
+                            await page.setRequestInterception(true);
+                            page.on('request', (req) => {
+                                const resourceType = req.resourceType();
+                                if (['image', 'stylesheet', 'font', 'media'].includes(resourceType)) {
+                                    req.abort();
+                                } else {
+                                    req.continue();
+                                }
+                            });
+
+                            // Set anti-detection flags
+                            await page.evaluateOnNewDocument(() => {
+                                Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+                                Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
+                                Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
+                            });
+
+                            await page.setViewport({ width: 1280, height: 800 });
+                            await page.setUserAgent(userAgent);
+                            await page.setExtraHTTPHeaders(defaultHeaders);
+
+                            // Navigate
+                            const response = await page.goto(targetUrl, {
+                                waitUntil: 'domcontentloaded',
+                                timeout: timeout
+                            });
+
+                            if (!response) {
+                                throw new Error('No response');
+                            }
+
+                            const statusCode = response.status();
+                            const finalUrl = response.url();
+                            const renderedHtml = await page.content();
+                            const textContent = await page.evaluate(() => document.body ? document.body.innerText : '');
+                            const pageTitle = await page.title();
+
+                            return {
+                                statusCode,
+                                finalUrl,
+                                renderedHtml,
+                                textContent,
+                                pageTitle
+                            };
+                        })();
+
+                        const result = await Promise.race([pageProcessPromise, timeoutPromise]);
+                        clearTimeout(timeoutId);
+
+                        const { statusCode, finalUrl, renderedHtml, textContent, pageTitle } = result;
+
+                        // Process verification and scoring
+                        let verified = false;
+                        let baseConfidence = 0;
+                        let bonusConfidence = 0;
+                        let confidenceScore = 0;
+                        let usernameFound = false;
+                        let matchedErrorPattern = null;
+
+                        if (statusCode >= 400) {
+                            matchedErrorPattern = `HTTP ${statusCode}`;
+                        } else {
+                            // Check if final URL does not contain username on HTTP 200/201 redirects
+                            if ((statusCode === 200 || statusCode === 201) && currentUsername) {
+                                if (!finalUrl.toLowerCase().includes(currentUsername.toLowerCase())) {
+                                    matchedErrorPattern = `URL Redirect Miss (${finalUrl})`;
+                                }
+                            }
+
+                            if (!matchedErrorPattern) {
+                                // Check profile error signatures from false-positive-list.txt (scans body text & page title)
+                                const errorPatterns = loadErrorPatterns(currentUsername);
+                                for (const pattern of errorPatterns) {
+                                    if (textContent.toLowerCase().includes(pattern.toLowerCase()) ||
+                                        pageTitle.toLowerCase().includes(pattern.toLowerCase())) {
+                                        matchedErrorPattern = pattern;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (!matchedErrorPattern) {
+                                if (currentUsername) {
+                                    const inBody = textContent.toLowerCase().includes(currentUsername.toLowerCase());
+                                    const inTitle = pageTitle.toLowerCase().includes(currentUsername.toLowerCase());
+                                    
+                                    if (inBody || inTitle) {
+                                        verified = true;
+                                        baseConfidence = 75;
+                                        usernameFound = true;
+                                        if (inBody) {
+                                            bonusConfidence = 25; // +25% confidence if found in body text
+                                        }
+                                        confidenceScore = baseConfidence + bonusConfidence;
+                                    } else {
+                                        matchedErrorPattern = 'Username not found in page body or title';
+                                    }
+                                } else {
+                                    // If no username specified, consider verified
+                                    verified = true;
+                                    confidenceScore = 100;
+                                }
+                            }
+                        }
+
+                        results.push({
+                            url: targetUrl,
+                            final_url: finalUrl,
+                            status: statusCode,
+                            title: pageTitle,
+                            verified: verified,
+                            username: currentUsername,
+                            username_found: usernameFound,
+                            confidence_score: confidenceScore,
+                            matched_error_pattern: matchedErrorPattern,
+                            body_length: renderedHtml.length
+                        });
+
+                        if (verbose) {
+                            const isFound = verified && usernameFound;
+                            if (isFound) {
+                                console.log(`- [+] - Found     - ${targetUrl}`);
+                            } else {
+                                console.log(`- [-] - Not Found - ${targetUrl}`);
+                            }
+                        }
+
+                    } catch (err) {
+                        logDebug(`Failed URL: ${targetUrl} | Reason: ${err.message}`);
+                        results.push({
+                            url: targetUrl,
+                            final_url: targetUrl,
+                            status: 500,
+                            title: '',
+                            verified: false,
+                            username: currentUsername,
+                            username_found: false,
+                            confidence_score: 0,
+                            matched_error_pattern: err.message,
+                            body_length: 0
+                        });
+
+                        if (verbose) {
+                            console.log(`- [-] - Not Found - ${targetUrl}`);
+                        }
+                    } finally {
+                        if (page) {
+                            try {
+                                await page.close();
+                            } catch (e) {}
+                        }
+                        processedCount++;
+                        const progressPct = Math.round((processedCount / totalTargets) * 100);
+                        if (processedCount % 15 === 0 || processedCount === totalTargets) {
+                            console.error(`   Progress: ${processedCount}/${totalTargets} (${progressPct}%) processed...`);
+                        }
+                    }
+                }
+            };
+
+            // Launch concurrent sliding workers
+            const workers = [];
+            const activeConcurrency = Math.min(concurrency, totalTargets);
+            for (let w = 0; w < activeConcurrency; w++) {
+                workers.push(runWorker());
+            }
+            await Promise.all(workers);
+
+            const durationSec = ((Date.now() - startTime) / 1000).toFixed(1);
+            const verifiedCount = results.filter(r => r.verified).length;
+            console.error(`\n✅ Scan completed in ${durationSec}s for ${currentUsername}. Verified profiles found: ${verifiedCount}/${totalTargets}`);
+
+            // Write outputs
+            if (csvExport) {
+                const csvFilename = path.resolve(rawReportsDir, `${currentUsername}.csv`);
+                exportToCSV(results, csvFilename);
+                csvFiles.push(csvFilename);
+            }
+            if (jsonExport) {
+                const jsonFilename = path.resolve(rawReportsDir, `${currentUsername}.json`);
+                exportToJSON(results, jsonFilename);
+            }
+
+            // Print results to stdout if no exports
+            if (!csvExport && !jsonExport) {
+                console.log(JSON.stringify(results, null, 2));
+            }
         }
 
-        // Print results to stdout if no exports
-        if (!csvExport && !jsonExport) {
-            console.log(JSON.stringify(results, null, 2));
+        await browser.close();
+
+        // Run report generation if flag was set
+        if (generateReport && csvFiles.length > 0) {
+            const { spawnSync } = require('child_process');
+            
+            let outputHtmlName = '';
+            if (usernames.length === 1) {
+                outputHtmlName = `${usernames[0]}.html`;
+            } else {
+                outputHtmlName = `combined-${usernames.join('-')}.html`;
+            }
+            const outputHtmlPath = path.resolve(__dirname, outputHtmlName);
+            
+            console.error(`\n📊 Generating HTML report...`);
+            const pythonInterpreters = ['python', 'python3', 'py'];
+            let reportSuccess = false;
+            const reportPyPath = path.resolve(__dirname, 'report.py');
+            
+            for (const interpreter of pythonInterpreters) {
+                try {
+                    const runArgs = [reportPyPath, ...csvFiles, outputHtmlPath];
+                    console.error(`Executing: ${interpreter} ${runArgs.join(' ')}`);
+                    const proc = spawnSync(interpreter, runArgs, { stdio: 'inherit' });
+                    if (proc.status === 0) {
+                        reportSuccess = true;
+                        break;
+                    }
+                } catch (e) {
+                    // Try next interpreter
+                }
+            }
+            
+            if (reportSuccess) {
+                console.error(`\n✅ HTML report generated successfully: ${outputHtmlPath}`);
+            } else {
+                console.error(`\n❌ Error: Failed to execute report.py using any python interpreter.`);
+            }
         }
 
         process.exit(0);
@@ -543,6 +616,7 @@ async function main() {
 
     // ==================== SINGLE URL MODE ====================
     else {
+        const username = usernames[0] || null;
         try {
             const page = await browser.newPage();
 
